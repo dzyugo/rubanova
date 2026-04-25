@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useT } from "@/lib/i18n";
+import { useSite } from "@/store/site";
 
 export const Route = createFileRoute("/contact")({
   component: ContactPage,
