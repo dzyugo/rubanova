@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { reportError } from "@/lib/observability";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 export type Role = "admin" | "shopper";
 
@@ -35,6 +35,11 @@ export const useAuth = create<AuthState>()((set, get) => ({
   loading: true,
 
   init: async () => {
+    if (!isSupabaseConfigured) {
+      set({ user: null, loading: false });
+      return;
+    }
+
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -62,6 +67,13 @@ export const useAuth = create<AuthState>()((set, get) => ({
   },
 
   login: async (email, password) => {
+    if (!isSupabaseConfigured) {
+      return {
+        ok: false,
+        error: "Login is temporarily unavailable because the database is not connected.",
+      };
+    }
+
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return { ok: false, error: error.message };
     await get().init();
@@ -69,6 +81,13 @@ export const useAuth = create<AuthState>()((set, get) => ({
   },
 
   signup: async ({ name, email, password }) => {
+    if (!isSupabaseConfigured) {
+      return {
+        ok: false,
+        error: "Signup is temporarily unavailable because the database is not connected.",
+      };
+    }
+
     const { error } = await supabase.auth.signUp({
       email,
       password,

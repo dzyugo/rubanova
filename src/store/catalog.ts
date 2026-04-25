@@ -1,7 +1,7 @@
 import { create } from "zustand";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { toast } from "sonner";
-import type { Product } from "@/data/products";
+import { fallbackProducts, type Product } from "@/data/products";
 import { reportError } from "@/lib/observability";
 
 export type ProductOverride = Partial<
@@ -37,6 +37,9 @@ type CatalogState = {
   removeCategory: (name: string) => { ok: boolean; error?: string };
 };
 
+const getFallbackCategories = (products: Product[]) =>
+  Array.from(new Set(products.map((product) => product.category)));
+
 export const useCatalog = create<CatalogState>()((set, get) => ({
   products: [],
   categories: [],
@@ -44,10 +47,32 @@ export const useCatalog = create<CatalogState>()((set, get) => ({
   loading: true,
 
   init: async () => {
-    const [{ data: prods }, { data: cats }] = await Promise.all([
+    if (!isSupabaseConfigured) {
+      set({
+        products: fallbackProducts,
+        featuredSlugs: fallbackProducts.filter((p) => p.is_featured).map((p) => p.slug),
+        categories: getFallbackCategories(fallbackProducts),
+        loading: false,
+      });
+      return;
+    }
+
+    const [{ data: prods, error: prodsError }, { data: cats, error: catsError }] = await Promise.all([
       supabase.from("products").select("*").order("sort_order"),
       supabase.from("categories").select("*").order("sort_order"),
     ]);
+
+    if (prodsError || catsError) {
+      reportError(prodsError ?? catsError, { scope: "catalog-store", action: "init" });
+      set({
+        products: fallbackProducts,
+        featuredSlugs: fallbackProducts.filter((p) => p.is_featured).map((p) => p.slug),
+        categories: getFallbackCategories(fallbackProducts),
+        loading: false,
+      });
+      return;
+    }
+
     const products: Product[] = (prods ?? []).map((p) => ({
       slug: p.slug,
       name: p.name,
@@ -62,6 +87,7 @@ export const useCatalog = create<CatalogState>()((set, get) => ({
       is_featured: p.is_featured,
       stock: p.stock ?? 0,
     }));
+
     set({
       products,
       featuredSlugs: products.filter((p) => p.is_featured).map((p) => p.slug),
@@ -100,8 +126,31 @@ export const useCatalog = create<CatalogState>()((set, get) => ({
     set((s) => ({
       products: s.products.map((p) => (p.slug === slug ? { ...p, ...patch } : p)),
     }));
-    const dbPatch: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(patch)) if (v !== undefined) dbPatch[k] = v;
+
+    const dbPatch: {
+      name?: string;
+      tagline?: string;
+      description?: string;
+      price?: number;
+      unit?: string;
+      image?: string;
+      category?: string;
+      badges?: string[];
+      nutrition?: Product["nutrition"];
+      stock?: number;
+    } = {};
+
+    if (patch.name !== undefined) dbPatch.name = patch.name;
+    if (patch.tagline !== undefined) dbPatch.tagline = patch.tagline;
+    if (patch.description !== undefined) dbPatch.description = patch.description;
+    if (patch.price !== undefined) dbPatch.price = patch.price;
+    if (patch.unit !== undefined) dbPatch.unit = patch.unit;
+    if (patch.image !== undefined) dbPatch.image = patch.image;
+    if (patch.category !== undefined) dbPatch.category = patch.category;
+    if (patch.badges !== undefined) dbPatch.badges = patch.badges;
+    if (patch.nutrition !== undefined) dbPatch.nutrition = patch.nutrition;
+    if (patch.stock !== undefined) dbPatch.stock = patch.stock;
+
     supabase
       .from("products")
       .update(dbPatch)
