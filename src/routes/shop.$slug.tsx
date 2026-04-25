@@ -31,6 +31,7 @@ function ProductPage() {
   const products = useMergedProducts();
   const product = products.find((p) => p.slug === slug);
   const [qty, setQty] = useState(1);
+  const [activeImage, setActiveImage] = useState(0);
   const [showNutrition, setShowNutrition] = useState(true);
   const add = useCart((s) => s.add);
   const { t } = useT();
@@ -46,7 +47,8 @@ function ProductPage() {
     throw notFound();
   }
 
-  const related = products.filter((p) => p.slug !== product.slug).slice(0, 4);
+  const related = products.filter((p) => p.category === product.category && p.slug !== product.slug).slice(0, 4);
+  const images = product.image ? product.image.split(',') : [];
 
   return (
     <section className="mx-auto w-full max-w-7xl px-6 py-12">
@@ -63,15 +65,17 @@ function ProductPage() {
         {/* Image */}
         <div>
           <div className="overflow-hidden rounded-3xl bg-card shadow-sm">
-            <img src={product.image} alt={product.name} width={800} height={800} className="aspect-square w-full object-cover" />
+            <img src={images[activeImage] || images[0]} alt={product.name} width={800} height={800} className="aspect-square w-full object-cover" />
           </div>
-          <div className="mt-4 grid grid-cols-4 gap-3">
-            {[product.image, product.image, product.image, product.image].map((src, i) => (
-              <button key={i} className={`overflow-hidden rounded-xl border-2 ${i === 0 ? "border-primary" : "border-transparent"}`}>
-                <img src={src} alt="" className="aspect-square w-full object-cover opacity-80" loading="lazy" />
-              </button>
-            ))}
-          </div>
+          {images.length > 1 && (
+            <div className="mt-4 grid grid-cols-4 gap-3">
+              {images.map((src, i) => (
+                <button key={i} onClick={() => setActiveImage(i)} className={`overflow-hidden rounded-xl border-2 ${i === activeImage ? "border-primary" : "border-transparent"}`}>
+                  <img src={src} alt="" className={`aspect-square w-full object-cover ${i === activeImage ? "opacity-100" : "opacity-60 hover:opacity-100"}`} loading="lazy" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Info */}
@@ -164,7 +168,7 @@ function ProductPage() {
           {related.map((p) => (
             <Link key={p.slug} to="/shop/$slug" params={{ slug: p.slug }} className="group block">
               <div className="overflow-hidden rounded-2xl bg-card">
-                <img src={p.image} alt={p.name} className="aspect-square w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
+                <img src={p.image.split(',')[0]} alt={p.name} className="aspect-square w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
               </div>
               <div className="mt-3 flex items-baseline justify-between">
                 <h3 className="font-display text-base font-bold">{p.name}</h3>

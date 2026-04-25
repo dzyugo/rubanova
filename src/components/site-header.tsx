@@ -10,6 +10,7 @@ import { useT, useLang } from "@/lib/i18n";
 export function SiteHeader() {
   const count = useCart((s) => s.items.reduce((n, i) => n + i.qty, 0));
   const [menu, setMenu] = useState(false);
+  const [search, setSearch] = useState("");
   const { theme, toggle } = useTheme();
   const user = useAuth(selectCurrentUser);
   const logout = useAuth((s) => s.logout);
@@ -65,6 +66,13 @@ export function SiteHeader() {
             <Search className="size-4 text-muted-foreground" />
             <input
               placeholder={t("nav.search")}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && search.trim()) {
+                  navigate({ to: "/shop", search: { q: search.trim() } });
+                }
+              }}
               className="w-44 bg-transparent text-sm placeholder:text-muted-foreground focus:outline-none"
             />
           </div>

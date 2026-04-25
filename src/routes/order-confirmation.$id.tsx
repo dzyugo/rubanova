@@ -75,7 +75,7 @@ function ConfirmationPage() {
             ) : (
               order.items.map((i) => (
                 <li key={i.slug} className="flex items-center gap-4 py-4">
-                  <img src={i.image} alt={i.name} className="size-14 rounded-lg object-cover" />
+                  <img src={i.image.split(',')[0]} alt={i.name} className="size-14 rounded-lg object-cover" />
                   <div className="flex-1">
                     <p className="font-semibold">{i.name}</p>
                     <p className="text-xs text-muted-foreground">Qty {i.qty} • {i.unit}</p>

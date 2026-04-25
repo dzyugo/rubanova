@@ -112,7 +112,7 @@ function HomePage() {
         ) : (
           <div className="mt-8 grid gap-6 lg:grid-cols-3">
             <Link to="/shop/$slug" params={{ slug: big.slug }} className="group relative overflow-hidden rounded-3xl bg-card lg:row-span-2">
-              <img src={big.image} alt={big.name} className="aspect-square w-full object-cover transition duration-700 group-hover:scale-105 lg:aspect-auto lg:h-full" loading="lazy" />
+              <img src={big.image.split(',')[0]} alt={big.name} className="aspect-square w-full object-cover transition duration-700 group-hover:scale-105 lg:aspect-auto lg:h-full" loading="lazy" />
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/95 via-background/70 to-transparent p-6">
                 <span className="inline-block rounded-full bg-primary/90 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary-foreground">{t("home.featured.badge")}</span>
                 <h3 className="mt-3 font-display text-2xl font-bold">{big.name}</h3>
@@ -129,7 +129,7 @@ function HomePage() {
             {rest.map((prod) => (
               <div key={prod.slug} className="rounded-3xl bg-card p-4 shadow-sm">
                 <Link to="/shop/$slug" params={{ slug: prod.slug }} className="block overflow-hidden rounded-2xl">
-                  <img src={prod.image} alt={prod.name} className="aspect-square w-full object-cover transition duration-500 hover:scale-105" loading="lazy" />
+                  <img src={prod.image.split(',')[0]} alt={prod.name} className="aspect-square w-full object-cover transition duration-500 hover:scale-105" loading="lazy" />
                 </Link>
                 <div className="mt-4 flex flex-wrap gap-1.5">
                   <span className="inline-flex items-center gap-1 rounded-full bg-primary/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">

@@ -36,7 +36,7 @@ function CartPage() {
           <div className="space-y-4">
             {items.map((i) => (
               <article key={i.slug} className="flex gap-4 rounded-2xl bg-card p-4 shadow-sm">
-                <img src={i.image} alt={i.name} className="size-28 shrink-0 rounded-xl object-cover" />
+                <img src={i.image.split(',')[0]} alt={i.name} className="size-28 shrink-0 rounded-xl object-cover" />
                 <div className="flex flex-1 flex-col">
                   <h3 className="mt-1 font-display text-lg font-bold">{i.name}</h3>
                   <p className="text-xs text-muted-foreground">{i.unit}</p>

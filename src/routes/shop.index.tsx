@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { z } from "zod";
 import { ShoppingCart } from "lucide-react";
 import { diets, type Diet } from "@/data/products";
 import { useCart } from "@/store/cart";
@@ -7,6 +8,9 @@ import { useCatalog, useMergedProducts } from "@/store/catalog";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/shop/")({
+  validateSearch: z.object({
+    q: z.string().optional(),
+  }),
   component: ShopPage,
 });
 
@@ -20,6 +24,12 @@ function ShopPage() {
   const [sort, setSort] = useState<"latest" | "price-asc" | "price-desc">("latest");
   const add = useCart((s) => s.add);
   const { t } = useT();
+  const { q } = Route.useSearch();
+  const [activeSearch, setActiveSearch] = useState(q || "");
+
+  useEffect(() => {
+    setActiveSearch(q || "");
+  }, [q]);
 
   const counts = useMemo(() => {
     const c: Record<string, number> = {};
@@ -29,12 +39,16 @@ function ShopPage() {
 
   const filtered = useMemo(() => {
     let list = products.filter((p) => p.price <= maxPrice);
+    if (activeSearch.trim()) {
+      const qs = activeSearch.toLowerCase().trim();
+      list = list.filter((p) => p.name.toLowerCase().includes(qs) || p.description.toLowerCase().includes(qs) || p.tagline.toLowerCase().includes(qs));
+    }
     if (activeCat !== "All") list = list.filter((p) => p.category === activeCat);
     if (activeDiets.length) list = list.filter((p) => activeDiets.every((d) => p.badges.includes(d)));
     if (sort === "price-asc") list = [...list].sort((a, b) => a.price - b.price);
     if (sort === "price-desc") list = [...list].sort((a, b) => b.price - a.price);
     return list;
-  }, [products, activeCat, activeDiets, maxPrice, sort]);
+  }, [products, activeCat, activeDiets, maxPrice, sort, activeSearch]);
 
   const toggleDiet = (d: Diet) =>
     setActiveDiets((arr) => (arr.includes(d) ? arr.filter((x) => x !== d) : [...arr, d]));
@@ -140,7 +154,7 @@ function ShopPage() {
               <article key={p.slug} className="overflow-hidden rounded-2xl bg-card shadow-sm transition hover:shadow-md">
                 <Link to="/shop/$slug" params={{ slug: p.slug }} className="block">
                   <div className="relative aspect-square overflow-hidden bg-muted">
-                    <img src={p.image} alt={p.name} loading="lazy" className="size-full object-cover transition duration-500 hover:scale-105" />
+                    <img src={p.image.split(',')[0]} alt={p.name} loading="lazy" className="size-full object-cover transition duration-500 hover:scale-105" />
                     <div className="absolute start-3 top-3 flex flex-wrap gap-1.5">
                       {p.badges.slice(0, 2).map((b) => (
                         <span key={b} className="rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary backdrop-blur">{b}</span>

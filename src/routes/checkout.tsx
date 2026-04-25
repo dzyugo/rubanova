@@ -187,7 +187,7 @@ function CheckoutPage() {
           <ul className="mt-5 space-y-4">
             {items.map((i) => (
               <li key={i.slug} className="flex gap-3">
-                <img src={i.image} alt={i.name} className="size-14 rounded-lg object-cover" />
+                <img src={i.image.split(',')[0]} alt={i.name} className="size-14 rounded-lg object-cover" />
                 <div className="flex flex-1 flex-col">
                   <span className="text-sm font-semibold">{i.name}</span>
                   <span className="text-xs text-muted-foreground">×{i.qty} • {i.unit}</span>

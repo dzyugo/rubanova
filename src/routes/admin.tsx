@@ -219,7 +219,7 @@ function ProductsTab() {
                 <tr key={p.slug}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <img src={p.image} alt="" className="size-10 rounded-lg object-cover" />
+                      <img src={p.image.split(',')[0]} alt="" className="size-10 rounded-lg object-cover" />
                       <span className="font-semibold">{p.name}</span>
                     </div>
                   </td>
@@ -292,7 +292,7 @@ function ProductEditModal({
   const [description, setDescription] = useState(product.description);
   const [price, setPrice] = useState(String(product.price));
   const [unit, setUnit] = useState(product.unit);
-  const [image, setImage] = useState(product.image);
+  const [images, setImages] = useState<string[]>(product.image ? product.image.split(',') : []);
   const [category, setCategory] = useState<string>(product.category);
   const [imgError, setImgError] = useState<string | null>(null);
   const baseImage = product.image;
@@ -302,7 +302,7 @@ function ProductEditModal({
     tagline !== product.tagline ||
     description !== product.description ||
     unit !== product.unit ||
-    image !== product.image ||
+    images.join(',') !== product.image ||
     category !== product.category ||
     parseFloat(price) !== product.price;
 
@@ -313,7 +313,7 @@ function ProductEditModal({
     if (file.size > 2 * 1024 * 1024) { setImgError("Image must be under 2 MB."); return; }
     const reader = new FileReader();
     reader.onerror = () => setImgError("We couldn't read that file. Try another image.");
-    reader.onload = () => setImage(String(reader.result));
+    reader.onload = () => setImages((prev) => [...prev, String(reader.result)]);
     reader.readAsDataURL(file);
   };
 
@@ -341,15 +341,28 @@ function ProductEditModal({
 
         <div className="mt-5 grid gap-4 md:grid-cols-[180px_1fr]">
           <div className="space-y-2">
-            <img src={image} alt="" className="aspect-square w-full rounded-2xl object-cover" />
-            <label className="flex w-full cursor-pointer items-center justify-center rounded-full border border-dashed border-border px-3 py-2 text-xs font-semibold hover:bg-secondary">
-              Upload image
+            <div className="flex flex-wrap gap-2">
+              {images.map((img, i) => (
+                <div key={i} className="group relative aspect-square w-20 overflow-hidden rounded-xl border border-border">
+                  <img src={img} alt="" className="size-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setImages(images.filter((_, idx) => idx !== i))}
+                    className="absolute right-1 top-1 rounded-full bg-background/80 p-0.5 text-destructive opacity-0 backdrop-blur transition hover:bg-destructive hover:text-destructive-foreground group-hover:opacity-100"
+                  >
+                    <Trash2 className="size-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <label className="flex w-full cursor-pointer items-center justify-center rounded-xl border border-dashed border-border px-3 py-6 text-xs font-semibold hover:bg-secondary">
+              Upload Image
               <input type="file" accept="image/*" className="hidden" onChange={(e) => onPickImage(e.target.files?.[0] ?? null)} />
             </label>
             {imgError && <p className="text-[11px] text-destructive">{imgError}</p>}
-            {image !== baseImage && (
-              <button type="button" onClick={() => setImage(baseImage)} className="w-full rounded-full px-3 py-1.5 text-[11px] text-muted-foreground hover:bg-secondary">
-                Restore original image
+            {images.join(',') !== baseImage && (
+              <button type="button" onClick={() => setImages(baseImage ? baseImage.split(',') : [])} className="w-full rounded-full px-3 py-1.5 text-[11px] text-muted-foreground hover:bg-secondary">
+                Restore original images
               </button>
             )}
           </div>
@@ -383,7 +396,8 @@ function ProductEditModal({
             <button onClick={handleClose} className="rounded-full border border-border px-5 py-2 text-sm font-semibold hover:bg-secondary">Cancel</button>
             <button
               onClick={() => onSave({
-                name, tagline, description, unit, image,
+                name, tagline, description, unit,
+                image: images.join(','),
                 category: category as Product["category"],
                 price: Number.isFinite(parseFloat(price)) ? parseFloat(price) : product.price,
               })}
