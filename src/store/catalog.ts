@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { supabase } from "@/lib/supabase";
 import type { Product } from "@/data/products";
 
-export type ProductOverride = Partial<Pick<Product, "name" | "tagline" | "description" | "price" | "unit" | "image" | "category">>;
+export type ProductOverride = Partial<Pick<Product, "name" | "tagline" | "description" | "price" | "unit" | "image" | "category" | "badges" | "nutrition">>;
 
 type CatalogState = {
   products: Product[];
@@ -14,6 +14,8 @@ type CatalogState = {
   isFeatured: (slug: string) => boolean;
   updateProduct: (slug: string, patch: ProductOverride) => void;
   resetProduct: (slug: string) => void;
+  addProduct: (product: Omit<Product, 'slug'> & { slug?: string }) => void;
+  removeProduct: (slug: string) => void;
   addCategory: (name: string) => { ok: boolean; error?: string };
   renameCategory: (oldName: string, newName: string) => { ok: boolean; error?: string };
   removeCategory: (name: string) => { ok: boolean; error?: string };
@@ -84,6 +86,18 @@ export const useCatalog = create<CatalogState>()((set, get) => ({
         }));
       }
     });
+  },
+
+  addProduct: (product) => {
+    const slug = product.slug || product.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const newProduct = { ...product, slug, is_featured: false, badges: product.badges || [], nutrition: product.nutrition || { servingSize: "100g", calories: "0" } };
+    set((s) => ({ products: [...s.products, newProduct] }));
+    supabase.from("products").insert(newProduct).then();
+  },
+
+  removeProduct: (slug) => {
+    set((s) => ({ products: s.products.filter(p => p.slug !== slug) }));
+    supabase.from("products").delete().eq("slug", slug).then();
   },
 
   addCategory: (name) => {

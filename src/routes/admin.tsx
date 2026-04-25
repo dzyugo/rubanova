@@ -185,20 +185,28 @@ function ProductsTab() {
   const products = useMergedProducts();
   const updateProduct = useCatalog((s) => s.updateProduct);
   const resetProduct = useCatalog((s) => s.resetProduct);
+  const addProduct = useCatalog((s) => s.addProduct);
+  const removeProduct = useCatalog((s) => s.removeProduct);
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
 
   const editing = editingSlug ? products.find((p) => p.slug === editingSlug) ?? null : null;
 
   return (
     <div className="rounded-2xl bg-card p-6 shadow-sm">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="font-display text-xl font-bold">Products Management</h2>
           <p className="text-sm text-muted-foreground">Edit details, swap images, or feature an item — changes show on the home page instantly.</p>
         </div>
-        <span className="hidden rounded-full bg-tertiary px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-primary sm:inline-block">
-          {featuredSlugs.length} on home
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="hidden rounded-full bg-tertiary px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-primary sm:inline-block">
+            {featuredSlugs.length} on home
+          </span>
+          <button onClick={() => setIsAdding(true)} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90">
+            Add Product
+          </button>
+        </div>
       </div>
       <div className="mt-5 overflow-x-auto rounded-xl border border-border">
         <table className="w-full text-sm">
@@ -246,13 +254,26 @@ function ProductsTab() {
                     </button>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <button
-                      onClick={() => setEditingSlug(p.slug)}
-                      className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary"
-                      aria-label={`Edit ${p.name}`}
-                    >
-                      <Pencil className="size-4" />
-                    </button>
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => setEditingSlug(p.slug)}
+                        className="rounded-md p-1.5 text-muted-foreground transition hover:bg-secondary"
+                        aria-label={`Edit ${p.name}`}
+                      >
+                        <Pencil className="size-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (confirm(`Are you sure you want to delete ${p.name}?`)) {
+                            removeProduct(p.slug);
+                          }
+                        }}
+                        className="rounded-md p-1.5 text-muted-foreground transition hover:bg-destructive hover:text-destructive-foreground"
+                        aria-label={`Delete ${p.name}`}
+                      >
+                        <Trash2 className="size-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );
@@ -271,6 +292,14 @@ function ProductsTab() {
           onReset={() => { resetProduct(editing.slug); setEditingSlug(null); }}
         />
       )}
+      {isAdding && (
+        <ProductEditModal
+          key="new-product"
+          product={null}
+          onClose={() => setIsAdding(false)}
+          onSave={(patch) => { addProduct(patch as any); setIsAdding(false); }}
+        />
+      )}
     </div>
   );
 }
@@ -281,29 +310,36 @@ function ProductEditModal({
   onSave,
   onReset,
 }: {
-  product: Product;
+  product: Product | null;
   onClose: () => void;
   onSave: (patch: ProductOverride) => void;
-  onReset: () => void;
+  onReset?: () => void;
 }) {
   const categories = useCatalog((s) => s.categories);
-  const [name, setName] = useState(product.name);
-  const [tagline, setTagline] = useState(product.tagline);
-  const [description, setDescription] = useState(product.description);
-  const [price, setPrice] = useState(String(product.price));
-  const [unit, setUnit] = useState(product.unit);
-  const [images, setImages] = useState<string[]>(product.image ? product.image.split(',') : []);
-  const [category, setCategory] = useState<string>(product.category);
+  const [name, setName] = useState(product?.name || "");
+  const [tagline, setTagline] = useState(product?.tagline || "");
+  const [description, setDescription] = useState(product?.description || "");
+  const [price, setPrice] = useState(product ? String(product.price) : "");
+  const [unit, setUnit] = useState(product?.unit || "");
+  const [images, setImages] = useState<string[]>(product?.image ? product.image.split(',') : []);
+  const [category, setCategory] = useState<string>(product?.category || categories[0] || "");
+  const [badgesStr, setBadgesStr] = useState(product?.badges?.join(", ") || "");
+  const [servingSize, setServingSize] = useState(product?.nutrition?.servingSize || "100g");
+  const [calories, setCalories] = useState(product?.nutrition?.calories || "0");
   const [imgError, setImgError] = useState<string | null>(null);
-  const baseImage = product.image;
+  const baseImage = product?.image || "";
 
   const dirty =
+    !product ||
     name !== product.name ||
     tagline !== product.tagline ||
     description !== product.description ||
     unit !== product.unit ||
     images.join(',') !== product.image ||
     category !== product.category ||
+    badgesStr.trim() !== (product?.badges?.join(", ") || "") ||
+    servingSize !== (product?.nutrition?.servingSize || "100g") ||
+    calories !== (product?.nutrition?.calories || "0") ||
     parseFloat(price) !== product.price;
 
   const onPickImage = (file: File | null) => {
@@ -327,13 +363,13 @@ function ProductEditModal({
       <div className="w-full max-w-2xl rounded-3xl bg-card p-6 shadow-xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="font-display text-xl font-bold">Edit product</h3>
-            <p className="text-xs text-muted-foreground">Slug: {product.slug}</p>
+            <h3 className="font-display text-xl font-bold">{product ? "Edit product" : "Add product"}</h3>
+            <p className="text-xs text-muted-foreground">Slug: {product?.slug || "auto-generated"}</p>
           </div>
           <button onClick={handleClose} className="rounded-full p-2 hover:bg-secondary" aria-label="Close">✕</button>
         </div>
 
-        {dirty && (
+        {dirty && product && (
           <div className="mt-4 flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">
             <AlertTriangle className="size-3.5" /> You have unsaved changes
           </div>
@@ -388,10 +424,20 @@ function ProductEditModal({
           </div>
         </div>
 
+        <div className="mt-5 grid gap-3 border-t border-border pt-5 sm:grid-cols-3">
+          <Input label="Badges (comma separated)" value={badgesStr} onChange={setBadgesStr} placeholder="e.g. Organic, Vegan" />
+          <Input label="Serving Size" value={servingSize} onChange={setServingSize} />
+          <Input label="Calories" value={calories} onChange={setCalories} />
+        </div>
+
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-          <button onClick={onReset} className="rounded-full px-4 py-2 text-xs font-semibold text-muted-foreground hover:bg-secondary">
-            Reset to defaults
-          </button>
+          {onReset && product ? (
+            <button onClick={onReset} className="rounded-full px-4 py-2 text-xs font-semibold text-muted-foreground hover:bg-secondary">
+              Reset to defaults
+            </button>
+          ) : (
+            <div />
+          )}
           <div className="flex gap-2">
             <button onClick={handleClose} className="rounded-full border border-border px-5 py-2 text-sm font-semibold hover:bg-secondary">Cancel</button>
             <button
@@ -399,9 +445,12 @@ function ProductEditModal({
                 name, tagline, description, unit,
                 image: images.join(','),
                 category: category as Product["category"],
-                price: Number.isFinite(parseFloat(price)) ? parseFloat(price) : product.price,
+                badges: badgesStr.split(",").map((s) => s.trim()).filter(Boolean),
+                nutrition: { ...product?.nutrition, servingSize, calories },
+                price: Number.isFinite(parseFloat(price)) ? parseFloat(price) : (product?.price || 0),
               })}
-              className="rounded-full bg-primary px-5 py-2 text-sm font-bold text-primary-foreground hover:opacity-90"
+              disabled={!dirty || !name || !price}
+              className="rounded-full bg-primary px-5 py-2 text-sm font-bold text-primary-foreground hover:opacity-90 disabled:opacity-50"
             >
               Save changes
             </button>
