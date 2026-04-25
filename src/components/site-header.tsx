@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Search, ShoppingCart, User, Menu, Sun, Moon, LogOut, ShieldCheck, Languages } from "lucide-react";
+import { Search, ShoppingCart, User, Sun, Moon, LogOut, ShieldCheck, Languages } from "lucide-react";
 import { useCart } from "@/store/cart";
 import { useState } from "react";
 import { useTheme } from "@/hooks/use-theme";
@@ -9,7 +9,6 @@ import { useT, useLang } from "@/lib/i18n";
 
 export function SiteHeader() {
   const count = useCart((s) => s.items.reduce((n, i) => n + i.qty, 0));
-  const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState(false);
   const { theme, toggle } = useTheme();
   const user = useAuth(selectCurrentUser);
@@ -149,7 +148,7 @@ export function SiteHeader() {
             )}
           </div>
 
-          <Link to="/cart" className="relative rounded-full p-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground" aria-label="Cart">
+          <Link to="/cart" className="relative hidden md:flex rounded-full p-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground" aria-label="Cart">
             <ShoppingCart className="size-5" />
             {count > 0 && (
               <span className="absolute -right-0.5 -top-0.5 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
@@ -157,27 +156,8 @@ export function SiteHeader() {
               </span>
             )}
           </Link>
-          <button onClick={() => setOpen((o) => !o)} className="rounded-full p-2 md:hidden" aria-label="Menu">
-            <Menu className="size-5" />
-          </button>
         </div>
       </div>
-      {open && (
-        <div className="border-t border-border md:hidden">
-          <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-6 py-3">
-            {baseNav.map((item) => (
-              <Link key={item.to} to={item.to} onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm hover:bg-secondary">
-                {item.label}
-              </Link>
-            ))}
-            {isAdmin && (
-              <Link to="/admin" onClick={() => setOpen(false)} className="flex items-center gap-2 rounded-md bg-tertiary px-3 py-2 text-sm font-semibold text-primary">
-                <ShieldCheck className="size-4" /> {t("nav.admindash")}
-              </Link>
-            )}
-          </nav>
-        </div>
-      )}
     </header>
   );
 }

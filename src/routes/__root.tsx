@@ -1,6 +1,7 @@
 import { Outlet, Link, createRootRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { MobileNav } from "@/components/mobile-nav";
 import { useEffect } from "react";
 import { useAuth } from "@/store/auth";
 import { useCatalog } from "@/store/catalog";
@@ -55,10 +56,11 @@ function RootComponent() {
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
-      <main className="flex-1">
+      <main className="flex-1 pb-16 md:pb-0">
         <Outlet />
       </main>
       <SiteFooter />
+      <MobileNav />
     </div>
   );
 }
