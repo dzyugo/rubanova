@@ -25,7 +25,6 @@ function CheckoutPage() {
   const [selectedWilaya, setSelectedWilaya] = useState(wilayas[0]);
   const [selectedCompanyId, setSelectedCompanyId] = useState(activeCompanies[0]?.id || "");
   const [deliveryType, setDeliveryType] = useState<"desk" | "home">("home");
-  const [phoneError, setPhoneError] = useState("");
   
   const { t } = useT();
 
@@ -51,13 +50,6 @@ function CheckoutPage() {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     const phone = String(f.get("phone") || "");
-    // Validate Algerian phone number
-    const phoneClean = phone.replace(/\s+/g, "");
-    if (!/^0[567]\d{8}$/.test(phoneClean)) {
-      setPhoneError(t("checkout.phoneerror"));
-      return;
-    }
-    setPhoneError("");
     const orderData = {
       items: [...items],
       subtotal,
@@ -126,16 +118,13 @@ function CheckoutPage() {
           <fieldset className="rounded-2xl bg-card p-6 shadow-sm">
             <legend className="flex items-center gap-2 font-display text-lg font-bold"><MapPin className="size-5 text-primary" /> {t("checkout.shipping")}</legend>
             <div className="mt-5 grid gap-5">
-              <Field name="fullName" label={t("checkout.fullname")} required />
+              <Field name="fullName" label="Full Name" required />
               <div className="grid gap-5 sm:grid-cols-2">
-                <div>
-                  <Field name="phone" label={t("checkout.phone")} required type="tel" pattern="0[567][0-9]{8}" title="Algerian phone: 05/06/07 + 8 digits" />
-                  {phoneError && <p className="mt-1 text-xs text-destructive">{phoneError}</p>}
-                </div>
-                <Field name="email" label={t("checkout.emailopt")} type="email" />
+                <Field name="phone" label="Phone Number" required type="tel" pattern="^0(2|3|4|5|6|7)\d{8}$" title="Algerian phone number starting with 0 and followed by 9 digits" />
+                <Field name="email" label="Email (Optional for tracking)" type="email" />
               </div>
               <label className="block">
-                <span className="text-sm font-medium">{t("checkout.wilaya")}</span>
+                <span className="text-sm font-medium">Wilaya</span>
                 <select
                   value={selectedWilaya}
                   onChange={(e) => setSelectedWilaya(e.target.value)}
@@ -146,17 +135,17 @@ function CheckoutPage() {
                   ))}
                 </select>
               </label>
-              <Field name="address" label={t("checkout.address")} required />
+              <Field name="address" label="Detailed Address" required />
             </div>
           </fieldset>
 
           {/* Shipping method */}
           <fieldset className="rounded-2xl bg-card p-6 shadow-sm">
-            <legend className="flex items-center gap-2 font-display text-lg font-bold"><Truck className="size-5 text-primary" /> {t("checkout.shippingmethod")}</legend>
+            <legend className="flex items-center gap-2 font-display text-lg font-bold"><Truck className="size-5 text-primary" /> Shipping Method</legend>
             
             <div className="mt-5 mb-5">
               <label className="block">
-                <span className="text-sm font-medium">{t("checkout.shippingcompany")}</span>
+                <span className="text-sm font-medium">Shipping Company</span>
                 <select
                   value={selectedCompanyId}
                   onChange={(e) => setSelectedCompanyId(e.target.value)}
@@ -171,8 +160,8 @@ function CheckoutPage() {
 
             <div className="mt-5 space-y-3">
               {[
-                { id: "desk", title: t("checkout.deskdelivery") },
-                { id: "home", title: t("checkout.homedelivery") },
+                { id: "desk", title: "Desk Delivery (Point de relais)" },
+                { id: "home", title: "Home Delivery (A domicile)" },
               ].map((opt) => (
                 <label key={opt.id} className={`flex cursor-pointer items-center gap-4 rounded-xl border-2 p-4 transition ${deliveryType === opt.id ? "border-primary bg-tertiary/40" : "border-border"}`}>
                   <input type="radio" name="deliveryType" checked={deliveryType === opt.id} onChange={() => setDeliveryType(opt.id as "desk" | "home")} className="sr-only" />
@@ -198,8 +187,8 @@ function CheckoutPage() {
                 <Building2 className="size-6" />
               </div>
               <div>
-                <h3 className="font-display text-lg font-bold">{t("checkout.cod")}</h3>
-                <p className="text-sm text-muted-foreground">{t("checkout.codinfo")}</p>
+                <h3 className="font-display text-lg font-bold">Cash on Delivery (COD)</h3>
+                <p className="text-sm text-muted-foreground">You will pay when the order is delivered to your selected location.</p>
               </div>
             </div>
           </fieldset>
@@ -232,7 +221,7 @@ function CheckoutPage() {
             {t("checkout.placeorder")} <ArrowRight className="size-4" />
           </button>
           <p className="mt-3 flex items-center justify-center gap-2 text-xs font-semibold text-primary">
-            <Lock className="size-3" /> {t("checkout.secure")}
+            <Lock className="size-3" /> Secure checkout process
           </p>
         </aside>
       </form>

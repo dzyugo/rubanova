@@ -89,7 +89,7 @@ export const useShipping = create<ShippingState>()((set, get) => ({
     });
     supabase.from("shipping_companies").insert({
       id, name, default_desk_rate: deskRate, default_home_rate: homeRate, rates: {}, active: true,
-    }).then();
+    }).then(({ error }) => { if (error) console.error("Supabase error:", error); });
   },
 
   updateCompany: (id, patch) => {
@@ -104,7 +104,7 @@ export const useShipping = create<ShippingState>()((set, get) => ({
     if (patch.defaultHomeRate !== undefined) dbPatch.default_home_rate = patch.defaultHomeRate;
     if (patch.active !== undefined) dbPatch.active = patch.active;
     if (patch.rates !== undefined) dbPatch.rates = patch.rates;
-    supabase.from("shipping_companies").update(dbPatch).eq("id", id).then();
+    supabase.from("shipping_companies").update(dbPatch).eq("id", id).then(({ error }) => { if (error) console.error("Supabase error:", error); });
   },
 
   removeCompany: (id) => {
@@ -113,7 +113,7 @@ export const useShipping = create<ShippingState>()((set, get) => ({
       saveLocal(next);
       return { companies: next };
     });
-    supabase.from("shipping_companies").delete().eq("id", id).then();
+    supabase.from("shipping_companies").delete().eq("id", id).then(({ error }) => { if (error) console.error("Supabase error:", error); });
   },
 
   updateRate: (companyId, wilaya, desk, home) => {
@@ -128,7 +128,7 @@ export const useShipping = create<ShippingState>()((set, get) => ({
     // Sync full rates object to Supabase
     const company = get().companies.find((c) => c.id === companyId);
     if (company) {
-      supabase.from("shipping_companies").update({ rates: company.rates }).eq("id", companyId).then();
+      supabase.from("shipping_companies").update({ rates: company.rates }).eq("id", companyId).then(({ error }) => { if (error) console.error("Supabase error:", error); });
     }
   },
 }));

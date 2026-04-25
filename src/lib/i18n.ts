@@ -30,6 +30,19 @@ const dict = {
   "nav.admindash": { en: "Admin dashboard", ar: "لوحة الإدارة" },
   "nav.signout": { en: "Sign out", ar: "تسجيل الخروج" },
 
+  // Admin Dashboard
+  "admin.dashboard": { en: "Dashboard", ar: "لوحة القيادة" },
+  "admin.products": { en: "Products", ar: "المنتجات" },
+  "admin.categories": { en: "Categories", ar: "الفئات" },
+  "admin.orders": { en: "Orders", ar: "الطلبات" },
+  "admin.accounts": { en: "Accounts", ar: "الحسابات" },
+  "admin.shipping": { en: "Shipping rates", ar: "أسعار الشحن" },
+  "admin.banners": { en: "Banners", ar: "اللافتات" },
+  "admin.settings": { en: "Site Settings", ar: "إعدادات الموقع" },
+  "admin.totalsales": { en: "Total Sales", ar: "إجمالي المبيعات" },
+  "admin.pending": { en: "Pending Orders", ar: "الطلبات المعلقة" },
+  "admin.lowstock": { en: "Low Stock Alerts", ar: "تنبيهات نقص المخزون" },
+
   // Home page
   "home.shopnow": { en: "Shop Now →", ar: "تسوق الآن ←" },
   "home.ourstory": { en: "Our Story", ar: "قصتنا" },
@@ -97,9 +110,13 @@ const dict = {
   "checkout.standard": { en: "Standard (5-7 days)", ar: "عادي (5-7 أيام)" },
   "checkout.card": { en: "Credit / Debit Card", ar: "بطاقة ائتمان / خصم" },
   "checkout.paypal": { en: "PayPal", ar: "باي بال" },
-  "checkout.fullname": { en: "Full Name", ar: "الاسم الكامل" },
+  "checkout.fullname": { en: "Full name", ar: "الاسم الكامل" },
   "checkout.street": { en: "Street address", ar: "العنوان" },
   "checkout.city": { en: "City", ar: "المدينة" },
+  "checkout.zip": { en: "Zip / Postal code", ar: "الرمز البريدي" },
+  "checkout.cardnumber": { en: "Card number", ar: "رقم البطاقة" },
+  "checkout.expiry": { en: "MM / YY", ar: "شهر / سنة" },
+  "checkout.cvv": { en: "CVV", ar: "CVV" },
   "checkout.ordersummary": { en: "Order Summary", ar: "ملخص الطلب" },
   "checkout.subtotal": { en: "Subtotal", ar: "المجموع الفرعي" },
   "checkout.tax": { en: "Tax", ar: "الضريبة" },
@@ -198,20 +215,6 @@ const dict = {
   // Toast notifications
   "toast.added": { en: "Added to cart", ar: "أُضيف إلى السلة" },
   "toast.removed": { en: "Removed from cart", ar: "أُزيل من السلة" },
-
-  // Checkout extended
-  "checkout.phone": { en: "Phone Number", ar: "رقم الهاتف" },
-  "checkout.emailopt": { en: "Email (Optional for tracking)", ar: "البريد الإلكتروني (اختياري للتتبع)" },
-  "checkout.wilaya": { en: "Wilaya", ar: "الولاية" },
-  "checkout.address": { en: "Detailed Address", ar: "العنوان المفصل" },
-  "checkout.shippingmethod": { en: "Shipping Method", ar: "طريقة الشحن" },
-  "checkout.shippingcompany": { en: "Shipping Company", ar: "شركة الشحن" },
-  "checkout.cod": { en: "Cash on Delivery (COD)", ar: "الدفع عند الاستلام" },
-  "checkout.codinfo": { en: "You will pay when the order is delivered to your selected location.", ar: "ستدفع عند توصيل الطلب إلى الموقع المحدد." },
-  "checkout.secure": { en: "Secure checkout process", ar: "عملية دفع آمنة" },
-  "checkout.phoneerror": { en: "Please enter a valid Algerian phone number (05/06/07 + 8 digits)", ar: "أدخل رقم هاتف جزائري صحيح (05/06/07 + 8 أرقام)" },
-  "checkout.deskdelivery": { en: "Desk Delivery (Point de relais)", ar: "التوصيل لنقطة الاستلام" },
-  "checkout.homedelivery": { en: "Home Delivery (A domicile)", ar: "التوصيل للمنزل" },
 } as const;
 
 export type TKey = keyof typeof dict;

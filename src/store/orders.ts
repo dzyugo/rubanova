@@ -130,13 +130,13 @@ export const useOrders = create<OrdersState>()((set, get) => ({
       payment_method: order.paymentMethod,
       address: { ...order.address, phone: order.phone, shippingCompany: order.shippingCompany } as unknown as Record<string, unknown>,
       status: order.status,
-    }).then();
+    }).then(({ error }) => { if (error) console.error("Supabase error:", error); });
     return order;
   },
 
   setStatus: (id, status) => {
     set((s) => ({ orders: s.orders.map((o) => (o.id === id ? { ...o, status } : o)) }));
-    supabase.from("orders").update({ status }).eq("id", id).then();
+    supabase.from("orders").update({ status }).eq("id", id).then(({ error }) => { if (error) console.error("Supabase error:", error); });
   },
 
   addAddress: (a) => {
@@ -152,13 +152,13 @@ export const useOrders = create<OrdersState>()((set, get) => ({
         id, user_id: data.user.id, label: a.label,
         full_name: a.fullName, street: a.street, city: a.city, zip: a.zip,
         is_default: a.isDefault ?? false,
-      }).then();
+      }).then(({ error }) => { if (error) console.error("Supabase error:", error); });
     });
   },
 
   removeAddress: (id) => {
     set((s) => ({ addresses: s.addresses.filter((a) => a.id !== id) }));
-    supabase.from("addresses").delete().eq("id", id).then();
+    supabase.from("addresses").delete().eq("id", id).then(({ error }) => { if (error) console.error("Supabase error:", error); });
   },
 
   setDefaultAddress: (id) => {
@@ -166,7 +166,7 @@ export const useOrders = create<OrdersState>()((set, get) => ({
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) return;
       supabase.from("addresses").update({ is_default: false }).eq("user_id", data.user.id).then(() => {
-        supabase.from("addresses").update({ is_default: true }).eq("id", id).then();
+        supabase.from("addresses").update({ is_default: true }).eq("id", id).then(({ error }) => { if (error) console.error("Supabase error:", error); });
       });
     });
   },

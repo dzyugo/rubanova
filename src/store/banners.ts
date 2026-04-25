@@ -68,7 +68,7 @@ export const useBanners = create<BannersState>()((set, get) => ({
     supabase.from("banners").insert({
       id, title: banner.title, image_url: banner.imageUrl,
       link: banner.link, order: banner.order, status: banner.status,
-    }).then();
+    }).then(({ error }) => { if (error) console.error("Supabase error:", error); });
   },
 
   updateBanner: (id, patch) => {
@@ -83,7 +83,7 @@ export const useBanners = create<BannersState>()((set, get) => ({
     if (patch.link !== undefined) dbPatch.link = patch.link;
     if (patch.order !== undefined) dbPatch.order = patch.order;
     if (patch.status !== undefined) dbPatch.status = patch.status;
-    supabase.from("banners").update(dbPatch).eq("id", id).then();
+    supabase.from("banners").update(dbPatch).eq("id", id).then(({ error }) => { if (error) console.error("Supabase error:", error); });
   },
 
   removeBanner: (id) => {
@@ -92,6 +92,6 @@ export const useBanners = create<BannersState>()((set, get) => ({
       saveLocal(next);
       return { banners: next };
     });
-    supabase.from("banners").delete().eq("id", id).then();
+    supabase.from("banners").delete().eq("id", id).then(({ error }) => { if (error) console.error("Supabase error:", error); });
   },
 }));

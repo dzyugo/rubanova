@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { supabase } from "@/lib/supabase";
 import type { Product } from "@/data/products";
 
-export type ProductOverride = Partial<Pick<Product, "name" | "tagline" | "description" | "price" | "unit" | "image" | "category" | "badges" | "nutrition">>;
+export type ProductOverride = Partial<Pick<Product, "name" | "tagline" | "description" | "price" | "unit" | "image" | "category" | "badges" | "nutrition" | "stock">>;
 
 type CatalogState = {
   products: Product[];
@@ -44,6 +44,7 @@ export const useCatalog = create<CatalogState>()((set, get) => ({
       badges: p.badges ?? [],
       nutrition: (p.nutrition ?? {}) as Product["nutrition"],
       is_featured: p.is_featured,
+      stock: p.stock ?? 0,
     }));
     set({
       products,
@@ -59,7 +60,7 @@ export const useCatalog = create<CatalogState>()((set, get) => ({
       featuredSlugs: featured ? s.featuredSlugs.filter((x) => x !== slug) : [...s.featuredSlugs, slug],
       products: s.products.map((p) => (p.slug === slug ? { ...p, is_featured: !featured } : p)),
     }));
-    supabase.from("products").update({ is_featured: !featured }).eq("slug", slug).then();
+    supabase.from("products").update({ is_featured: !featured }).eq("slug", slug).then(({ error }) => { if (error) console.error("Supabase error:", error); });
   },
 
   isFeatured: (slug) => get().featuredSlugs.includes(slug),
@@ -70,7 +71,7 @@ export const useCatalog = create<CatalogState>()((set, get) => ({
     }));
     const dbPatch: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(patch)) if (v !== undefined) dbPatch[k] = v;
-    supabase.from("products").update(dbPatch).eq("slug", slug).then();
+    supabase.from("products").update(dbPatch).eq("slug", slug).then(({ error }) => { if (error) console.error("Supabase error:", error); });
   },
 
   resetProduct: (slug) => {
@@ -80,7 +81,7 @@ export const useCatalog = create<CatalogState>()((set, get) => ({
         set((s) => ({
           products: s.products.map((p) =>
             p.slug === slug
-              ? { ...p, name: data.name, tagline: data.tagline, description: data.description, price: Number(data.price), unit: data.unit, image: data.image, category: data.category }
+              ? { ...p, name: data.name, tagline: data.tagline, description: data.description, price: Number(data.price), unit: data.unit, image: data.image, category: data.category, stock: data.stock ?? 0 }
               : p,
           ),
         }));
@@ -90,14 +91,14 @@ export const useCatalog = create<CatalogState>()((set, get) => ({
 
   addProduct: (product) => {
     const slug = product.slug || product.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-    const newProduct = { ...product, slug, is_featured: false, badges: product.badges || [], nutrition: product.nutrition || { servingSize: "100g", calories: "0" } };
+    const newProduct = { ...product, slug, is_featured: false, badges: product.badges || [], nutrition: product.nutrition || { servingSize: "100g", calories: "0" }, stock: product.stock ?? 0 };
     set((s) => ({ products: [...s.products, newProduct] }));
-    supabase.from("products").insert(newProduct).then();
+    supabase.from("products").insert(newProduct).then(({ error }) => { if (error) console.error("Supabase error:", error); });
   },
 
   removeProduct: (slug) => {
     set((s) => ({ products: s.products.filter(p => p.slug !== slug) }));
-    supabase.from("products").delete().eq("slug", slug).then();
+    supabase.from("products").delete().eq("slug", slug).then(({ error }) => { if (error) console.error("Supabase error:", error); });
   },
 
   addCategory: (name) => {
@@ -106,7 +107,7 @@ export const useCatalog = create<CatalogState>()((set, get) => ({
     if (get().categories.some((c) => c.toLowerCase() === trimmed.toLowerCase()))
       return { ok: false, error: "That category already exists." };
     set((s) => ({ categories: [...s.categories, trimmed] }));
-    supabase.from("categories").insert({ name: trimmed, sort_order: get().categories.length }).then();
+    supabase.from("categories").insert({ name: trimmed, sort_order: get().categories.length }).then(({ error }) => { if (error) console.error("Supabase error:", error); });
     return { ok: true };
   },
 
@@ -119,8 +120,8 @@ export const useCatalog = create<CatalogState>()((set, get) => ({
       categories: s.categories.map((c) => (c === oldName ? trimmed : c)),
       products: s.products.map((p) => (p.category === oldName ? { ...p, category: trimmed } : p)),
     }));
-    supabase.from("categories").update({ name: trimmed }).eq("name", oldName).then();
-    supabase.from("products").update({ category: trimmed }).eq("category", oldName).then();
+    supabase.from("categories").update({ name: trimmed }).eq("name", oldName).then(({ error }) => { if (error) console.error("Supabase error:", error); });
+    supabase.from("products").update({ category: trimmed }).eq("category", oldName).then(({ error }) => { if (error) console.error("Supabase error:", error); });
     return { ok: true };
   },
 
@@ -128,7 +129,7 @@ export const useCatalog = create<CatalogState>()((set, get) => ({
     const used = get().products.some((p) => p.category === name);
     if (used) return { ok: false, error: "Reassign products in this category before removing it." };
     set((s) => ({ categories: s.categories.filter((c) => c !== name) }));
-    supabase.from("categories").delete().eq("name", name).then();
+    supabase.from("categories").delete().eq("name", name).then(({ error }) => { if (error) console.error("Supabase error:", error); });
     return { ok: true };
   },
 }));

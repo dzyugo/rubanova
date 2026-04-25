@@ -13,6 +13,7 @@ export type Product = {
   badges: string[];
   nutrition: { servingSize: string; calories: string; vitaminK?: string; vitaminC?: string; fiber?: string };
   is_featured?: boolean;
+  stock?: number;
 };
 
 export const diets: Diet[] = ["Organic", "Gluten-Free", "Vegan"];

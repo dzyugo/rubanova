@@ -14,6 +14,7 @@ import { useShipping } from "@/store/shipping";
 import { useBanners } from "@/store/banners";
 import { wilayas } from "@/data/wilayas";
 import { supabase } from "@/lib/supabase";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -21,18 +22,9 @@ export const Route = createFileRoute("/admin")({
 
 type Tab = "dashboard" | "banners" | "products" | "categories" | "orders" | "shipping" | "accounts" | "settings";
 
-const sidebar: { id: Tab; icon: typeof LayoutGrid; label: string }[] = [
-  { id: "dashboard", icon: LayoutGrid, label: "Dashboard" },
-  { id: "banners", icon: ImageIcon, label: "Banners & Visuals" },
-  { id: "products", icon: ShoppingBasket, label: "Products" },
-  { id: "categories", icon: Tag, label: "Categories" },
-  { id: "orders", icon: ClipboardList, label: "Orders" },
-  { id: "shipping", icon: Package, label: "Shipping" },
-  { id: "accounts", icon: Users, label: "Accounts" },
-  { id: "settings", icon: Settings, label: "Site Settings" },
-];
-
-const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+// Sidebar moved to AdminPage body for translations
+const sales = [12, 45, 30, 75, 95, 25, 18];
+const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 const statusStyles: Record<OrderStatus, string> = {
   Processing: "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300",
@@ -48,6 +40,18 @@ function AdminPage() {
   const orders = useOrders((s) => s.orders);
   const user = useAuth(selectCurrentUser);
   const navigate = useNavigate();
+  const { t } = useT();
+
+  const sidebar: { id: Tab; icon: typeof LayoutGrid; label: string }[] = [
+    { id: "dashboard", icon: LayoutGrid, label: t("admin.dashboard") },
+    { id: "banners", icon: ImageIcon, label: t("admin.banners") },
+    { id: "products", icon: ShoppingBasket, label: t("admin.products") },
+    { id: "categories", icon: Tag, label: t("admin.categories") },
+    { id: "orders", icon: ClipboardList, label: t("admin.orders") },
+    { id: "shipping", icon: Package, label: t("admin.shipping") },
+    { id: "accounts", icon: Users, label: t("admin.accounts") },
+    { id: "settings", icon: Settings, label: t("admin.settings") },
+  ];
 
   useEffect(() => {
     if (!user) navigate({ to: "/account" });
@@ -73,40 +77,12 @@ function AdminPage() {
   const totalRevenue = orders.reduce((s, o) => s + o.total, 0);
   const pending = orders.filter((o) => o.status === "Processing").length;
   const products = useMergedProducts();
-
-  // Compute real sales data for the last 7 days
-  const salesByDay = useMemo(() => {
-    const now = new Date();
-    const result = Array(7).fill(0);
-    for (const o of orders) {
-      const d = new Date(o.createdAt);
-      const diff = Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
-      if (diff >= 0 && diff < 7) {
-        const dayIndex = 6 - diff; // 0=oldest, 6=today
-        result[dayIndex] += o.total;
-      }
-    }
-    return result;
-  }, [orders]);
-
-  const maxSale = Math.max(...salesByDay, 1);
-  const salesPercent = salesByDay.map((v) => Math.round((v / maxSale) * 100));
-
-  // Get last 7 day names
-  const last7Days = useMemo(() => {
-    const result: string[] = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      result.push(dayLabels[d.getDay() === 0 ? 6 : d.getDay() - 1]);
-    }
-    return result;
-  }, []);
+  const lowStockCount = products.filter((p) => p.stock !== undefined && p.stock < 10).length;
 
   const stats = [
-    { label: "Total Sales", value: `${totalRevenue.toFixed(2)} DA`, trend: `${orders.length} orders`, icon: Banknote },
-    { label: "Pending Orders", value: String(pending), trend: "Needs fulfillment", icon: Package },
-    { label: "Total Products", value: String(products.length), trend: `${products.filter(p => p.status !== false).length} active`, icon: Archive },
+    { label: t("admin.totalsales"), value: `${totalRevenue.toFixed(2)} DA`, trend: `${orders.length} orders`, icon: Banknote },
+    { label: t("admin.pending"), value: String(pending), trend: "Needs fulfillment", icon: Package },
+    { label: t("admin.lowstock"), value: `${lowStockCount} Items`, trend: "Action required", trendColor: lowStockCount > 0 ? "text-destructive" : "text-muted-foreground", icon: Archive },
   ];
 
   return (
@@ -183,14 +159,13 @@ function AdminPage() {
                 </select>
               </div>
               <div className="mt-8 flex h-56 items-end gap-3">
-                {salesPercent.map((v, i) => (
-                  <div key={i} className="flex flex-1 flex-col items-center gap-2" title={`${salesByDay[i].toFixed(0)} DA`}>
-                    <span className="text-[10px] font-bold text-primary">{salesByDay[i] > 0 ? `${salesByDay[i].toFixed(0)}` : ""}</span>
+                {sales.map((v, i) => (
+                  <div key={i} className="flex flex-1 flex-col items-center gap-2">
                     <div
                       className="w-full rounded-t-lg transition"
-                      style={{ height: `${Math.max(v, 3)}%`, background: `color-mix(in oklab, var(--primary) ${20 + v}%, transparent)` }}
+                      style={{ height: `${v}%`, background: `color-mix(in oklab, var(--primary) ${20 + v}%, transparent)` }}
                     />
-                    <span className="text-xs text-muted-foreground">{last7Days[i]}</span>
+                    <span className="text-xs text-muted-foreground">{days[i]}</span>
                   </div>
                 ))}
               </div>
@@ -267,9 +242,9 @@ function ProductsTab() {
                   </td>
                   <td className="px-4 py-3 font-semibold">{p.price.toFixed(2)} DA</td>
                   <td className="px-4 py-3">
-                    <span className={`flex items-center gap-1.5 ${i === 1 ? "text-amber-600" : "text-primary"}`}>
+                    <span className={`flex items-center gap-1.5 ${p.stock && p.stock < 10 ? "text-amber-600" : "text-primary"}`}>
                       <span className="size-2 rounded-full bg-current" />
-                      {i === 1 ? "Low Stock (8)" : `In Stock (${100 + i * 23})`}
+                      {p.stock && p.stock < 10 ? `Low Stock (${p.stock})` : `In Stock (${p.stock ?? 0})`}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -357,6 +332,7 @@ function ProductEditModal({
   const [badgesStr, setBadgesStr] = useState(product?.badges?.join(", ") || "");
   const [servingSize, setServingSize] = useState(product?.nutrition?.servingSize || "100g");
   const [calories, setCalories] = useState(product?.nutrition?.calories || "0");
+  const [stock, setStock] = useState(product ? String(product.stock ?? 0) : "0");
   const [imgError, setImgError] = useState<string | null>(null);
   const baseImage = product?.image || "";
 
@@ -371,7 +347,8 @@ function ProductEditModal({
     badgesStr.trim() !== (product?.badges?.join(", ") || "") ||
     servingSize !== (product?.nutrition?.servingSize || "100g") ||
     calories !== (product?.nutrition?.calories || "0") ||
-    parseFloat(price) !== product.price;
+    parseFloat(price) !== product.price ||
+    parseInt(stock) !== (product.stock ?? 0);
 
   const [uploading, setUploading] = useState(false);
 
@@ -464,9 +441,10 @@ function ProductEditModal({
             <Input label="Name" value={name} onChange={setName} />
             <Input label="Tagline" value={tagline} onChange={setTagline} />
             <Textarea label="Description" value={description} onChange={setDescription} />
-            <div className="grid grid-cols-2 gap-3">
-              <Input label="Price (USD)" value={price} onChange={setPrice} type="number" step="0.01" />
+            <div className="grid grid-cols-3 gap-3">
+              <Input label="Price (DA)" value={price} onChange={setPrice} type="number" step="1" />
               <Input label="Unit" value={unit} onChange={setUnit} />
+              <Input label="Stock" value={stock} onChange={setStock} type="number" step="1" />
             </div>
             <label className="block">
               <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Category</span>
@@ -506,6 +484,7 @@ function ProductEditModal({
                 badges: badgesStr.split(",").map((s) => s.trim()).filter(Boolean),
                 nutrition: { ...product?.nutrition, servingSize, calories },
                 price: Number.isFinite(parseFloat(price)) ? parseFloat(price) : (product?.price || 0),
+                stock: Number.isFinite(parseInt(stock)) ? parseInt(stock) : (product?.stock ?? 0),
               })}
               disabled={!dirty || !name || !price}
               className="rounded-full bg-primary px-5 py-2 text-sm font-bold text-primary-foreground hover:opacity-90 disabled:opacity-50"

@@ -88,7 +88,7 @@ export const useAuth = create<AuthState>()((set, get) => ({
     if (patch.name) dbPatch.name = patch.name;
     if (patch.email) dbPatch.email = patch.email;
     if (patch.role) dbPatch.role = patch.role;
-    supabase.from("profiles").update(dbPatch).eq("id", id).then();
+    supabase.from("profiles").update(dbPatch).eq("id", id).then(({ error }) => { if (error) console.error("Supabase error:", error); });
   },
 
   removeAccount: (id) => {

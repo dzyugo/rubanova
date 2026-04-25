@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Search, ShoppingCart, User, Sun, Moon, LogOut, ShieldCheck, Languages } from "lucide-react";
 import { useCart } from "@/store/cart";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useTheme } from "@/hooks/use-theme";
 import { useAuth, selectCurrentUser } from "@/store/auth";
 import { useSite } from "@/store/site";
@@ -11,8 +11,6 @@ export function SiteHeader() {
   const count = useCart((s) => s.items.reduce((n, i) => n + i.qty, 0));
   const [menu, setMenu] = useState(false);
   const [search, setSearch] = useState("");
-  const [mobileSearch, setMobileSearch] = useState(false);
-  const mobileRef = useRef<HTMLInputElement>(null);
   const { theme, toggle } = useTheme();
   const user = useAuth(selectCurrentUser);
   const logout = useAuth((s) => s.logout);
@@ -31,7 +29,6 @@ export function SiteHeader() {
   ];
 
   return (
-  <>
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur">
       <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between gap-6 px-6">
         <Link to="/" className="flex items-center gap-2">
@@ -65,8 +62,8 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <div className="hidden items-center gap-2 rounded-full bg-secondary/60 px-4 py-2 text-sm md:flex">
-            <Search className="size-4 text-muted-foreground" />
+          <div className="flex items-center gap-2 rounded-full bg-secondary/60 px-3 py-1.5 md:px-4 md:py-2 text-sm">
+            <Search className="size-4 text-muted-foreground shrink-0" />
             <input
               placeholder={t("nav.search")}
               value={search}
@@ -76,18 +73,9 @@ export function SiteHeader() {
                   navigate({ to: "/shop", search: { q: search.trim() } });
                 }
               }}
-              className="w-44 bg-transparent text-sm placeholder:text-muted-foreground focus:outline-none"
+              className="w-24 bg-transparent text-sm placeholder:text-muted-foreground focus:outline-none md:w-44"
             />
           </div>
-
-          {/* Mobile search toggle */}
-          <button
-            onClick={() => { setMobileSearch((v) => !v); setTimeout(() => mobileRef.current?.focus(), 100); }}
-            className="rounded-full p-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground md:hidden"
-            aria-label="Search"
-          >
-            <Search className="size-5" />
-          </button>
 
           {/* Language toggle */}
           <button
@@ -179,31 +167,5 @@ export function SiteHeader() {
         </div>
       </div>
     </header>
-
-    {/* Mobile search bar */}
-    {mobileSearch && (
-      <div className="sticky top-20 z-30 border-b border-border bg-background/95 px-4 py-3 backdrop-blur md:hidden">
-        <div className="flex items-center gap-2 rounded-full bg-secondary/60 px-4 py-2.5">
-          <Search className="size-4 shrink-0 text-muted-foreground" />
-          <input
-            ref={mobileRef}
-            placeholder={t("nav.search")}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && search.trim()) {
-                navigate({ to: "/shop", search: { q: search.trim() } });
-                setMobileSearch(false);
-              }
-            }}
-            className="flex-1 bg-transparent text-sm placeholder:text-muted-foreground focus:outline-none"
-          />
-          <button onClick={() => { setMobileSearch(false); setSearch(""); }} className="text-xs font-semibold text-muted-foreground hover:text-foreground">
-            ✕
-          </button>
-        </div>
-      </div>
-    )}
-  </>
   );
 }

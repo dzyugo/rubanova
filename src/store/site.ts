@@ -56,11 +56,11 @@ export const useSite = create<SiteState>()((set, get) => ({
   update: (patch) => {
     set((s) => ({ settings: { ...s.settings, ...patch } }));
     const merged = { ...get().settings, ...patch };
-    supabase.from("site_settings").update({ settings: merged as unknown as Record<string, unknown> }).eq("id", 1).then();
+    supabase.from("site_settings").update({ settings: merged as unknown as Record<string, unknown> }).eq("id", 1).then(({ error }) => { if (error) console.error("Supabase error:", error); });
   },
 
   reset: () => {
     set({ settings: defaults });
-    supabase.from("site_settings").update({ settings: defaults as unknown as Record<string, unknown> }).eq("id", 1).then();
+    supabase.from("site_settings").update({ settings: defaults as unknown as Record<string, unknown> }).eq("id", 1).then(({ error }) => { if (error) console.error("Supabase error:", error); });
   },
 }));
