@@ -32,8 +32,7 @@ const sidebar: { id: Tab; icon: typeof LayoutGrid; label: string }[] = [
   { id: "settings", icon: Settings, label: "Site Settings" },
 ];
 
-const sales = [12, 45, 30, 75, 95, 25, 18];
-const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 const statusStyles: Record<OrderStatus, string> = {
   Processing: "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300",
@@ -73,11 +72,41 @@ function AdminPage() {
 
   const totalRevenue = orders.reduce((s, o) => s + o.total, 0);
   const pending = orders.filter((o) => o.status === "Processing").length;
+  const products = useMergedProducts();
+
+  // Compute real sales data for the last 7 days
+  const salesByDay = useMemo(() => {
+    const now = new Date();
+    const result = Array(7).fill(0);
+    for (const o of orders) {
+      const d = new Date(o.createdAt);
+      const diff = Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
+      if (diff >= 0 && diff < 7) {
+        const dayIndex = 6 - diff; // 0=oldest, 6=today
+        result[dayIndex] += o.total;
+      }
+    }
+    return result;
+  }, [orders]);
+
+  const maxSale = Math.max(...salesByDay, 1);
+  const salesPercent = salesByDay.map((v) => Math.round((v / maxSale) * 100));
+
+  // Get last 7 day names
+  const last7Days = useMemo(() => {
+    const result: string[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      result.push(dayLabels[d.getDay() === 0 ? 6 : d.getDay() - 1]);
+    }
+    return result;
+  }, []);
 
   const stats = [
     { label: "Total Sales", value: `${totalRevenue.toFixed(2)} DA`, trend: `${orders.length} orders`, icon: Banknote },
     { label: "Pending Orders", value: String(pending), trend: "Needs fulfillment", icon: Package },
-    { label: "Low Stock Alerts", value: "14 Items", trend: "Action required", trendColor: "text-destructive", icon: Archive },
+    { label: "Total Products", value: String(products.length), trend: `${products.filter(p => p.status !== false).length} active`, icon: Archive },
   ];
 
   return (
@@ -154,13 +183,14 @@ function AdminPage() {
                 </select>
               </div>
               <div className="mt-8 flex h-56 items-end gap-3">
-                {sales.map((v, i) => (
-                  <div key={i} className="flex flex-1 flex-col items-center gap-2">
+                {salesPercent.map((v, i) => (
+                  <div key={i} className="flex flex-1 flex-col items-center gap-2" title={`${salesByDay[i].toFixed(0)} DA`}>
+                    <span className="text-[10px] font-bold text-primary">{salesByDay[i] > 0 ? `${salesByDay[i].toFixed(0)}` : ""}</span>
                     <div
                       className="w-full rounded-t-lg transition"
-                      style={{ height: `${v}%`, background: `color-mix(in oklab, var(--primary) ${20 + v}%, transparent)` }}
+                      style={{ height: `${Math.max(v, 3)}%`, background: `color-mix(in oklab, var(--primary) ${20 + v}%, transparent)` }}
                     />
-                    <span className="text-xs text-muted-foreground">{days[i]}</span>
+                    <span className="text-xs text-muted-foreground">{last7Days[i]}</span>
                   </div>
                 ))}
               </div>
