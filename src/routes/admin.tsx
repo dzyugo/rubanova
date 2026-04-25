@@ -10,18 +10,23 @@ import { useOrders, type OrderStatus } from "@/store/orders";
 import { useAuth, selectCurrentUser, type Role } from "@/store/auth";
 import { useSite } from "@/store/site";
 import { useCatalog, useMergedProducts, type ProductOverride } from "@/store/catalog";
+import { useShipping } from "@/store/shipping";
+import { useBanners } from "@/store/banners";
+import { wilayas } from "@/data/wilayas";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-type Tab = "dashboard" | "products" | "categories" | "orders" | "accounts" | "settings";
+type Tab = "dashboard" | "banners" | "products" | "categories" | "orders" | "shipping" | "accounts" | "settings";
 
 const sidebar: { id: Tab; icon: typeof LayoutGrid; label: string }[] = [
   { id: "dashboard", icon: LayoutGrid, label: "Dashboard" },
+  { id: "banners", icon: ImageIcon, label: "Banners & Visuals" },
   { id: "products", icon: ShoppingBasket, label: "Products" },
   { id: "categories", icon: Tag, label: "Categories" },
   { id: "orders", icon: ClipboardList, label: "Orders" },
+  { id: "shipping", icon: Package, label: "Shipping" },
   { id: "accounts", icon: Users, label: "Accounts" },
   { id: "settings", icon: Settings, label: "Site Settings" },
 ];
@@ -167,6 +172,8 @@ function AdminPage() {
         {tab === "orders" && <OrdersTab />}
         {tab === "accounts" && <AccountsTab currentId={user.id} />}
         {tab === "settings" && <SettingsTab />}
+        {tab === "banners" && <BannersTab />}
+        {tab === "shipping" && <ShippingTab />}
       </div>
     </section>
   );
@@ -1009,6 +1016,180 @@ function ImageField({
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function BannersTab() {
+  const banners = useBanners((s) => s.banners);
+  const addBanner = useBanners((s) => s.addBanner);
+  const updateBanner = useBanners((s) => s.updateBanner);
+  const removeBanner = useBanners((s) => s.removeBanner);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h2 className="font-display text-xl font-bold">Banners & Visuals</h2>
+          <p className="text-sm text-muted-foreground">Manage Hero banners displayed on the home page.</p>
+        </div>
+        <button
+          onClick={() => addBanner({ title: "New Banner", imageUrl: "", link: "/shop", location: "Hero", order: banners.length, status: "Active" })}
+          className="inline-flex items-center gap-1 rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground hover:opacity-90"
+        >
+          <Plus className="size-4" /> Add Banner
+        </button>
+      </div>
+
+      <div className="grid gap-6">
+        {banners.map((b) => (
+          <div key={b.id} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1 space-y-4">
+                <Input label="Title" value={b.title} onChange={(v) => updateBanner(b.id, { title: v })} />
+                <Input label="Link URL" value={b.link} onChange={(v) => updateBanner(b.id, { link: v })} />
+                <ImageField
+                  label="Banner Image"
+                  value={b.imageUrl}
+                  onChange={(v) => updateBanner(b.id, { imageUrl: v })}
+                  placeholder="Paste image URL or upload"
+                  previewClass="h-20 w-auto rounded object-cover"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="flex items-center gap-2 text-sm font-semibold">
+                  <input
+                    type="checkbox"
+                    checked={b.status === "Active"}
+                    onChange={(e) => updateBanner(b.id, { status: e.target.checked ? "Active" : "Inactive" })}
+                    className="size-4 accent-primary"
+                  />
+                  Active
+                </label>
+                <button
+                  onClick={() => { if (confirm("Remove this banner?")) removeBanner(b.id); }}
+                  className="mt-4 rounded-full border border-destructive/20 px-3 py-1.5 text-xs font-semibold text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="size-3 inline mr-1" /> Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+        {banners.length === 0 && (
+          <div className="rounded-2xl border border-dashed border-border p-12 text-center text-muted-foreground">
+            No banners defined.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ShippingTab() {
+  const { companies, addCompany, updateCompany, removeCompany, updateRate } = useShipping();
+  const [newCompanyName, setNewCompanyName] = useState("");
+  const [deskRate, setDeskRate] = useState(400);
+  const [homeRate, setHomeRate] = useState(600);
+
+  const onAdd = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCompanyName.trim()) return;
+    addCompany(newCompanyName, deskRate, homeRate);
+    setNewCompanyName("");
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="rounded-2xl bg-card p-6 shadow-sm">
+        <h2 className="font-display text-xl font-bold">Add Shipping Company</h2>
+        <form onSubmit={onAdd} className="mt-4 flex flex-wrap items-end gap-3">
+          <Input label="Company Name" value={newCompanyName} onChange={setNewCompanyName} />
+          <Input label="Default Desk Rate (DA)" type="number" value={String(deskRate)} onChange={(v) => setDeskRate(Number(v))} />
+          <Input label="Default Home Rate (DA)" type="number" value={String(homeRate)} onChange={(v) => setHomeRate(Number(v))} />
+          <button type="submit" className="mb-0.5 inline-flex items-center gap-1 rounded-lg bg-primary px-5 py-2 text-sm font-bold text-primary-foreground hover:opacity-90">
+            <Plus className="size-4" /> Add
+          </button>
+        </form>
+      </div>
+
+      <div className="space-y-6">
+        {companies.map((c) => (
+          <div key={c.id} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-4">
+                <input
+                  type="text"
+                  value={c.name}
+                  onChange={(e) => updateCompany(c.id, { name: e.target.value })}
+                  className="font-display text-lg font-bold bg-transparent focus:outline-none border-b border-transparent focus:border-border"
+                />
+                <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    checked={c.active}
+                    onChange={(e) => updateCompany(c.id, { active: e.target.checked })}
+                    className="size-4 accent-primary"
+                  />
+                  Active
+                </label>
+              </div>
+              <button
+                onClick={() => { if (confirm("Remove this shipping company?")) removeCompany(c.id); }}
+                className="rounded-full p-2 text-muted-foreground hover:bg-secondary hover:text-destructive"
+              >
+                <Trash2 className="size-4" />
+              </button>
+            </div>
+            
+            <div className="grid gap-4 sm:grid-cols-2 mb-6">
+              <Input label="Default Desk Rate (DA)" type="number" value={String(c.defaultDeskRate)} onChange={(v) => updateCompany(c.id, { defaultDeskRate: Number(v) })} />
+              <Input label="Default Home Rate (DA)" type="number" value={String(c.defaultHomeRate)} onChange={(v) => updateCompany(c.id, { defaultHomeRate: Number(v) })} />
+            </div>
+
+            <details className="group">
+              <summary className="cursor-pointer font-semibold text-primary hover:underline outline-none">Configure Custom Rates per Wilaya</summary>
+              <div className="mt-4 max-h-[400px] overflow-y-auto rounded-xl border border-border">
+                <table className="w-full text-sm">
+                  <thead className="bg-secondary/60 text-[10px] font-bold uppercase tracking-widest text-muted-foreground sticky top-0 backdrop-blur-md">
+                    <tr>
+                      <th className="px-4 py-3 text-left">Wilaya</th>
+                      <th className="px-4 py-3 text-left">Desk Delivery (DA)</th>
+                      <th className="px-4 py-3 text-left">Home Delivery (DA)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {wilayas.map((w) => {
+                      const rate = c.rates[w] || { desk: c.defaultDeskRate, home: c.defaultHomeRate };
+                      return (
+                        <tr key={w}>
+                          <td className="px-4 py-2 font-semibold">{w}</td>
+                          <td className="px-4 py-2">
+                            <input
+                              type="number"
+                              value={rate.desk}
+                              onChange={(e) => updateRate(c.id, w, Number(e.target.value), rate.home)}
+                              className="w-24 rounded-md border border-border bg-background px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                            />
+                          </td>
+                          <td className="px-4 py-2">
+                            <input
+                              type="number"
+                              value={rate.home}
+                              onChange={(e) => updateRate(c.id, w, rate.desk, Number(e.target.value))}
+                              className="w-24 rounded-md border border-border bg-background px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                            />
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </details>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

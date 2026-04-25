@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Truck, CreditCard, ClipboardCheck, MapPin, Check, Lock, Building2, ArrowRight } from "lucide-react";
 import { useCart } from "@/store/cart";
 import { useOrders } from "@/store/orders";
+import { useShipping } from "@/store/shipping";
+import { wilayas } from "@/data/wilayas";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/checkout")({
@@ -15,13 +17,26 @@ function CheckoutPage() {
   const addOrder = useOrders((s) => s.addOrder);
   const navigate = useNavigate();
   const [step] = useState<0 | 1 | 2>(0);
-  const [shipping, setShipping] = useState<"express" | "standard">("express");
-  const [payment, setPayment] = useState<"card" | "paypal">("card");
+  
+  const { companies } = useShipping();
+  const activeCompanies = companies.filter(c => c.active);
+  
+  const [selectedWilaya, setSelectedWilaya] = useState(wilayas[0]);
+  const [selectedCompanyId, setSelectedCompanyId] = useState(activeCompanies[0]?.id || "");
+  const [deliveryType, setDeliveryType] = useState<"desk" | "home">("home");
+  
   const { t } = useT();
 
+  const selectedCompany = activeCompanies.find(c => c.id === selectedCompanyId) || activeCompanies[0];
+  
+  let shipFee = 0;
+  if (selectedCompany) {
+    const rate = selectedCompany.rates[selectedWilaya] || { desk: selectedCompany.defaultDeskRate, home: selectedCompany.defaultHomeRate };
+    shipFee = deliveryType === "desk" ? rate.desk : rate.home;
+  }
+
   const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
-  const shipFee = shipping === "express" ? 12 : 5;
-  const tax = +(subtotal * 0.08).toFixed(2);
+  const tax = 0; // No tax mentioned
   const total = subtotal + shipFee + tax;
 
   const steps = [
@@ -39,13 +54,13 @@ function CheckoutPage() {
       shipping: shipFee,
       tax,
       total,
-      shippingMethod: shipping,
-      paymentMethod: payment,
+      shippingMethod: deliveryType === "express" ? "express" : "standard", // Mocking previous required types
+      paymentMethod: "card", // Mocking previous required types, actual is COD
       address: {
         fullName: String(f.get("fullName") || "Guest"),
-        street: String(f.get("street") || ""),
-        city: String(f.get("city") || ""),
-        zip: String(f.get("zip") || ""),
+        street: String(f.get("address") || ""),
+        city: selectedWilaya,
+        zip: String(f.get("phone") || ""),
       },
     });
     clear();
@@ -90,60 +105,79 @@ function CheckoutPage() {
           <fieldset className="rounded-2xl bg-card p-6 shadow-sm">
             <legend className="flex items-center gap-2 font-display text-lg font-bold"><MapPin className="size-5 text-primary" /> {t("checkout.shipping")}</legend>
             <div className="mt-5 grid gap-5">
-              <Field name="fullName" label={t("checkout.fullname")} required />
-              <Field name="street" label={t("checkout.street")} required />
+              <Field name="fullName" label="Full Name" required />
               <div className="grid gap-5 sm:grid-cols-2">
-                <Field name="city" label={t("checkout.city")} required />
-                <Field name="zip" label={t("checkout.zip")} required />
+                <Field name="phone" label="Phone Number" required type="tel" />
+                <Field name="email" label="Email (Optional for tracking)" type="email" />
               </div>
+              <label className="block">
+                <span className="text-sm font-medium">Wilaya</span>
+                <select
+                  value={selectedWilaya}
+                  onChange={(e) => setSelectedWilaya(e.target.value)}
+                  className="mt-2 w-full rounded-lg border-b border-border bg-secondary/40 px-3 py-2.5 text-sm focus:border-primary focus:outline-none"
+                >
+                  {wilayas.map((w) => (
+                    <option key={w} value={w}>{w}</option>
+                  ))}
+                </select>
+              </label>
+              <Field name="address" label="Detailed Address" required />
             </div>
           </fieldset>
 
           {/* Shipping method */}
           <fieldset className="rounded-2xl bg-card p-6 shadow-sm">
-            <legend className="flex items-center gap-2 font-display text-lg font-bold"><Check className="size-5 text-primary" /> {t("checkout.shipping")}</legend>
+            <legend className="flex items-center gap-2 font-display text-lg font-bold"><Truck className="size-5 text-primary" /> Shipping Method</legend>
+            
+            <div className="mt-5 mb-5">
+              <label className="block">
+                <span className="text-sm font-medium">Shipping Company</span>
+                <select
+                  value={selectedCompanyId}
+                  onChange={(e) => setSelectedCompanyId(e.target.value)}
+                  className="mt-2 w-full rounded-lg border-b border-border bg-secondary/40 px-3 py-2.5 text-sm focus:border-primary focus:outline-none"
+                >
+                  {activeCompanies.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
             <div className="mt-5 space-y-3">
               {[
-                { id: "express", title: t("checkout.express"), price: 12 },
-                { id: "standard", title: t("checkout.standard"), price: 5 },
+                { id: "desk", title: "Desk Delivery (Point de relais)" },
+                { id: "home", title: "Home Delivery (A domicile)" },
               ].map((opt) => (
-                <label key={opt.id} className={`flex cursor-pointer items-center gap-4 rounded-xl border-2 p-4 transition ${shipping === opt.id ? "border-primary bg-tertiary/40" : "border-border"}`}>
-                  <input type="radio" name="shipping" checked={shipping === opt.id} onChange={() => setShipping(opt.id as "express" | "standard")} className="sr-only" />
-                  <span className={`grid size-6 shrink-0 place-items-center rounded-full border-2 ${shipping === opt.id ? "border-primary bg-primary" : "border-border"}`}>
-                    {shipping === opt.id && <Check className="size-3 text-primary-foreground" />}
+                <label key={opt.id} className={`flex cursor-pointer items-center gap-4 rounded-xl border-2 p-4 transition ${deliveryType === opt.id ? "border-primary bg-tertiary/40" : "border-border"}`}>
+                  <input type="radio" name="deliveryType" checked={deliveryType === opt.id} onChange={() => setDeliveryType(opt.id as "desk" | "home")} className="sr-only" />
+                  <span className={`grid size-6 shrink-0 place-items-center rounded-full border-2 ${deliveryType === opt.id ? "border-primary bg-primary" : "border-border"}`}>
+                    {deliveryType === opt.id && <Check className="size-3 text-primary-foreground" />}
                   </span>
                   <div className="flex-1">
                     <p className="font-display text-base font-bold">{opt.title}</p>
                   </div>
-                  <span className="font-bold text-primary">{opt.price.toFixed(2)} DA</span>
+                  <span className="font-bold text-primary">
+                    {selectedCompany ? (deliveryType === "desk" && opt.id === "desk" ? shipFee : (opt.id === "desk" ? (selectedCompany.rates[selectedWilaya]?.desk ?? selectedCompany.defaultDeskRate) : (selectedCompany.rates[selectedWilaya]?.home ?? selectedCompany.defaultHomeRate))).toFixed(2) : "0.00"} DA
+                  </span>
                 </label>
               ))}
             </div>
           </fieldset>
 
           {/* Payment */}
-          <fieldset className="rounded-2xl bg-card p-6 shadow-sm">
+          <fieldset className="rounded-2xl bg-card p-6 shadow-sm border-2 border-primary">
             <legend className="flex items-center gap-2 font-display text-lg font-bold"><CreditCard className="size-5 text-primary" /> {t("checkout.payment")}</legend>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              {[
-                { id: "card", icon: CreditCard, label: t("checkout.card") },
-                { id: "paypal", icon: Building2, label: t("checkout.paypal") },
-              ].map((opt) => (
-                <label key={opt.id} className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 px-5 py-3 font-semibold transition ${payment === opt.id ? "border-primary bg-tertiary/40 text-primary" : "border-border text-muted-foreground"}`}>
-                  <input type="radio" name="payment" checked={payment === opt.id} onChange={() => setPayment(opt.id as "card" | "paypal")} className="sr-only" />
-                  <opt.icon className="size-4" /> {opt.label}
-                </label>
-              ))}
-            </div>
-            {payment === "card" && (
-              <div className="mt-5 grid gap-5">
-                <Field name="cardNumber" label={t("checkout.cardnumber")} required />
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <Field name="expiryDate" label={t("checkout.expiry")} required />
-                  <Field name="cvv" label={t("checkout.cvv")} required />
-                </div>
+            <div className="mt-5 flex items-center gap-4">
+              <div className="grid size-12 place-items-center rounded-full bg-primary/20 text-primary">
+                <Building2 className="size-6" />
               </div>
-            )}
+              <div>
+                <h3 className="font-display text-lg font-bold">Cash on Delivery (COD)</h3>
+                <p className="text-sm text-muted-foreground">You will pay when the order is delivered to your selected location.</p>
+              </div>
+            </div>
           </fieldset>
         </div>
 
@@ -165,7 +199,6 @@ function CheckoutPage() {
           <dl className="mt-5 space-y-2 border-t border-border pt-5 text-sm">
             <div className="flex justify-between"><dt>{t("checkout.subtotal")}</dt><dd>{subtotal.toFixed(2)} DA</dd></div>
             <div className="flex justify-between"><dt>{t("checkout.shipping")}</dt><dd className="text-primary">{shipFee.toFixed(2)} DA</dd></div>
-            <div className="flex justify-between"><dt>{t("checkout.tax")}</dt><dd>{tax.toFixed(2)} DA</dd></div>
           </dl>
           <div className="mt-4 flex items-baseline justify-between border-t border-border pt-4">
             <span className="font-display text-base font-bold">{t("checkout.total")}</span>
@@ -175,7 +208,7 @@ function CheckoutPage() {
             {t("checkout.placeorder")} <ArrowRight className="size-4" />
           </button>
           <p className="mt-3 flex items-center justify-center gap-2 text-xs font-semibold text-primary">
-            <Lock className="size-3" /> {t("checkout.encrypted")}
+            <Lock className="size-3" /> Secure checkout process
           </p>
         </aside>
       </form>

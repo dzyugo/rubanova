@@ -10,6 +10,8 @@ function ContactPage() {
   const [sent, setSent] = useState(false);
   const { t } = useT();
 
+  const settings = useSite((s) => s.settings);
+
   return (
     <section className="mx-auto w-full max-w-6xl px-6 py-20">
       <div className="grid gap-16 md:grid-cols-2">
@@ -21,15 +23,15 @@ function ContactPage() {
           <dl className="mt-10 space-y-6 text-sm">
             <div>
               <dt className="font-display text-xs uppercase tracking-widest text-muted-foreground">{t("contact.visit")}</dt>
-              <dd className="mt-1">{t("contact.hours")}</dd>
+              <dd className="mt-1">{settings.address}</dd>
             </div>
             <div>
               <dt className="font-display text-xs uppercase tracking-widest text-muted-foreground">{t("contact.email")}</dt>
-              <dd className="mt-1">hello@rubanova.com</dd>
+              <dd className="mt-1">{settings.contactEmail}</dd>
             </div>
             <div>
               <dt className="font-display text-xs uppercase tracking-widest text-muted-foreground">{t("contact.call")}</dt>
-              <dd className="mt-1">{t("contact.available")}</dd>
+              <dd className="mt-1">{settings.contactPhone}</dd>
             </div>
           </dl>
         </div>

@@ -6,7 +6,7 @@ import { useCart } from "@/store/cart";
 import { useCatalog, useMergedProducts } from "@/store/catalog";
 import { useT } from "@/lib/i18n";
 
-export const Route = createFileRoute("/shop")({
+export const Route = createFileRoute("/shop/")({
   component: ShopPage,
 });
 

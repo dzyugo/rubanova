@@ -3,6 +3,7 @@ import { Leaf, Plus, Mail } from "lucide-react";
 import { useCart } from "@/store/cart";
 import { useCatalog, useMergedProducts } from "@/store/catalog";
 import { useSite } from "@/store/site";
+import { useBanners } from "@/store/banners";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
@@ -15,14 +16,14 @@ function HomePage() {
   const products = useMergedProducts();
   const add = useCart((s) => s.add);
   const loading = useCatalog((s) => s.loading);
+  const activeBanners = useBanners((s) => s.banners).filter(b => b.status === "Active");
   const { t, p } = useT();
 
   const featured = products.filter((p) => featuredSlugs.includes(p.slug));
   const big = featured[0] ?? products[0];
   const rest = featured.slice(1, 5);
-  const heroImage = settings.heroImageUrl || "/images/hero-produce.jpg";
 
-  if (loading || products.length === 0) {
+  if (loading) {
     return (
       <section className="flex min-h-[60vh] items-center justify-center">
         <div className="text-center">
@@ -35,33 +36,61 @@ function HomePage() {
 
   return (
     <>
-      {/* Hero */}
-      <section className="relative">
-        <div className="relative h-[520px] w-full overflow-hidden md:h-[640px]">
-          <img src={heroImage} alt="Fresh organic produce" className="absolute inset-0 size-full object-cover" width={1600} height={1024} />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/85 via-background/30 to-transparent rtl:bg-gradient-to-l" />
-          <div className="relative mx-auto flex h-full w-full max-w-7xl items-center px-6">
-            <div className="max-w-xl">
-              <span className="inline-flex items-center gap-2 rounded-full bg-tertiary/80 px-3 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary">
-                <Leaf className="size-3.5" /> {settings.heroEyebrow}
-              </span>
-              <h1 className="mt-5 font-display text-5xl leading-[1.05] md:text-7xl">
-                {settings.heroTitle}<br /><span className="text-primary">{settings.heroAccent}</span>
-              </h1>
-              <p className="mt-5 max-w-md text-base text-foreground/80 md:text-lg">
-                {settings.heroSubtitle}
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link to="/shop" className="inline-flex items-center justify-center rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground shadow-md transition hover:opacity-90">
-                  {t("home.shopnow")}
-                </Link>
-                <Link to="/about" className="inline-flex items-center justify-center rounded-full border border-border bg-background/80 px-7 py-3 text-sm font-semibold backdrop-blur transition hover:bg-secondary">
-                  {t("home.ourstory")}
-                </Link>
+      {/* Hero Banners */}
+      <section className="relative flex snap-x snap-mandatory overflow-x-auto scroll-smooth hide-scrollbar">
+        {activeBanners.length > 0 ? (
+          activeBanners.map((banner, i) => (
+            <div key={banner.id} className="relative h-[520px] w-full shrink-0 snap-center overflow-hidden md:h-[640px]">
+              <img src={banner.imageUrl || "/images/hero-produce.jpg"} alt={banner.title} className="absolute inset-0 size-full object-cover" width={1600} height={1024} />
+              <div className="absolute inset-0 bg-gradient-to-r from-background/85 via-background/30 to-transparent rtl:bg-gradient-to-l" />
+              <div className="relative mx-auto flex h-full w-full max-w-7xl items-center px-6">
+                <div className="max-w-xl">
+                  {i === 0 && (
+                    <span className="inline-flex items-center gap-2 rounded-full bg-tertiary/80 px-3 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary">
+                      <Leaf className="size-3.5" /> {settings.heroEyebrow}
+                    </span>
+                  )}
+                  <h1 className="mt-5 font-display text-5xl leading-[1.05] md:text-7xl">
+                    {banner.title}
+                  </h1>
+                  {i === 0 && (
+                    <p className="mt-5 max-w-md text-base text-foreground/80 md:text-lg">
+                      {settings.heroSubtitle}
+                    </p>
+                  )}
+                  <div className="mt-8 flex flex-wrap gap-3">
+                    <Link to={banner.link || "/shop"} className="inline-flex items-center justify-center rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground shadow-md transition hover:opacity-90">
+                      {t("home.shopnow")}
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="relative h-[520px] w-full shrink-0 snap-center overflow-hidden md:h-[640px]">
+            <img src={settings.heroImageUrl || "/images/hero-produce.jpg"} alt="Fresh organic produce" className="absolute inset-0 size-full object-cover" width={1600} height={1024} />
+            <div className="absolute inset-0 bg-gradient-to-r from-background/85 via-background/30 to-transparent rtl:bg-gradient-to-l" />
+            <div className="relative mx-auto flex h-full w-full max-w-7xl items-center px-6">
+              <div className="max-w-xl">
+                <span className="inline-flex items-center gap-2 rounded-full bg-tertiary/80 px-3 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary">
+                  <Leaf className="size-3.5" /> {settings.heroEyebrow}
+                </span>
+                <h1 className="mt-5 font-display text-5xl leading-[1.05] md:text-7xl">
+                  {settings.heroTitle}<br /><span className="text-primary">{settings.heroAccent}</span>
+                </h1>
+                <p className="mt-5 max-w-md text-base text-foreground/80 md:text-lg">
+                  {settings.heroSubtitle}
+                </p>
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <Link to="/shop" className="inline-flex items-center justify-center rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground shadow-md transition hover:opacity-90">
+                    {t("home.shopnow")}
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </section>
 
       {/* Featured harvest */}
@@ -77,24 +106,8 @@ function HomePage() {
         </div>
 
         {featured.length === 0 ? (
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {products.slice(0, 3).map((p) => (
-              <div key={p.slug} className="rounded-3xl bg-card p-4 shadow-sm">
-                <Link to="/shop/$slug" params={{ slug: p.slug }} className="block overflow-hidden rounded-2xl">
-                  <img src={p.image} alt={p.name} className="aspect-square w-full object-cover transition duration-500 hover:scale-105" loading="lazy" />
-                </Link>
-                <Link to="/shop/$slug" params={{ slug: p.slug }} className="mt-3 block">
-                  <h3 className="font-display text-lg font-bold">{p.name}</h3>
-                  <p className="text-sm text-muted-foreground">{p.tagline}.</p>
-                </Link>
-                <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
-                  <span className="font-display text-lg font-bold text-primary">{formatPrice(p.price)}</span>
-                  <button onClick={() => add(p)} aria-label={`Add ${p.name} to cart`} className="grid size-9 place-items-center rounded-full bg-primary text-primary-foreground transition hover:opacity-90">
-                    <Plus className="size-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
+          <div className="mt-16 rounded-3xl border border-dashed border-border p-12 text-center text-muted-foreground">
+            {t("shop.nomatch", "No products available right now.")}
           </div>
         ) : (
           <div className="mt-8 grid gap-6 lg:grid-cols-3">
