@@ -93,7 +93,22 @@ export const useCatalog = create<CatalogState>()((set, get) => ({
     const slug = product.slug || product.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
     const newProduct = { ...product, slug, is_featured: false, badges: product.badges || [], nutrition: product.nutrition || { servingSize: "100g", calories: "0" }, stock: product.stock ?? 0 };
     set((s) => ({ products: [...s.products, newProduct] }));
-    supabase.from("products").insert(newProduct).then(({ error }) => { if (error) console.error("Supabase error:", error); });
+    // Explicitly map to DB column names to avoid silent insert failures
+    supabase.from("products").insert({
+      slug: newProduct.slug,
+      name: newProduct.name,
+      tagline: newProduct.tagline,
+      description: newProduct.description,
+      price: newProduct.price,
+      unit: newProduct.unit,
+      image: newProduct.image,
+      category: newProduct.category,
+      badges: newProduct.badges,
+      nutrition: newProduct.nutrition,
+      is_featured: false,
+      stock: newProduct.stock ?? 0,
+      sort_order: 9999,
+    }).then(({ error }) => { if (error) console.error("Supabase addProduct error:", error); });
   },
 
   removeProduct: (slug) => {

@@ -368,7 +368,7 @@ function ProductEditModal({
 
   const [uploading, setUploading] = useState(false);
 
-  const onPickImage = async (file: File | null) => {
+  const onPickImage = async (file: File | null, inputEl?: HTMLInputElement) => {
     setImgError(null);
     if (!file) return;
     if (!file.type.startsWith("image/")) { setImgError("Please choose an image file (JPG, PNG, WEBP)."); return; }
@@ -389,19 +389,26 @@ function ProductEditModal({
         setImages((prev) => [...prev, urlData.publicUrl]);
       } else {
         // Fallback to base64 if storage not configured
-        const reader = new FileReader();
-        reader.onerror = () => setImgError("We couldn't read that file. Try another image.");
-        reader.onload = () => setImages((prev) => [...prev, String(reader.result)]);
-        reader.readAsDataURL(file);
+        await new Promise<void>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onerror = () => { setImgError("We couldn't read that file. Try another image."); reject(); };
+          reader.onload = () => { setImages((prev) => [...prev, String(reader.result)]); resolve(); };
+          reader.readAsDataURL(file);
+        });
       }
     } catch {
       // Fallback to base64
-      const reader = new FileReader();
-      reader.onerror = () => setImgError("We couldn't read that file. Try another image.");
-      reader.onload = () => setImages((prev) => [...prev, String(reader.result)]);
-      reader.readAsDataURL(file);
+      await new Promise<void>((resolve) => {
+        const reader = new FileReader();
+        reader.onerror = () => { setImgError("We couldn't read that file. Try another image."); resolve(); };
+        reader.onload = () => { setImages((prev) => [...prev, String(reader.result)]); resolve(); };
+        reader.readAsDataURL(file);
+      });
+    } finally {
+      setUploading(false);
+      // Reset the input so the same file can be picked again
+      if (inputEl) inputEl.value = "";
     }
-    setUploading(false);
   };
 
   const handleClose = () => {
@@ -443,8 +450,17 @@ function ProductEditModal({
               ))}
             </div>
             <label className={`flex w-full cursor-pointer items-center justify-center rounded-xl border border-dashed border-border px-3 py-6 text-xs font-semibold hover:bg-secondary ${uploading ? "opacity-60 pointer-events-none" : ""}`}>
-              {uploading ? "Uploading…" : "Upload Image"}
-              <input type="file" accept="image/*" className="hidden" onChange={(e) => onPickImage(e.target.files?.[0] ?? null)} disabled={uploading} />
+              {uploading ? "Uploading…" : "+ Upload Image"}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] ?? null;
+                  onPickImage(file, e.target);
+                }}
+                disabled={uploading}
+              />
             </label>
             {imgError && <p className="text-[11px] text-destructive">{imgError}</p>}
             {images.join(',') !== baseImage && (
@@ -502,10 +518,10 @@ function ProductEditModal({
                 price: Number.isFinite(parseFloat(price)) ? parseFloat(price) : (product?.price || 0),
                 stock: Number.isFinite(parseInt(stock)) ? parseInt(stock) : (product?.stock ?? 0),
               })}
-              disabled={!dirty || !name || !price}
+              disabled={!dirty || !name || !price || uploading}
               className="rounded-full bg-primary px-5 py-2 text-sm font-bold text-primary-foreground hover:opacity-90 disabled:opacity-50"
             >
-              Save changes
+              {uploading ? "Uploading image…" : "Save changes"}
             </button>
           </div>
         </div>
