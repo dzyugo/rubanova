@@ -54,7 +54,7 @@ function ConfirmationPage() {
         {[
           { icon: Mail, label: "Confirmed", active: true },
           { icon: Package, label: "Packing", active: order.status !== "Processing" },
-          { icon: Truck, label: order.shippingMethod === "express" ? "Express Shipping" : "Standard Shipping", active: order.status === "Shipped" || order.status === "Delivered" },
+          { icon: Truck, label: order.deliveryType === "desk" ? "Desk Delivery" : "Home Delivery", active: order.status === "Shipped" || order.status === "Delivered" },
         ].map((s) => (
           <li key={s.label} className={`flex items-center gap-3 rounded-2xl border p-4 ${s.active ? "border-primary bg-tertiary/40" : "border-border bg-card"}`}>
             <div className={`grid size-10 place-items-center rounded-full ${s.active ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}>
@@ -80,18 +80,18 @@ function ConfirmationPage() {
                     <p className="font-semibold">{i.name}</p>
                     <p className="text-xs text-muted-foreground">Qty {i.qty} • {i.unit}</p>
                   </div>
-                  <span className="font-bold text-primary">${(i.price * i.qty).toFixed(2)}</span>
+                  <span className="font-bold text-primary">{(i.price * i.qty).toFixed(2)} DA</span>
                 </li>
               ))
             )}
           </ul>
           <dl className="mt-4 space-y-2 border-t border-border pt-4 text-sm">
-            <div className="flex justify-between"><dt>Subtotal</dt><dd>${order.subtotal.toFixed(2)}</dd></div>
-            <div className="flex justify-between"><dt>Shipping</dt><dd>${order.shipping.toFixed(2)}</dd></div>
-            <div className="flex justify-between"><dt>Tax</dt><dd>${order.tax.toFixed(2)}</dd></div>
+            <div className="flex justify-between"><dt>Subtotal</dt><dd>{order.subtotal.toFixed(2)} DA</dd></div>
+            <div className="flex justify-between"><dt>Shipping</dt><dd>{order.shipping.toFixed(2)} DA</dd></div>
+            <div className="flex justify-between"><dt>Tax</dt><dd>{order.tax.toFixed(2)} DA</dd></div>
             <div className="flex items-baseline justify-between border-t border-border pt-3">
               <dt className="font-display text-base font-bold">Total</dt>
-              <dd className="font-display text-2xl font-bold">${order.total.toFixed(2)}</dd>
+              <dd className="font-display text-2xl font-bold">{order.total.toFixed(2)} DA</dd>
             </div>
           </dl>
         </div>
@@ -105,7 +105,9 @@ function ConfirmationPage() {
           </div>
           <div className="rounded-2xl bg-card p-6 shadow-sm">
             <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Payment</h3>
-            <p className="mt-3 text-sm font-semibold capitalize">{order.paymentMethod === "card" ? "Credit Card" : "PayPal"}</p>
+            <p className="mt-3 text-sm font-semibold">Cash on Delivery (COD)</p>
+            {order.phone && <p className="mt-1 text-sm text-muted-foreground">Phone: {order.phone}</p>}
+            {order.shippingCompany && <p className="mt-1 text-sm text-muted-foreground">Via: {order.shippingCompany}</p>}
           </div>
         </aside>
       </div>

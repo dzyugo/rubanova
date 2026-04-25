@@ -7,6 +7,8 @@ import { useAuth } from "@/store/auth";
 import { useCatalog } from "@/store/catalog";
 import { useSite } from "@/store/site";
 import { useOrders } from "@/store/orders";
+import { useBanners } from "@/store/banners";
+import { useShipping } from "@/store/shipping";
 import { useLang } from "@/lib/i18n";
 import { useT } from "@/lib/i18n";
 
@@ -38,6 +40,8 @@ function RootComponent() {
   const initCatalog = useCatalog((s) => s.init);
   const initSite = useSite((s) => s.init);
   const initOrders = useOrders((s) => s.init);
+  const initBanners = useBanners((s) => s.init);
+  const initShipping = useShipping((s) => s.init);
   const lang = useLang((s) => s.lang);
 
   useEffect(() => {
@@ -45,7 +49,9 @@ function RootComponent() {
     initCatalog();
     initSite();
     initOrders();
-  }, [initAuth, initCatalog, initSite, initOrders]);
+    initBanners();
+    initShipping();
+  }, [initAuth, initCatalog, initSite, initOrders, initBanners, initShipping]);
 
   // Keep HTML dir/lang in sync
   useEffect(() => {

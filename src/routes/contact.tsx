@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useT } from "@/lib/i18n";
 import { useSite } from "@/store/site";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/contact")({
   component: ContactPage,
@@ -9,9 +10,36 @@ export const Route = createFileRoute("/contact")({
 
 function ContactPage() {
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
   const { t } = useT();
 
   const settings = useSite((s) => s.settings);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSending(true);
+    const f = new FormData(e.currentTarget);
+    const name = String(f.get("name") || "");
+    const email = String(f.get("email") || "");
+    const message = String(f.get("message") || "");
+
+    // Save to Supabase contact_messages table
+    await supabase.from("contact_messages").insert({
+      name,
+      email,
+      message,
+    }).then(({ error }) => {
+      if (error) {
+        // Fallback: save to localStorage if table doesn't exist
+        const msgs = JSON.parse(localStorage.getItem("rubanova-contact-msgs") || "[]");
+        msgs.push({ name, email, message, createdAt: new Date().toISOString() });
+        localStorage.setItem("rubanova-contact-msgs", JSON.stringify(msgs));
+      }
+    });
+
+    setSending(false);
+    setSent(true);
+  };
 
   return (
     <section className="mx-auto w-full max-w-6xl px-6 py-20">
@@ -38,10 +66,7 @@ function ContactPage() {
         </div>
 
         <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setSent(true);
-          }}
+          onSubmit={handleSubmit}
           className="rounded-3xl border border-border bg-card p-8"
         >
           {sent ? (
@@ -55,6 +80,7 @@ function ContactPage() {
                 <label className="text-sm font-medium" htmlFor="name">{t("contact.name")}</label>
                 <input
                   id="name"
+                  name="name"
                   required
                   className="mt-2 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 />
@@ -63,6 +89,7 @@ function ContactPage() {
                 <label className="text-sm font-medium" htmlFor="email">{t("auth.email")}</label>
                 <input
                   id="email"
+                  name="email"
                   type="email"
                   required
                   className="mt-2 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
@@ -72,6 +99,7 @@ function ContactPage() {
                 <label className="text-sm font-medium" htmlFor="message">{t("contact.message")}</label>
                 <textarea
                   id="message"
+                  name="message"
                   rows={5}
                   required
                   className="mt-2 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
@@ -79,9 +107,10 @@ function ContactPage() {
               </div>
               <button
                 type="submit"
-                className="w-full rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+                disabled={sending}
+                className="w-full rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition hover:opacity-90 disabled:opacity-60"
               >
-                {t("contact.send")}
+                {sending ? "..." : t("contact.send")}
               </button>
             </div>
           )}

@@ -22,8 +22,10 @@ export type Order = {
   shipping: number;
   tax: number;
   total: number;
-  shippingMethod: "express" | "standard";
-  paymentMethod: "card" | "paypal";
+  deliveryType: "desk" | "home";
+  shippingCompany: string;
+  paymentMethod: "cod";
+  phone: string;
   address: Omit<Address, "id" | "label" | "isDefault">;
   status: OrderStatus;
 };
@@ -34,6 +36,7 @@ type OrdersState = {
   loading: boolean;
   init: () => Promise<void>;
   addOrder: (o: Omit<Order, "id" | "createdAt" | "status">) => Promise<Order>;
+  addGuestOrder: (o: Omit<Order, "id" | "createdAt" | "status">) => Order;
   setStatus: (id: string, status: OrderStatus) => void;
   addAddress: (a: Omit<Address, "id">) => void;
   removeAddress: (id: string) => void;
@@ -69,8 +72,10 @@ export const useOrders = create<OrdersState>()((set, get) => ({
         shipping: Number(o.shipping),
         tax: Number(o.tax),
         total: Number(o.total),
-        shippingMethod: o.shipping_method as "express" | "standard",
-        paymentMethod: o.payment_method as "card" | "paypal",
+        deliveryType: (o.shipping_method as string) === "desk" ? "desk" : "home",
+        shippingCompany: (o.address as any)?.shippingCompany || "",
+        paymentMethod: "cod",
+        phone: (o.address as any)?.phone || (o.address as any)?.zip || "",
         address: (o.address ?? {}) as Order["address"],
         status: o.status as OrderStatus,
       })),
@@ -101,12 +106,31 @@ export const useOrders = create<OrdersState>()((set, get) => ({
         shipping: order.shipping,
         tax: order.tax,
         total: order.total,
-        shipping_method: order.shippingMethod,
+        shipping_method: order.deliveryType,
         payment_method: order.paymentMethod,
-        address: order.address as unknown as Record<string, unknown>,
+        address: { ...order.address, phone: order.phone, shippingCompany: order.shippingCompany } as unknown as Record<string, unknown>,
         status: order.status,
       });
     }
+    return order;
+  },
+
+  addGuestOrder: (o) => {
+    const order: Order = { ...o, id: makeOrderId(), createdAt: Date.now(), status: "Processing" };
+    set((s) => ({ orders: [order, ...s.orders] }));
+    // Guest orders are also saved to DB without user_id for admin visibility
+    supabase.from("orders").insert({
+      id: order.id,
+      items: order.items as unknown as Record<string, unknown>[],
+      subtotal: order.subtotal,
+      shipping: order.shipping,
+      tax: order.tax,
+      total: order.total,
+      shipping_method: order.deliveryType,
+      payment_method: order.paymentMethod,
+      address: { ...order.address, phone: order.phone, shippingCompany: order.shippingCompany } as unknown as Record<string, unknown>,
+      status: order.status,
+    }).then();
     return order;
   },
 

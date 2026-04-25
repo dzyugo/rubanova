@@ -15,6 +15,7 @@ function CheckoutPage() {
   const items = useCart((s) => s.items);
   const clear = useCart((s) => s.clear);
   const addOrder = useOrders((s) => s.addOrder);
+  const addGuestOrder = useOrders((s) => s.addGuestOrder);
   const navigate = useNavigate();
   const [step] = useState<0 | 1 | 2>(0);
   
@@ -48,21 +49,33 @@ function CheckoutPage() {
   const placeOrder = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
-    const order = await addOrder({
+    const phone = String(f.get("phone") || "");
+    const orderData = {
       items: [...items],
       subtotal,
       shipping: shipFee,
       tax,
       total,
-      shippingMethod: deliveryType === "express" ? "express" : "standard", // Mocking previous required types
-      paymentMethod: "card", // Mocking previous required types, actual is COD
+      deliveryType,
+      shippingCompany: selectedCompany?.name || "",
+      paymentMethod: "cod" as const,
+      phone,
       address: {
         fullName: String(f.get("fullName") || "Guest"),
         street: String(f.get("address") || ""),
         city: selectedWilaya,
-        zip: String(f.get("phone") || ""),
+        zip: "",
       },
-    });
+    };
+
+    // Check if user is logged in
+    const { data: { user } } = await (await import("@/lib/supabase")).supabase.auth.getUser();
+    let order;
+    if (user) {
+      order = await addOrder(orderData);
+    } else {
+      order = addGuestOrder(orderData);
+    }
     clear();
     navigate({ to: "/order-confirmation/$id", params: { id: order.id } });
   };

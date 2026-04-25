@@ -74,7 +74,7 @@ function AdminPage() {
   const pending = orders.filter((o) => o.status === "Processing").length;
 
   const stats = [
-    { label: "Total Sales", value: `$${totalRevenue.toFixed(2)}`, trend: `${orders.length} orders`, icon: Banknote },
+    { label: "Total Sales", value: `${totalRevenue.toFixed(2)} DA`, trend: `${orders.length} orders`, icon: Banknote },
     { label: "Pending Orders", value: String(pending), trend: "Needs fulfillment", icon: Package },
     { label: "Low Stock Alerts", value: "14 Items", trend: "Action required", trendColor: "text-destructive", icon: Archive },
   ];
@@ -234,7 +234,7 @@ function ProductsTab() {
                   <td className="px-4 py-3">
                     <span className="rounded-full bg-tertiary px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">{p.category}</span>
                   </td>
-                  <td className="px-4 py-3 font-semibold">${p.price.toFixed(2)}</td>
+                  <td className="px-4 py-3 font-semibold">{p.price.toFixed(2)} DA</td>
                   <td className="px-4 py-3">
                     <span className={`flex items-center gap-1.5 ${i === 1 ? "text-amber-600" : "text-primary"}`}>
                       <span className="size-2 rounded-full bg-current" />
