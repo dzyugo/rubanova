@@ -4,6 +4,7 @@ import { ShoppingCart } from "lucide-react";
 import { diets, type Diet } from "@/data/products";
 import { useCart } from "@/store/cart";
 import { useCatalog, useMergedProducts } from "@/store/catalog";
+import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/shop")({
   component: ShopPage,
@@ -18,6 +19,7 @@ function ShopPage() {
   const [maxPrice, setMaxPrice] = useState(50);
   const [sort, setSort] = useState<"latest" | "price-asc" | "price-desc">("latest");
   const add = useCart((s) => s.add);
+  const { t } = useT();
 
   const counts = useMemo(() => {
     const c: Record<string, number> = {};
@@ -51,14 +53,14 @@ function ShopPage() {
         {/* Sidebar */}
         <aside className="space-y-8">
           <div>
-            <h3 className="font-display text-base font-bold text-primary">Categories</h3>
+            <h3 className="font-display text-base font-bold text-primary">{t("shop.categories")}</h3>
             <ul className="mt-4 space-y-1 text-sm">
               <li>
                 <button
                   onClick={() => setActiveCat("All")}
-                  className={`flex w-full items-center justify-between rounded-md px-3 py-2 transition ${activeCat === "All" ? "border-l-2 border-primary bg-secondary font-semibold text-primary" : "hover:bg-secondary/60"}`}
+                  className={`flex w-full items-center justify-between rounded-md px-3 py-2 transition ${activeCat === "All" ? "border-s-2 border-primary bg-secondary font-semibold text-primary" : "hover:bg-secondary/60"}`}
                 >
-                  <span>All Products</span>
+                  <span>{t("shop.all")}</span>
                   <span className="text-xs text-muted-foreground">{products.length}</span>
                 </button>
               </li>
@@ -66,7 +68,7 @@ function ShopPage() {
                 <li key={c}>
                   <button
                     onClick={() => setActiveCat(c)}
-                    className={`flex w-full items-center justify-between rounded-md px-3 py-2 transition ${activeCat === c ? "border-l-2 border-primary bg-secondary font-semibold text-primary" : "hover:bg-secondary/60"}`}
+                    className={`flex w-full items-center justify-between rounded-md px-3 py-2 transition ${activeCat === c ? "border-s-2 border-primary bg-secondary font-semibold text-primary" : "hover:bg-secondary/60"}`}
                   >
                     <span>{c}</span>
                     <span className="text-xs text-muted-foreground">{counts[c] ?? 0}</span>
@@ -77,7 +79,7 @@ function ShopPage() {
           </div>
 
           <div>
-            <h3 className="font-display text-base font-bold text-primary">Dietary Needs</h3>
+            <h3 className="font-display text-base font-bold text-primary">{t("shop.dietary")}</h3>
             <ul className="mt-4 space-y-2 text-sm">
               {diets.map((d) => (
                 <li key={d}>
@@ -96,7 +98,7 @@ function ShopPage() {
           </div>
 
           <div>
-            <h3 className="font-display text-base font-bold text-primary">Price Range</h3>
+            <h3 className="font-display text-base font-bold text-primary">{t("shop.pricerange")}</h3>
             <input
               type="range"
               min={0}
@@ -106,8 +108,8 @@ function ShopPage() {
               className="mt-4 w-full accent-primary"
             />
             <div className="mt-1 flex justify-between text-xs text-muted-foreground">
-              <span>$0</span>
-              <span>${maxPrice}+</span>
+              <span>0 DA</span>
+              <span>{maxPrice}+ DA</span>
             </div>
           </div>
         </aside>
@@ -116,19 +118,19 @@ function ShopPage() {
         <div>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h1 className="font-display text-4xl font-bold md:text-5xl">Our Harvest</h1>
-              <p className="mt-2 text-muted-foreground">Selected fresh produce and essentials for your vitality.</p>
+              <h1 className="font-display text-4xl font-bold md:text-5xl">{t("shop.title")}</h1>
+              <p className="mt-2 text-muted-foreground">{t("shop.subtitle")}</p>
             </div>
             <div className="flex items-center gap-3 text-sm">
-              <span className="text-muted-foreground">Sort by:</span>
+              <span className="text-muted-foreground">{t("shop.sortby")}</span>
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value as typeof sort)}
                 className="rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
-                <option value="latest">Latest Harvest</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
+                <option value="latest">{t("shop.latest")}</option>
+                <option value="price-asc">{t("shop.priceasc")}</option>
+                <option value="price-desc">{t("shop.pricedesc")}</option>
               </select>
             </div>
           </div>
@@ -139,7 +141,7 @@ function ShopPage() {
                 <Link to="/shop/$slug" params={{ slug: p.slug }} className="block">
                   <div className="relative aspect-square overflow-hidden bg-muted">
                     <img src={p.image} alt={p.name} loading="lazy" className="size-full object-cover transition duration-500 hover:scale-105" />
-                    <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
+                    <div className="absolute start-3 top-3 flex flex-wrap gap-1.5">
                       {p.badges.slice(0, 2).map((b) => (
                         <span key={b} className="rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary backdrop-blur">{b}</span>
                       ))}
@@ -153,8 +155,8 @@ function ShopPage() {
                   <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{p.tagline}.</p>
                   <div className="mt-4 flex items-center justify-between">
                     <div>
-                      <span className="font-display text-xl font-bold text-primary">${p.price.toFixed(2)}</span>
-                      <span className="ml-1 text-xs text-muted-foreground">/{p.unit.split(" ")[0]}</span>
+                      <span className="font-display text-xl font-bold text-primary">{p.price.toFixed(2)} DA</span>
+                      <span className="ms-1 text-xs text-muted-foreground">/{p.unit.split(" ")[0]}</span>
                     </div>
                     <button
                       onClick={() => add(p)}
@@ -171,7 +173,7 @@ function ShopPage() {
 
           {filtered.length === 0 && (
             <div className="mt-16 rounded-2xl border border-dashed border-border p-12 text-center">
-              <p className="text-muted-foreground">No products match your filters.</p>
+              <p className="text-muted-foreground">{t("shop.nomatch")}</p>
             </div>
           )}
         </div>

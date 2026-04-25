@@ -1,16 +1,11 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Search, ShoppingCart, User, Menu, Sun, Moon, LogOut, ShieldCheck } from "lucide-react";
+import { Search, ShoppingCart, User, Menu, Sun, Moon, LogOut, ShieldCheck, Languages } from "lucide-react";
 import { useCart } from "@/store/cart";
 import { useState } from "react";
 import { useTheme } from "@/hooks/use-theme";
 import { useAuth, selectCurrentUser } from "@/store/auth";
 import { useSite } from "@/store/site";
-
-const baseNav = [
-  { to: "/shop", label: "Shop" },
-  { to: "/about", label: "Our Story" },
-  { to: "/contact", label: "Contact" },
-] as const;
+import { useT, useLang } from "@/lib/i18n";
 
 export function SiteHeader() {
   const count = useCart((s) => s.items.reduce((n, i) => n + i.qty, 0));
@@ -21,8 +16,17 @@ export function SiteHeader() {
   const logout = useAuth((s) => s.logout);
   const settings = useSite((s) => s.settings);
   const navigate = useNavigate();
+  const { t } = useT();
+  const lang = useLang((s) => s.lang);
+  const setLang = useLang((s) => s.setLang);
 
   const isAdmin = user?.role === "admin";
+
+  const baseNav = [
+    { to: "/shop" as const, label: t("nav.shop") },
+    { to: "/about" as const, label: t("nav.story") },
+    { to: "/contact" as const, label: t("nav.contact") },
+  ];
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur">
@@ -37,7 +41,7 @@ export function SiteHeader() {
         <nav className="hidden items-center gap-8 md:flex">
           {baseNav.map((item) => (
             <Link
-              key={item.label}
+              key={item.to}
               to={item.to}
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
               activeProps={{ className: "text-primary border-b-2 border-primary pb-1" }}
@@ -52,7 +56,7 @@ export function SiteHeader() {
               className="inline-flex items-center gap-1.5 rounded-full bg-tertiary px-3 py-1.5 text-sm font-semibold text-primary transition hover:bg-primary hover:text-primary-foreground"
               activeProps={{ className: "bg-primary text-primary-foreground" }}
             >
-              <ShieldCheck className="size-4" /> Admin
+              <ShieldCheck className="size-4" /> {t("nav.admin")}
             </Link>
           )}
         </nav>
@@ -61,10 +65,21 @@ export function SiteHeader() {
           <div className="hidden items-center gap-2 rounded-full bg-secondary/60 px-4 py-2 text-sm md:flex">
             <Search className="size-4 text-muted-foreground" />
             <input
-              placeholder="Search vitality…"
+              placeholder={t("nav.search")}
               className="w-44 bg-transparent text-sm placeholder:text-muted-foreground focus:outline-none"
             />
           </div>
+
+          {/* Language toggle */}
+          <button
+            onClick={() => setLang(lang === "ar" ? "en" : "ar")}
+            className="inline-flex items-center gap-1.5 rounded-full px-2 py-1.5 text-xs font-semibold text-muted-foreground transition hover:bg-secondary hover:text-foreground"
+            aria-label="Toggle language"
+          >
+            <Languages className="size-4" />
+            <span className="hidden sm:inline">{lang === "ar" ? "EN" : "عربي"}</span>
+          </button>
+
           <button
             onClick={toggle}
             className="rounded-full p-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground"
@@ -89,7 +104,7 @@ export function SiteHeader() {
             </button>
             {menu && (
               <div
-                className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-border bg-popover p-1 text-sm shadow-lg"
+                className="absolute end-0 mt-2 w-56 overflow-hidden rounded-xl border border-border bg-popover p-1 text-sm shadow-lg"
                 onMouseLeave={() => setMenu(false)}
               >
                 {user ? (
@@ -103,31 +118,31 @@ export function SiteHeader() {
                     </div>
                     <button
                       onClick={() => { setMenu(false); navigate({ to: "/account" }); }}
-                      className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left hover:bg-secondary"
+                      className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-start hover:bg-secondary"
                     >
-                      <User className="size-4" /> My account
+                      <User className="size-4" /> {t("nav.myaccount")}
                     </button>
                     {isAdmin && (
                       <button
                         onClick={() => { setMenu(false); navigate({ to: "/admin" }); }}
-                        className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left hover:bg-secondary"
+                        className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-start hover:bg-secondary"
                       >
-                        <ShieldCheck className="size-4" /> Admin dashboard
+                        <ShieldCheck className="size-4" /> {t("nav.admindash")}
                       </button>
                     )}
                     <button
                       onClick={() => { logout(); setMenu(false); }}
-                      className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-destructive hover:bg-secondary"
+                      className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-start text-destructive hover:bg-secondary"
                     >
-                      <LogOut className="size-4" /> Sign out
+                      <LogOut className="size-4" /> {t("nav.signout")}
                     </button>
                   </>
                 ) : (
                   <button
                     onClick={() => { setMenu(false); navigate({ to: "/account" }); }}
-                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left hover:bg-secondary"
+                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-start hover:bg-secondary"
                   >
-                    <User className="size-4" /> Sign in / Sign up
+                    <User className="size-4" /> {t("nav.signin")}
                   </button>
                 )}
               </div>
@@ -151,13 +166,13 @@ export function SiteHeader() {
         <div className="border-t border-border md:hidden">
           <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-6 py-3">
             {baseNav.map((item) => (
-              <Link key={item.label} to={item.to} onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm hover:bg-secondary">
+              <Link key={item.to} to={item.to} onClick={() => setOpen(false)} className="rounded-md px-3 py-2 text-sm hover:bg-secondary">
                 {item.label}
               </Link>
             ))}
             {isAdmin && (
               <Link to="/admin" onClick={() => setOpen(false)} className="flex items-center gap-2 rounded-md bg-tertiary px-3 py-2 text-sm font-semibold text-primary">
-                <ShieldCheck className="size-4" /> Admin dashboard
+                <ShieldCheck className="size-4" /> {t("nav.admindash")}
               </Link>
             )}
           </nav>
