@@ -5,12 +5,6 @@ import { useOrders, type OrderStatus } from "@/store/orders";
 import { useAuth, selectCurrentUser } from "@/store/auth";
 
 export const Route = createFileRoute("/account")({
-  head: () => ({
-    meta: [
-      { title: "Your account — Ruba Nova" },
-      { name: "description", content: "Sign in or manage saved addresses, orders, and profile." },
-    ],
-  }),
   component: AccountPage,
 });
 

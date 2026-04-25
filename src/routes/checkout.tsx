@@ -5,12 +5,6 @@ import { useCart } from "@/store/cart";
 import { useOrders } from "@/store/orders";
 
 export const Route = createFileRoute("/checkout")({
-  head: () => ({
-    meta: [
-      { title: "Checkout — Ruba Nova" },
-      { name: "description", content: "Secure encrypted checkout via Verdant-Pay architecture." },
-    ],
-  }),
   component: CheckoutPage,
 });
 

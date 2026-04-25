@@ -2,15 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 const hero = "/images/hero-produce.jpg";
 
 export const Route = createFileRoute("/about")({
-  head: () => ({
-    meta: [
-      { title: "Our Story — Ruba Nova" },
-      { name: "description", content: "Ruba Nova is a regenerative grocery rooted in honest sourcing and seasonal eating." },
-      { property: "og:title", content: "Our Story — Ruba Nova" },
-      { property: "og:description", content: "Ruba Nova is a regenerative grocery rooted in honest sourcing and seasonal eating." },
-      { property: "og:image", content: hero },
-    ],
-  }),
   component: AboutPage,
 });
 

@@ -5,12 +5,6 @@ import { useCart } from "@/store/cart";
 import { useMergedProducts } from "@/store/catalog";
 
 export const Route = createFileRoute("/shop/$slug")({
-  head: ({ params }) => ({
-    meta: [
-      { title: `${params.slug} — Ruba Nova` },
-      { name: "description", content: "Fresh organic produce from Ruba Nova." },
-    ],
-  }),
   component: ProductPage,
   notFoundComponent: () => (
     <div className="mx-auto max-w-2xl px-6 py-24 text-center">

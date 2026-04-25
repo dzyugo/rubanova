@@ -12,12 +12,6 @@ import { useSite } from "@/store/site";
 import { useCatalog, useMergedProducts, type ProductOverride } from "@/store/catalog";
 
 export const Route = createFileRoute("/admin")({
-  head: () => ({
-    meta: [
-      { title: "Admin Dashboard — Ruba Nova" },
-      { name: "description", content: "Manage products, orders, accounts, and site settings." },
-    ],
-  }),
   component: AdminPage,
 });
 

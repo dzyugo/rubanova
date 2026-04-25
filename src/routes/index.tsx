@@ -4,15 +4,7 @@ import { useCart } from "@/store/cart";
 import { useCatalog, useMergedProducts } from "@/store/catalog";
 import { useSite } from "@/store/site";
 
-export const Route = createFileRoute("/")(  {
-  head: () => ({
-    meta: [
-      { title: "Ruba Nova — Verdant Vitality for Your Soul" },
-      { name: "description", content: "Curated organic produce, cold-pressed juices and superfoods. Delivered fresh from regenerative farms." },
-      { property: "og:title", content: "Ruba Nova — Verdant Vitality for Your Soul" },
-      { property: "og:description", content: "Curated organic produce, cold-pressed juices and superfoods." },
-    ],
-  }),
+export const Route = createFileRoute("/")({
   component: HomePage,
 });
 

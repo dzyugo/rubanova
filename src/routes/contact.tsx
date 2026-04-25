@@ -2,14 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
 export const Route = createFileRoute("/contact")({
-  head: () => ({
-    meta: [
-      { title: "Contact — Verdure" },
-      { name: "description", content: "Visit our shop on Linden Lane, send us a note, or sign up for delivery." },
-      { property: "og:title", content: "Contact — Verdure" },
-      { property: "og:description", content: "Visit our shop on Linden Lane, send us a note, or sign up for delivery." },
-    ],
-  }),
   component: ContactPage,
 });
 

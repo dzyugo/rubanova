@@ -3,12 +3,6 @@ import { Minus, Plus, Trash2, Lock, Leaf, ShoppingBag } from "lucide-react";
 import { useCart } from "@/store/cart";
 
 export const Route = createFileRoute("/cart")({
-  head: () => ({
-    meta: [
-      { title: "Your Harvest Basket — Ruba Nova" },
-      { name: "description", content: "Review your selection of verdant vitality before we prepare your shipment." },
-    ],
-  }),
   component: CartPage,
 });
 

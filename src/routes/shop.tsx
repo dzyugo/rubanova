@@ -6,14 +6,6 @@ import { useCart } from "@/store/cart";
 import { useCatalog, useMergedProducts } from "@/store/catalog";
 
 export const Route = createFileRoute("/shop")({
-  head: () => ({
-    meta: [
-      { title: "Our Harvest — Ruba Nova" },
-      { name: "description", content: "Browse our selected fresh produce and essentials for your vitality." },
-      { property: "og:title", content: "Our Harvest — Ruba Nova" },
-      { property: "og:description", content: "Browse our selected fresh produce and essentials for your vitality." },
-    ],
-  }),
   component: ShopPage,
 });
 
