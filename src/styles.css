@@ -1,0 +1,124 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-tertiary: var(--tertiary);
+  --color-success: var(--success);
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+  --font-label: var(--font-label);
+}
+
+:root {
+  --radius: 0.75rem;
+
+  /* Verdant Vitality — light */
+  --background: oklch(0.985 0.005 240);            /* #F9FAFB */
+  --foreground: oklch(0.27 0.03 240);              /* near #2E3A46 */
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.27 0.03 240);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.27 0.03 240);
+
+  --primary: oklch(0.66 0.16 152);                 /* #38B673 */
+  --primary-foreground: oklch(1 0 0);
+
+  --secondary: oklch(0.96 0.015 155);              /* near #E8F5EE */
+  --secondary-foreground: oklch(0.27 0.03 240);
+
+  --muted: oklch(0.96 0.005 240);
+  --muted-foreground: oklch(0.5 0.02 240);
+
+  --accent: oklch(0.95 0.025 155);
+  --accent-foreground: oklch(0.27 0.03 240);
+
+  --tertiary: oklch(0.96 0.025 155);               /* #E8F5EE */
+  --success: oklch(0.66 0.16 152);
+
+  --destructive: oklch(0.6 0.22 27);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --border: oklch(0.92 0.005 240);
+  --input: oklch(0.92 0.005 240);
+  --ring: oklch(0.66 0.16 152);
+
+  --font-display: "Be Vietnam Pro", system-ui, sans-serif;
+  --font-sans: "Be Vietnam Pro", system-ui, sans-serif;
+  --font-label: "Work Sans", system-ui, sans-serif;
+}
+
+.dark {
+  --background: oklch(0.18 0.015 240);             /* #121417 */
+  --foreground: oklch(0.96 0.005 240);
+
+  --card: oklch(0.23 0.015 200);                   /* #2D3A3A */
+  --card-foreground: oklch(0.96 0.005 240);
+  --popover: oklch(0.23 0.015 200);
+  --popover-foreground: oklch(0.96 0.005 240);
+
+  --primary: oklch(0.66 0.16 152);
+  --primary-foreground: oklch(1 0 0);
+
+  --secondary: oklch(0.26 0.02 200);
+  --secondary-foreground: oklch(0.96 0.005 240);
+
+  --muted: oklch(0.26 0.015 200);
+  --muted-foreground: oklch(0.72 0.02 240);
+
+  --accent: oklch(0.78 0.13 152);                  /* #6FCF97 */
+  --accent-foreground: oklch(0.18 0.015 240);
+
+  --tertiary: oklch(0.78 0.13 152);
+  --success: oklch(0.78 0.13 152);
+
+  --destructive: oklch(0.65 0.2 27);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.66 0.16 152);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
+    font-weight: 700;
+  }
+}
