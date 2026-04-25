@@ -5,12 +5,18 @@ import { useCart } from "@/store/cart";
 import { useMergedProducts } from "@/store/catalog";
 import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
+import { parseProductImages, primaryProductImage } from "@/lib/product-images";
 
 export const Route = createFileRoute("/shop/$slug")({
   head: ({ params }) => ({
     meta: [
-      { title: `${params.slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} — Ruba Nova` },
-      { property: "og:title", content: `${params.slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} — Ruba Nova` },
+      {
+        title: `${params.slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())} — Ruba Nova`,
+      },
+      {
+        property: "og:title",
+        content: `${params.slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())} — Ruba Nova`,
+      },
     ],
   }),
   component: ProductPage,
@@ -28,7 +34,9 @@ function NotFoundProduct() {
   return (
     <div className="mx-auto max-w-2xl px-6 py-24 text-center">
       <h1 className="font-display text-4xl font-bold">{t("product.notfound")}</h1>
-      <Link to="/shop" className="mt-6 inline-block text-primary hover:underline">{t("product.backshop")}</Link>
+      <Link to="/shop" className="mt-6 inline-block text-primary hover:underline">
+        {t("product.backshop")}
+      </Link>
     </div>
   );
 }
@@ -54,14 +62,18 @@ function ProductPage() {
     throw notFound();
   }
 
-  const related = products.filter((p) => p.category === product.category && p.slug !== product.slug).slice(0, 4);
-  const images = product.image ? product.image.split(',') : [];
+  const related = products
+    .filter((p) => p.category === product.category && p.slug !== product.slug)
+    .slice(0, 4);
+  const images = parseProductImages(product.image);
 
   return (
     <section className="mx-auto w-full max-w-7xl px-6 py-12">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-        <Link to="/shop" className="hover:text-primary">{t("nav.shop")}</Link>
+        <Link to="/shop" className="hover:text-primary">
+          {t("nav.shop")}
+        </Link>
         <ChevronRight className="size-3" />
         <span>{product.category}</span>
         <ChevronRight className="size-3" />
@@ -84,8 +96,17 @@ function ProductPage() {
           {images.length > 1 && (
             <div className="mt-4 grid grid-cols-4 gap-3">
               {images.map((src, i) => (
-                <button key={i} onClick={() => setActiveImage(i)} className={`overflow-hidden rounded-xl border-2 ${i === activeImage ? "border-primary" : "border-transparent"}`}>
-                  <img src={src} alt="" className={`aspect-square w-full object-cover ${i === activeImage ? "opacity-100" : "opacity-60 hover:opacity-100"}`} loading="lazy" />
+                <button
+                  key={i}
+                  onClick={() => setActiveImage(i)}
+                  className={`overflow-hidden rounded-xl border-2 ${i === activeImage ? "border-primary" : "border-transparent"}`}
+                >
+                  <img
+                    src={src}
+                    alt=""
+                    className={`aspect-square w-full object-cover ${i === activeImage ? "opacity-100" : "opacity-60 hover:opacity-100"}`}
+                    loading="lazy"
+                  />
                 </button>
               ))}
             </div>
@@ -96,14 +117,21 @@ function ProductPage() {
         <div>
           <div className="flex flex-wrap gap-2">
             {product.badges.map((b: string) => (
-              <span key={b} className="rounded-full bg-tertiary px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">{b}</span>
+              <span
+                key={b}
+                className="rounded-full bg-tertiary px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary"
+              >
+                {b}
+              </span>
             ))}
           </div>
           <h1 className="mt-4 font-display text-4xl font-bold md:text-5xl">{product.name}</h1>
           <p className="mt-3 text-base text-muted-foreground">{product.description}</p>
 
           <div className="mt-6 flex items-baseline gap-3">
-            <span className="font-display text-4xl font-bold text-primary">{product.price.toFixed(2)} DA</span>
+            <span className="font-display text-4xl font-bold text-primary">
+              {product.price.toFixed(2)} DA
+            </span>
             <span className="text-sm text-muted-foreground">/ {product.unit}</span>
           </div>
           {product.stock !== undefined && (
@@ -124,19 +152,32 @@ function ProductPage() {
             </div>
           )}
 
-          <p className="mt-8 text-xs font-semibold uppercase tracking-widest text-muted-foreground">{t("product.qty")}</p>
+          <p className="mt-8 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            {t("product.qty")}
+          </p>
           <div className="mt-3 flex items-center gap-3">
             <div className="flex items-center gap-2 rounded-full border border-border bg-card px-2 py-1">
-              <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="grid size-8 place-items-center rounded-full hover:bg-secondary" aria-label="Decrease">
+              <button
+                onClick={() => setQty((q) => Math.max(1, q - 1))}
+                className="grid size-8 place-items-center rounded-full hover:bg-secondary"
+                aria-label="Decrease"
+              >
                 <Minus className="size-4" />
               </button>
               <span className="w-8 text-center text-sm font-semibold">{qty}</span>
-              <button onClick={() => setQty((q) => q + 1)} className="grid size-8 place-items-center rounded-full hover:bg-secondary" aria-label="Increase">
+              <button
+                onClick={() => setQty((q) => q + 1)}
+                className="grid size-8 place-items-center rounded-full hover:bg-secondary"
+                aria-label="Increase"
+              >
                 <Plus className="size-4" />
               </button>
             </div>
             <button
-              onClick={() => { add(product, qty); toast.success(`${product.name} ×${qty} — ${t("toast.added")}`); }}
+              onClick={() => {
+                add(product, qty);
+                toast.success(`${product.name} ×${qty} — ${t("toast.added")}`);
+              }}
               disabled={product.stock === 0}
               className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-md transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -162,7 +203,9 @@ function ProductPage() {
                   .filter(([, v]) => Boolean(v))
                   .map(([k, v]) => (
                     <div key={k} className="flex justify-between px-5 py-3">
-                      <dt className="text-muted-foreground capitalize">{k.replace(/([A-Z])/g, " $1").trim()}</dt>
+                      <dt className="text-muted-foreground capitalize">
+                        {k.replace(/([A-Z])/g, " $1").trim()}
+                      </dt>
                       <dd className="font-semibold">{v}</dd>
                     </div>
                   ))}
@@ -177,9 +220,14 @@ function ProductPage() {
               { icon: Truck, label: t("product.fresh") },
               { icon: Droplet, label: t("product.washed") },
             ].map((b) => (
-              <div key={b.label} className="grid place-items-center gap-2 rounded-2xl bg-tertiary/60 py-4">
+              <div
+                key={b.label}
+                className="grid place-items-center gap-2 rounded-2xl bg-tertiary/60 py-4"
+              >
                 <b.icon className="size-5 text-primary" />
-                <span className="text-[11px] font-bold uppercase tracking-wider text-primary">{b.label}</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-primary">
+                  {b.label}
+                </span>
               </div>
             ))}
           </div>
@@ -193,7 +241,10 @@ function ProductPage() {
             <h2 className="font-display text-3xl font-bold">{t("product.related")}</h2>
             <p className="mt-1 text-muted-foreground">{t("product.related.sub")}</p>
           </div>
-          <Link to="/shop" className="hidden text-sm font-semibold text-primary hover:underline md:block">
+          <Link
+            to="/shop"
+            className="hidden text-sm font-semibold text-primary hover:underline md:block"
+          >
             {t("product.viewshop")}
           </Link>
         </div>
@@ -201,7 +252,12 @@ function ProductPage() {
           {related.map((p) => (
             <Link key={p.slug} to="/shop/$slug" params={{ slug: p.slug }} className="group block">
               <div className="overflow-hidden rounded-2xl bg-card">
-                <img src={p.image.split(',')[0]} alt={p.name} className="aspect-square w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
+                <img
+                  src={primaryProductImage(p.image)}
+                  alt={p.name}
+                  className="aspect-square w-full object-cover transition duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
               </div>
               <div className="mt-3 flex items-baseline justify-between">
                 <h3 className="font-display text-base font-bold">{p.name}</h3>

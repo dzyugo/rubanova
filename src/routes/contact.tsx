@@ -24,18 +24,21 @@ function ContactPage() {
     const message = String(f.get("message") || "");
 
     // Save to Supabase contact_messages table
-    await supabase.from("contact_messages").insert({
-      name,
-      email,
-      message,
-    }).then(({ error }) => {
-      if (error) {
-        // Fallback: save to localStorage if table doesn't exist
-        const msgs = JSON.parse(localStorage.getItem("rubanova-contact-msgs") || "[]");
-        msgs.push({ name, email, message, createdAt: new Date().toISOString() });
-        localStorage.setItem("rubanova-contact-msgs", JSON.stringify(msgs));
-      }
-    });
+    await supabase
+      .from("contact_messages")
+      .insert({
+        name,
+        email,
+        message,
+      })
+      .then(({ error }) => {
+        if (error) {
+          // Fallback: save to localStorage if table doesn't exist
+          const msgs = JSON.parse(localStorage.getItem("rubanova-contact-msgs") || "[]");
+          msgs.push({ name, email, message, createdAt: new Date().toISOString() });
+          localStorage.setItem("rubanova-contact-msgs", JSON.stringify(msgs));
+        }
+      });
 
     setSending(false);
     setSent(true);
@@ -45,30 +48,35 @@ function ContactPage() {
     <section className="mx-auto w-full max-w-6xl px-6 py-20">
       <div className="grid gap-16 md:grid-cols-2">
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary">{t("contact.title")}</p>
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary">
+            {t("contact.title")}
+          </p>
           <h1 className="mt-3 font-display text-5xl md:text-6xl">{t("contact.title")}</h1>
           <p className="mt-6 text-lg text-muted-foreground">{t("contact.subtitle")}</p>
 
           <dl className="mt-10 space-y-6 text-sm">
             <div>
-              <dt className="font-display text-xs uppercase tracking-widest text-muted-foreground">{t("contact.visit")}</dt>
+              <dt className="font-display text-xs uppercase tracking-widest text-muted-foreground">
+                {t("contact.visit")}
+              </dt>
               <dd className="mt-1">{settings.address}</dd>
             </div>
             <div>
-              <dt className="font-display text-xs uppercase tracking-widest text-muted-foreground">{t("contact.email")}</dt>
+              <dt className="font-display text-xs uppercase tracking-widest text-muted-foreground">
+                {t("contact.email")}
+              </dt>
               <dd className="mt-1">{settings.contactEmail}</dd>
             </div>
             <div>
-              <dt className="font-display text-xs uppercase tracking-widest text-muted-foreground">{t("contact.call")}</dt>
+              <dt className="font-display text-xs uppercase tracking-widest text-muted-foreground">
+                {t("contact.call")}
+              </dt>
               <dd className="mt-1">{settings.contactPhone}</dd>
             </div>
           </dl>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="rounded-3xl border border-border bg-card p-8"
-        >
+        <form onSubmit={handleSubmit} className="rounded-3xl border border-border bg-card p-8">
           {sent ? (
             <div className="flex h-full min-h-[300px] flex-col items-center justify-center text-center">
               <h3 className="font-display text-2xl">{t("contact.sent")}</h3>
@@ -77,7 +85,9 @@ function ContactPage() {
             <div className="space-y-5">
               <h2 className="font-display text-xl font-bold">{t("contact.sendmsg")}</h2>
               <div>
-                <label className="text-sm font-medium" htmlFor="name">{t("contact.name")}</label>
+                <label className="text-sm font-medium" htmlFor="name">
+                  {t("contact.name")}
+                </label>
                 <input
                   id="name"
                   name="name"
@@ -86,7 +96,9 @@ function ContactPage() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium" htmlFor="email">{t("auth.email")}</label>
+                <label className="text-sm font-medium" htmlFor="email">
+                  {t("auth.email")}
+                </label>
                 <input
                   id="email"
                   name="email"
@@ -96,7 +108,9 @@ function ContactPage() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium" htmlFor="message">{t("contact.message")}</label>
+                <label className="text-sm font-medium" htmlFor="message">
+                  {t("contact.message")}
+                </label>
                 <textarea
                   id="message"
                   name="message"

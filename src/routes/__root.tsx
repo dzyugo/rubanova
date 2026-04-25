@@ -22,7 +22,10 @@ function NotFoundComponent() {
         <h2 className="mt-4 text-xl font-semibold text-foreground">{t("notfound.title")}</h2>
         <p className="mt-2 text-sm text-muted-foreground">{t("notfound.sub")}</p>
         <div className="mt-6">
-          <Link to="/" className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90">
+          <Link
+            to="/"
+            className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90"
+          >
             {t("notfound.back")}
           </Link>
         </div>
@@ -37,16 +40,26 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "theme-color", content: "#38B673" },
-      { name: "description", content: "Ruba Nova — fresh organic produce & natural goods delivered to your door across Algeria." },
+      {
+        name: "description",
+        content:
+          "Ruba Nova — fresh organic produce & natural goods delivered to your door across Algeria.",
+      },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Ruba Nova" },
-      { property: "og:description", content: "Fresh organic produce & natural goods — delivered across Algeria." },
+      {
+        property: "og:description",
+        content: "Fresh organic produce & natural goods — delivered across Algeria.",
+      },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600&display=swap",
+      },
     ],
   }),
   component: RootComponent,

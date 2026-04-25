@@ -15,14 +15,24 @@ export function SiteFooter() {
             {settings.tagline} {settings.footerNote}
           </p>
           <div className="mt-3 space-y-1 text-xs text-muted-foreground">
-            <p className="flex items-center gap-2"><Mail className="size-3" /> {settings.contactEmail}</p>
-            <p className="flex items-center gap-2"><Phone className="size-3" /> {settings.contactPhone}</p>
+            <p className="flex items-center gap-2">
+              <Mail className="size-3" /> {settings.contactEmail}
+            </p>
+            <p className="flex items-center gap-2">
+              <Phone className="size-3" /> {settings.contactPhone}
+            </p>
           </div>
         </div>
         <nav className="flex flex-wrap items-center gap-6 text-xs font-medium uppercase tracking-widest text-muted-foreground">
-          <Link to="/shop" className="hover:text-primary">{t("footer.shop")}</Link>
-          <Link to="/about" className="hover:text-primary">{t("footer.about")}</Link>
-          <Link to="/contact" className="hover:text-primary">{t("footer.contact")}</Link>
+          <Link to="/shop" className="hover:text-primary">
+            {t("footer.shop")}
+          </Link>
+          <Link to="/about" className="hover:text-primary">
+            {t("footer.about")}
+          </Link>
+          <Link to="/contact" className="hover:text-primary">
+            {t("footer.contact")}
+          </Link>
         </nav>
         <div className="flex items-center gap-3 text-muted-foreground">
           <Globe className="size-4" />

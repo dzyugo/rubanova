@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { reportError } from "@/lib/observability";
 import { supabase } from "@/lib/supabase";
 
 export type Banner = {
@@ -17,7 +18,9 @@ function loadLocal(): Banner[] {
   try {
     const raw = localStorage.getItem(LOCAL_KEY);
     return raw ? JSON.parse(raw) : [];
-  } catch { return []; }
+  } catch {
+    return [];
+  }
 }
 
 function saveLocal(banners: Banner[]) {
@@ -65,10 +68,19 @@ export const useBanners = create<BannersState>()((set, get) => ({
       saveLocal(next);
       return { banners: next };
     });
-    supabase.from("banners").insert({
-      id, title: banner.title, image_url: banner.imageUrl,
-      link: banner.link, order: banner.order, status: banner.status,
-    }).then(({ error }) => { if (error) console.error("Supabase error:", error); });
+    supabase
+      .from("banners")
+      .insert({
+        id,
+        title: banner.title,
+        image_url: banner.imageUrl,
+        link: banner.link,
+        order: banner.order,
+        status: banner.status,
+      })
+      .then(({ error }) => {
+        if (error) reportError(error, { scope: "banners-store", action: "supabase-operation" });
+      });
   },
 
   updateBanner: (id, patch) => {
@@ -83,7 +95,13 @@ export const useBanners = create<BannersState>()((set, get) => ({
     if (patch.link !== undefined) dbPatch.link = patch.link;
     if (patch.order !== undefined) dbPatch.order = patch.order;
     if (patch.status !== undefined) dbPatch.status = patch.status;
-    supabase.from("banners").update(dbPatch).eq("id", id).then(({ error }) => { if (error) console.error("Supabase error:", error); });
+    supabase
+      .from("banners")
+      .update(dbPatch)
+      .eq("id", id)
+      .then(({ error }) => {
+        if (error) reportError(error, { scope: "banners-store", action: "supabase-operation" });
+      });
   },
 
   removeBanner: (id) => {
@@ -92,6 +110,12 @@ export const useBanners = create<BannersState>()((set, get) => ({
       saveLocal(next);
       return { banners: next };
     });
-    supabase.from("banners").delete().eq("id", id).then(({ error }) => { if (error) console.error("Supabase error:", error); });
+    supabase
+      .from("banners")
+      .delete()
+      .eq("id", id)
+      .then(({ error }) => {
+        if (error) reportError(error, { scope: "banners-store", action: "supabase-operation" });
+      });
   },
 }));

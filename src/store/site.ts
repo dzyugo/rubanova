@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { reportError } from "@/lib/observability";
 import { supabase } from "@/lib/supabase";
 
 export type SiteSettings = {
@@ -47,7 +48,10 @@ export const useSite = create<SiteState>()((set, get) => ({
   init: async () => {
     const { data } = await supabase.from("site_settings").select("settings").eq("id", 1).single();
     if (data?.settings) {
-      set({ settings: { ...defaults, ...(data.settings as Partial<SiteSettings>) }, loading: false });
+      set({
+        settings: { ...defaults, ...(data.settings as Partial<SiteSettings>) },
+        loading: false,
+      });
     } else {
       set({ loading: false });
     }
@@ -56,11 +60,23 @@ export const useSite = create<SiteState>()((set, get) => ({
   update: (patch) => {
     set((s) => ({ settings: { ...s.settings, ...patch } }));
     const merged = { ...get().settings, ...patch };
-    supabase.from("site_settings").update({ settings: merged as unknown as Record<string, unknown> }).eq("id", 1).then(({ error }) => { if (error) console.error("Supabase error:", error); });
+    supabase
+      .from("site_settings")
+      .update({ settings: merged as unknown as Record<string, unknown> })
+      .eq("id", 1)
+      .then(({ error }) => {
+        if (error) reportError(error, { scope: "site-store", action: "supabase-operation" });
+      });
   },
 
   reset: () => {
     set({ settings: defaults });
-    supabase.from("site_settings").update({ settings: defaults as unknown as Record<string, unknown> }).eq("id", 1).then(({ error }) => { if (error) console.error("Supabase error:", error); });
+    supabase
+      .from("site_settings")
+      .update({ settings: defaults as unknown as Record<string, unknown> })
+      .eq("id", 1)
+      .then(({ error }) => {
+        if (error) reportError(error, { scope: "site-store", action: "supabase-operation" });
+      });
   },
 }));

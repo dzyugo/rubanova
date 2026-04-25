@@ -26,9 +26,9 @@ export function MobileNav() {
           <item.icon className="size-6" />
           <span className="text-[10px] font-bold">{item.label}</span>
           {item.badge ? (
-             <span className="absolute right-1/4 top-0 flex size-4 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
-               {item.badge > 99 ? "99+" : item.badge}
-             </span>
+            <span className="absolute right-1/4 top-0 flex size-4 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
+              {item.badge > 99 ? "99+" : item.badge}
+            </span>
           ) : null}
         </Link>
       ))}

@@ -10,7 +10,9 @@ function AboutPage() {
   return (
     <>
       <section className="mx-auto w-full max-w-4xl px-6 py-20">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">{t("about.badge")}</p>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
+          {t("about.badge")}
+        </p>
         <h1 className="mt-3 font-display text-5xl font-bold md:text-7xl">
           {t("about.title")} <span className="text-primary">{t("about.titleaccent")}</span>
         </h1>
@@ -28,14 +30,19 @@ function AboutPage() {
           ].map((s) => (
             <div key={s.l.en} className="text-center">
               <div className="font-display text-6xl font-bold text-primary">{s.n}</div>
-              <div className="mt-2 text-sm uppercase tracking-widest text-muted-foreground">{s.l[lang]}</div>
+              <div className="mt-2 text-sm uppercase tracking-widest text-muted-foreground">
+                {s.l[lang]}
+              </div>
             </div>
           ))}
         </div>
       </section>
 
       <section className="mx-auto max-w-4xl px-6 py-20 text-center">
-        <Link to="/shop" className="mt-8 inline-flex rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90">
+        <Link
+          to="/shop"
+          className="mt-8 inline-flex rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90"
+        >
           {t("about.cta")}
         </Link>
       </section>

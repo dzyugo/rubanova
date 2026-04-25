@@ -6,6 +6,7 @@ import { diets, type Diet } from "@/data/products";
 import { useCart } from "@/store/cart";
 import { useCatalog, useMergedProducts } from "@/store/catalog";
 import { useT } from "@/lib/i18n";
+import { primaryProductImage } from "@/lib/product-images";
 
 export const Route = createFileRoute("/shop/")({
   validateSearch: z.object({
@@ -14,7 +15,11 @@ export const Route = createFileRoute("/shop/")({
   head: () => ({
     meta: [
       { title: "Shop — Ruba Nova" },
-      { name: "description", content: "Browse our full collection of fresh organic produce and natural goods. Filter by category, dietary needs, and price." },
+      {
+        name: "description",
+        content:
+          "Browse our full collection of fresh organic produce and natural goods. Filter by category, dietary needs, and price.",
+      },
       { property: "og:title", content: "Shop — Ruba Nova" },
     ],
   }),
@@ -52,10 +57,16 @@ function ShopPage() {
     let list = products.filter((p) => p.price <= maxPrice);
     if (activeSearch.trim()) {
       const qs = activeSearch.toLowerCase().trim();
-      list = list.filter((p) => p.name.toLowerCase().includes(qs) || p.description.toLowerCase().includes(qs) || p.tagline.toLowerCase().includes(qs));
+      list = list.filter(
+        (p) =>
+          p.name.toLowerCase().includes(qs) ||
+          p.description.toLowerCase().includes(qs) ||
+          p.tagline.toLowerCase().includes(qs),
+      );
     }
     if (activeCat !== "All") list = list.filter((p) => p.category === activeCat);
-    if (activeDiets.length) list = list.filter((p) => activeDiets.every((d) => p.badges.includes(d)));
+    if (activeDiets.length)
+      list = list.filter((p) => activeDiets.every((d) => p.badges.includes(d)));
     if (sort === "price-asc") list = [...list].sort((a, b) => a.price - b.price);
     if (sort === "price-desc") list = [...list].sort((a, b) => b.price - a.price);
     return list;
@@ -78,7 +89,9 @@ function ShopPage() {
         {/* Sidebar */}
         <aside className="space-y-8">
           <div>
-            <h3 className="font-display text-base font-bold text-primary">{t("shop.categories")}</h3>
+            <h3 className="font-display text-base font-bold text-primary">
+              {t("shop.categories")}
+            </h3>
             <ul className="mt-4 space-y-1 text-sm">
               <li>
                 <button
@@ -123,7 +136,9 @@ function ShopPage() {
           </div>
 
           <div>
-            <h3 className="font-display text-base font-bold text-primary">{t("shop.pricerange")}</h3>
+            <h3 className="font-display text-base font-bold text-primary">
+              {t("shop.pricerange")}
+            </h3>
             <input
               type="range"
               min={0}
@@ -163,18 +178,33 @@ function ShopPage() {
 
           <div className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
             {filtered.map((p) => (
-              <article key={p.slug} className="overflow-hidden rounded-2xl bg-card shadow-sm transition hover:shadow-md">
+              <article
+                key={p.slug}
+                className="overflow-hidden rounded-2xl bg-card shadow-sm transition hover:shadow-md"
+              >
                 <Link to="/shop/$slug" params={{ slug: p.slug }} className="block">
                   <div className="relative aspect-square overflow-hidden bg-muted">
-                    <img src={p.image.split(',')[0]} alt={p.name} loading="lazy" className="size-full object-cover transition duration-500 hover:scale-105" />
+                    <img
+                      src={primaryProductImage(p.image)}
+                      alt={p.name}
+                      loading="lazy"
+                      className="size-full object-cover transition duration-500 hover:scale-105"
+                    />
                     <div className="absolute start-3 top-3 flex flex-wrap gap-1.5">
                       {p.badges.slice(0, 2).map((b) => (
-                        <span key={b} className="rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary backdrop-blur">{b}</span>
+                        <span
+                          key={b}
+                          className="rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary backdrop-blur"
+                        >
+                          {b}
+                        </span>
                       ))}
                     </div>
                     {p.stock === 0 && (
                       <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-[2px]">
-                        <span className="rounded-full bg-destructive px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-destructive-foreground">Out of Stock</span>
+                        <span className="rounded-full bg-destructive px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-destructive-foreground">
+                          Out of Stock
+                        </span>
                       </div>
                     )}
                   </div>
@@ -186,8 +216,12 @@ function ShopPage() {
                   <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{p.tagline}.</p>
                   <div className="mt-4 flex items-center justify-between">
                     <div>
-                      <span className="font-display text-xl font-bold text-primary">{p.price.toFixed(2)} DA</span>
-                      <span className="ms-1 text-xs text-muted-foreground">/{p.unit.split(" ")[0]}</span>
+                      <span className="font-display text-xl font-bold text-primary">
+                        {p.price.toFixed(2)} DA
+                      </span>
+                      <span className="ms-1 text-xs text-muted-foreground">
+                        /{p.unit.split(" ")[0]}
+                      </span>
                     </div>
                     <button
                       onClick={() => add(p)}

@@ -1,9 +1,31 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
-  LayoutGrid, ShoppingBasket, ClipboardList, Settings, Banknote, Archive, Bell, HelpCircle, User,
-  Search, ArrowUpRight, Pencil, Package, Star, Trash2, Users, ShieldCheck, Image as ImageIcon,
-  Tag, Plus, ChevronUp, ChevronDown, AlertTriangle, Check, X,
+  LayoutGrid,
+  ShoppingBasket,
+  ClipboardList,
+  Settings,
+  Banknote,
+  Archive,
+  Bell,
+  HelpCircle,
+  User,
+  Search,
+  ArrowUpRight,
+  Pencil,
+  Package,
+  Star,
+  Trash2,
+  Users,
+  ShieldCheck,
+  Image as ImageIcon,
+  Tag,
+  Plus,
+  ChevronUp,
+  ChevronDown,
+  AlertTriangle,
+  Check,
+  X,
 } from "lucide-react";
 import { type Product } from "@/data/products";
 import { useOrders, type OrderStatus } from "@/store/orders";
@@ -15,12 +37,25 @@ import { useBanners } from "@/store/banners";
 import { wilayas } from "@/data/wilayas";
 import { supabase } from "@/lib/supabase";
 import { useT } from "@/lib/i18n";
+import {
+  parseProductImages,
+  primaryProductImage,
+  serializeProductImages,
+} from "@/lib/product-images";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-type Tab = "dashboard" | "banners" | "products" | "categories" | "orders" | "shipping" | "accounts" | "settings";
+type Tab =
+  | "dashboard"
+  | "banners"
+  | "products"
+  | "categories"
+  | "orders"
+  | "shipping"
+  | "accounts"
+  | "settings";
 
 // Sidebar moved to AdminPage body for translations
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
@@ -52,30 +87,9 @@ function AdminPage() {
     { id: "settings", icon: Settings, label: t("admin.settings") },
   ];
 
-  useEffect(() => {
-    if (!user) navigate({ to: "/account" });
-  }, [user, navigate]);
-
-  if (!user) return null;
-  if (user.role !== "admin") {
-    return (
-      <section className="mx-auto max-w-md px-6 py-16 text-center">
-        <ShieldCheck className="mx-auto size-12 text-muted-foreground" />
-        <h1 className="mt-4 font-display text-2xl font-bold">Admins only</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          You're signed in as a {user.role}. This dashboard is reserved for admin accounts — please ask an administrator to upgrade your role if you need access.
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link to="/" className="inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">Back home</Link>
-          <Link to="/account" className="inline-flex rounded-full border border-border px-5 py-2.5 text-sm font-semibold hover:bg-secondary">My account</Link>
-        </div>
-      </section>
-    );
-  }
-
+  const products = useMergedProducts();
   const totalRevenue = orders.reduce((s, o) => s + o.total, 0);
   const pending = orders.filter((o) => o.status === "Processing").length;
-  const products = useMergedProducts();
   const lowStockCount = products.filter((p) => p.stock !== undefined && p.stock < 10).length;
 
   // Build last-7-days chart data from real orders
@@ -95,10 +109,57 @@ function AdminPage() {
     return result;
   }, [orders]);
 
+  useEffect(() => {
+    if (!user) navigate({ to: "/account" });
+  }, [user, navigate]);
+
+  if (!user) return null;
+  if (user.role !== "admin") {
+    return (
+      <section className="mx-auto max-w-md px-6 py-16 text-center">
+        <ShieldCheck className="mx-auto size-12 text-muted-foreground" />
+        <h1 className="mt-4 font-display text-2xl font-bold">{t("admin.only")}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {t("admin.only.sub", { role: user.role })}
+        </p>
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <Link
+            to="/"
+            className="inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
+          >
+            Back home
+          </Link>
+          <Link
+            to="/account"
+            className="inline-flex rounded-full border border-border px-5 py-2.5 text-sm font-semibold hover:bg-secondary"
+          >
+            My account
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
   const stats = [
-    { label: t("admin.totalsales"), value: `${totalRevenue.toFixed(2)} DA`, trend: `${orders.length} orders`, icon: Banknote },
-    { label: t("admin.pending"), value: String(pending), trend: "Needs fulfillment", icon: Package },
-    { label: t("admin.lowstock"), value: `${lowStockCount} Items`, trend: "Action required", trendColor: lowStockCount > 0 ? "text-destructive" : "text-muted-foreground", icon: Archive },
+    {
+      label: t("admin.totalsales"),
+      value: `${totalRevenue.toFixed(2)} DA`,
+      trend: t("admin.orders.count", { count: String(orders.length) }),
+      icon: Banknote,
+    },
+    {
+      label: t("admin.pending"),
+      value: String(pending),
+      trend: t("admin.needsfulfillment"),
+      icon: Package,
+    },
+    {
+      label: t("admin.lowstock"),
+      value: t("admin.items.count", { count: String(lowStockCount) }),
+      trend: t("admin.actionrequired"),
+      trendColor: lowStockCount > 0 ? "text-destructive" : "text-muted-foreground",
+      icon: Archive,
+    },
   ];
 
   return (
@@ -121,7 +182,11 @@ function AdminPage() {
         </nav>
         <div className="mt-8 hidden items-center gap-3 rounded-xl bg-secondary/60 p-3 lg:flex">
           <div className="grid size-9 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-            {user.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+            {user.name
+              .split(" ")
+              .map((n) => n[0])
+              .slice(0, 2)
+              .join("")}
           </div>
           <div className="text-xs">
             <p className="font-semibold">{user.name}</p>
@@ -132,15 +197,26 @@ function AdminPage() {
 
       <div className="space-y-6">
         <div className="flex items-center justify-between gap-4">
-          <h1 className="font-display text-2xl font-bold capitalize">{tab === "settings" ? "Site Settings" : tab}</h1>
+          <h1 className="font-display text-2xl font-bold capitalize">
+            {tab === "settings" ? "Site Settings" : tab}
+          </h1>
           <div className="flex items-center gap-3">
             <div className="hidden items-center gap-2 rounded-full bg-card px-4 py-2 text-sm shadow-sm md:flex">
               <Search className="size-4 text-muted-foreground" />
-              <input placeholder="Search…" className="w-44 bg-transparent text-sm focus:outline-none" />
+              <input
+                placeholder="Search…"
+                className="w-44 bg-transparent text-sm focus:outline-none"
+              />
             </div>
-            <button className="grid size-9 place-items-center rounded-full bg-card shadow-sm"><Bell className="size-4" /></button>
-            <button className="grid size-9 place-items-center rounded-full bg-card shadow-sm"><HelpCircle className="size-4" /></button>
-            <button className="grid size-9 place-items-center rounded-full bg-card shadow-sm"><User className="size-4" /></button>
+            <button className="grid size-9 place-items-center rounded-full bg-card shadow-sm">
+              <Bell className="size-4" />
+            </button>
+            <button className="grid size-9 place-items-center rounded-full bg-card shadow-sm">
+              <HelpCircle className="size-4" />
+            </button>
+            <button className="grid size-9 place-items-center rounded-full bg-card shadow-sm">
+              <User className="size-4" />
+            </button>
           </div>
         </div>
 
@@ -148,11 +224,16 @@ function AdminPage() {
           <>
             <div className="grid gap-4 md:grid-cols-3">
               {stats.map((s) => (
-                <div key={s.label} className="flex items-start justify-between rounded-2xl bg-card p-5 shadow-sm">
+                <div
+                  key={s.label}
+                  className="flex items-start justify-between rounded-2xl bg-card p-5 shadow-sm"
+                >
                   <div>
                     <p className="text-xs text-muted-foreground">{s.label}</p>
                     <p className="mt-2 font-display text-3xl font-bold">{s.value}</p>
-                    <p className={`mt-2 flex items-center gap-1 text-xs font-semibold ${s.trendColor ?? "text-primary"}`}>
+                    <p
+                      className={`mt-2 flex items-center gap-1 text-xs font-semibold ${s.trendColor ?? "text-primary"}`}
+                    >
                       <ArrowUpRight className="size-3" /> {s.trend}
                     </p>
                   </div>
@@ -173,11 +254,31 @@ function AdminPage() {
               <div className="mt-6 h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData} barSize={28}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
-                    <XAxis dataKey="day" tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} width={55} tickFormatter={(v) => `${v} DA`} />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="var(--color-border)"
+                      vertical={false}
+                    />
+                    <XAxis
+                      dataKey="day"
+                      tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={55}
+                      tickFormatter={(v) => `${v} DA`}
+                    />
                     <Tooltip
-                      contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: "0.75rem", fontSize: 12 }}
+                      contentStyle={{
+                        background: "var(--color-card)",
+                        border: "1px solid var(--color-border)",
+                        borderRadius: "0.75rem",
+                        fontSize: 12,
+                      }}
                       formatter={(v: number) => [`${v.toLocaleString()} DA`, "Revenue"]}
                       cursor={{ fill: "var(--color-secondary)" }}
                     />
@@ -212,20 +313,25 @@ function ProductsTab() {
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
 
-  const editing = editingSlug ? products.find((p) => p.slug === editingSlug) ?? null : null;
+  const editing = editingSlug ? (products.find((p) => p.slug === editingSlug) ?? null) : null;
 
   return (
     <div className="rounded-2xl bg-card p-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="font-display text-xl font-bold">Products Management</h2>
-          <p className="text-sm text-muted-foreground">Edit details, swap images, or feature an item — changes show on the home page instantly.</p>
+          <p className="text-sm text-muted-foreground">
+            Edit details, swap images, or feature an item — changes show on the home page instantly.
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <span className="hidden rounded-full bg-tertiary px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-primary sm:inline-block">
             {featuredSlugs.length} on home
           </span>
-          <button onClick={() => setIsAdding(true)} className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90">
+          <button
+            onClick={() => setIsAdding(true)}
+            className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
+          >
             Add Product
           </button>
         </div>
@@ -249,25 +355,37 @@ function ProductsTab() {
                 <tr key={p.slug}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <img src={p.image.split(',')[0]} alt="" className="size-10 rounded-lg object-cover" />
+                      <img
+                        src={primaryProductImage(p.image)}
+                        alt=""
+                        className="size-10 rounded-lg object-cover"
+                      />
                       <span className="font-semibold">{p.name}</span>
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="rounded-full bg-tertiary px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">{p.category}</span>
+                    <span className="rounded-full bg-tertiary px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">
+                      {p.category}
+                    </span>
                   </td>
                   <td className="px-4 py-3 font-semibold">{p.price.toFixed(2)} DA</td>
                   <td className="px-4 py-3">
-                    <span className={`flex items-center gap-1.5 ${p.stock && p.stock < 10 ? "text-amber-600" : "text-primary"}`}>
+                    <span
+                      className={`flex items-center gap-1.5 ${p.stock && p.stock < 10 ? "text-amber-600" : "text-primary"}`}
+                    >
                       <span className="size-2 rounded-full bg-current" />
-                      {p.stock && p.stock < 10 ? `Low Stock (${p.stock})` : `In Stock (${p.stock ?? 0})`}
+                      {p.stock && p.stock < 10
+                        ? `Low Stock (${p.stock})`
+                        : `In Stock (${p.stock ?? 0})`}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <button
                       onClick={() => toggle(p.slug)}
                       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition ${
-                        isFeatured ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:bg-tertiary hover:text-primary"
+                        isFeatured
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-secondary text-muted-foreground hover:bg-tertiary hover:text-primary"
                       }`}
                       aria-pressed={isFeatured}
                     >
@@ -303,15 +421,23 @@ function ProductsTab() {
           </tbody>
         </table>
       </div>
-      <p className="mt-4 text-xs text-muted-foreground">{featuredSlugs.length} products featured on the home page.</p>
+      <p className="mt-4 text-xs text-muted-foreground">
+        {featuredSlugs.length} products featured on the home page.
+      </p>
 
       {editing && (
         <ProductEditModal
           key={editing.slug}
           product={editing}
           onClose={() => setEditingSlug(null)}
-          onSave={(patch) => { updateProduct(editing.slug, patch); setEditingSlug(null); }}
-          onReset={() => { resetProduct(editing.slug); setEditingSlug(null); }}
+          onSave={(patch) => {
+            updateProduct(editing.slug, patch);
+            setEditingSlug(null);
+          }}
+          onReset={() => {
+            resetProduct(editing.slug);
+            setEditingSlug(null);
+          }}
         />
       )}
       {isAdding && (
@@ -319,7 +445,10 @@ function ProductsTab() {
           key="new-product"
           product={null}
           onClose={() => setIsAdding(false)}
-          onSave={(patch) => { addProduct(patch as any); setIsAdding(false); }}
+          onSave={(patch) => {
+            addProduct(patch as Omit<Product, "slug"> & { slug?: string });
+            setIsAdding(false);
+          }}
         />
       )}
     </div>
@@ -343,7 +472,7 @@ function ProductEditModal({
   const [description, setDescription] = useState(product?.description || "");
   const [price, setPrice] = useState(product ? String(product.price) : "");
   const [unit, setUnit] = useState(product?.unit || "");
-  const [images, setImages] = useState<string[]>(product?.image ? product.image.split(',') : []);
+  const [images, setImages] = useState<string[]>(parseProductImages(product?.image));
   const [category, setCategory] = useState<string>(product?.category || categories[0] || "");
   const [badgesStr, setBadgesStr] = useState(product?.badges?.join(", ") || "");
   const [servingSize, setServingSize] = useState(product?.nutrition?.servingSize || "100g");
@@ -351,6 +480,8 @@ function ProductEditModal({
   const [stock, setStock] = useState(product ? String(product.stock ?? 0) : "0");
   const [imgError, setImgError] = useState<string | null>(null);
   const baseImage = product?.image || "";
+  const baseImages = parseProductImages(baseImage);
+  const baseSerializedImages = serializeProductImages(baseImages);
 
   const dirty =
     !product ||
@@ -358,7 +489,7 @@ function ProductEditModal({
     tagline !== product.tagline ||
     description !== product.description ||
     unit !== product.unit ||
-    images.join(',') !== product.image ||
+    serializeProductImages(images) !== baseSerializedImages ||
     category !== product.category ||
     badgesStr.trim() !== (product?.badges?.join(", ") || "") ||
     servingSize !== (product?.nutrition?.servingSize || "100g") ||
@@ -371,28 +502,40 @@ function ProductEditModal({
   const onPickImage = async (file: File | null, inputEl?: HTMLInputElement) => {
     setImgError(null);
     if (!file) return;
-    if (!file.type.startsWith("image/")) { setImgError("Please choose an image file (JPG, PNG, WEBP)."); return; }
-    if (file.size > 5 * 1024 * 1024) { setImgError("Image must be under 5 MB."); return; }
+    if (!file.type.startsWith("image/")) {
+      setImgError("Please choose an image file (JPG, PNG, WEBP).");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setImgError("Image must be under 5 MB.");
+      return;
+    }
 
     setUploading(true);
     try {
       // Try uploading to Supabase Storage
-      const ext = file.name.split('.').pop() || 'jpg';
+      const ext = file.name.split(".").pop() || "jpg";
       const path = `products/${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
-      const { data, error } = await supabase.storage.from('product-images').upload(path, file, {
-        cacheControl: '3600',
+      const { data, error } = await supabase.storage.from("product-images").upload(path, file, {
+        cacheControl: "3600",
         upsert: false,
       });
 
       if (!error && data) {
-        const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(data.path);
+        const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(data.path);
         setImages((prev) => [...prev, urlData.publicUrl]);
       } else {
         // Fallback to base64 if storage not configured
         await new Promise<void>((resolve, reject) => {
           const reader = new FileReader();
-          reader.onerror = () => { setImgError("We couldn't read that file. Try another image."); reject(); };
-          reader.onload = () => { setImages((prev) => [...prev, String(reader.result)]); resolve(); };
+          reader.onerror = () => {
+            setImgError("We couldn't read that file. Try another image.");
+            reject();
+          };
+          reader.onload = () => {
+            setImages((prev) => [...prev, String(reader.result)]);
+            resolve();
+          };
           reader.readAsDataURL(file);
         });
       }
@@ -400,8 +543,14 @@ function ProductEditModal({
       // Fallback to base64
       await new Promise<void>((resolve) => {
         const reader = new FileReader();
-        reader.onerror = () => { setImgError("We couldn't read that file. Try another image."); resolve(); };
-        reader.onload = () => { setImages((prev) => [...prev, String(reader.result)]); resolve(); };
+        reader.onerror = () => {
+          setImgError("We couldn't read that file. Try another image.");
+          resolve();
+        };
+        reader.onload = () => {
+          setImages((prev) => [...prev, String(reader.result)]);
+          resolve();
+        };
         reader.readAsDataURL(file);
       });
     } finally {
@@ -417,14 +566,30 @@ function ProductEditModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-background/70 backdrop-blur-sm p-4" onClick={handleClose}>
-      <div className="w-full max-w-2xl rounded-3xl bg-card p-6 shadow-xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-50 grid place-items-center bg-background/70 backdrop-blur-sm p-4"
+      onClick={handleClose}
+    >
+      <div
+        className="w-full max-w-2xl rounded-3xl bg-card p-6 shadow-xl max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="font-display text-xl font-bold">{product ? "Edit product" : "Add product"}</h3>
-            <p className="text-xs text-muted-foreground">Slug: {product?.slug || "auto-generated"}</p>
+            <h3 className="font-display text-xl font-bold">
+              {product ? "Edit product" : "Add product"}
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Slug: {product?.slug || "auto-generated"}
+            </p>
           </div>
-          <button onClick={handleClose} className="rounded-full p-2 hover:bg-secondary" aria-label="Close">✕</button>
+          <button
+            onClick={handleClose}
+            className="rounded-full p-2 hover:bg-secondary"
+            aria-label="Close"
+          >
+            ✕
+          </button>
         </div>
 
         {dirty && product && (
@@ -437,7 +602,10 @@ function ProductEditModal({
           <div className="space-y-2">
             <div className="flex flex-wrap gap-2">
               {images.map((img, i) => (
-                <div key={i} className="group relative aspect-square w-20 overflow-hidden rounded-xl border border-border">
+                <div
+                  key={i}
+                  className="group relative aspect-square w-20 overflow-hidden rounded-xl border border-border"
+                >
                   <img src={img} alt="" className="size-full object-cover" />
                   <button
                     type="button"
@@ -449,7 +617,9 @@ function ProductEditModal({
                 </div>
               ))}
             </div>
-            <label className={`flex w-full cursor-pointer items-center justify-center rounded-xl border border-dashed border-border px-3 py-6 text-xs font-semibold hover:bg-secondary ${uploading ? "opacity-60 pointer-events-none" : ""}`}>
+            <label
+              className={`flex w-full cursor-pointer items-center justify-center rounded-xl border border-dashed border-border px-3 py-6 text-xs font-semibold hover:bg-secondary ${uploading ? "opacity-60 pointer-events-none" : ""}`}
+            >
               {uploading ? "Uploading…" : "+ Upload Image"}
               <input
                 type="file"
@@ -463,8 +633,12 @@ function ProductEditModal({
               />
             </label>
             {imgError && <p className="text-[11px] text-destructive">{imgError}</p>}
-            {images.join(',') !== baseImage && (
-              <button type="button" onClick={() => setImages(baseImage ? baseImage.split(',') : [])} className="w-full rounded-full px-3 py-1.5 text-[11px] text-muted-foreground hover:bg-secondary">
+            {serializeProductImages(images) !== baseSerializedImages && (
+              <button
+                type="button"
+                onClick={() => setImages(parseProductImages(baseImage))}
+                className="w-full rounded-full px-3 py-1.5 text-[11px] text-muted-foreground hover:bg-secondary"
+              >
                 Restore original images
               </button>
             )}
@@ -479,13 +653,19 @@ function ProductEditModal({
               <Input label="Stock" value={stock} onChange={setStock} type="number" step="1" />
             </div>
             <label className="block">
-              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Category</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                Category
+              </span>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 className="mt-2 w-full rounded-lg bg-secondary/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
-                {categories.map((c) => <option key={c} value={c}>{c}</option>)}
+                {categories.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
                 {!categories.includes(category) && <option value={category}>{category}</option>}
               </select>
             </label>
@@ -493,31 +673,54 @@ function ProductEditModal({
         </div>
 
         <div className="mt-5 grid gap-3 border-t border-border pt-5 sm:grid-cols-3">
-          <Input label="Badges (comma separated)" value={badgesStr} onChange={setBadgesStr} placeholder="e.g. Organic, Vegan" />
+          <Input
+            label="Badges (comma separated)"
+            value={badgesStr}
+            onChange={setBadgesStr}
+            placeholder="e.g. Organic, Vegan"
+          />
           <Input label="Serving Size" value={servingSize} onChange={setServingSize} />
           <Input label="Calories" value={calories} onChange={setCalories} />
         </div>
 
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
           {onReset && product ? (
-            <button onClick={onReset} className="rounded-full px-4 py-2 text-xs font-semibold text-muted-foreground hover:bg-secondary">
+            <button
+              onClick={onReset}
+              className="rounded-full px-4 py-2 text-xs font-semibold text-muted-foreground hover:bg-secondary"
+            >
               Reset to defaults
             </button>
           ) : (
             <div />
           )}
           <div className="flex gap-2">
-            <button onClick={handleClose} className="rounded-full border border-border px-5 py-2 text-sm font-semibold hover:bg-secondary">Cancel</button>
             <button
-              onClick={() => onSave({
-                name, tagline, description, unit,
-                image: images.join(','),
-                category: category as Product["category"],
-                badges: badgesStr.split(",").map((s) => s.trim()).filter(Boolean),
-                nutrition: { ...product?.nutrition, servingSize, calories },
-                price: Number.isFinite(parseFloat(price)) ? parseFloat(price) : (product?.price || 0),
-                stock: Number.isFinite(parseInt(stock)) ? parseInt(stock) : (product?.stock ?? 0),
-              })}
+              onClick={handleClose}
+              className="rounded-full border border-border px-5 py-2 text-sm font-semibold hover:bg-secondary"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() =>
+                onSave({
+                  name,
+                  tagline,
+                  description,
+                  unit,
+                  image: serializeProductImages(images),
+                  category: category as Product["category"],
+                  badges: badgesStr
+                    .split(",")
+                    .map((s) => s.trim())
+                    .filter(Boolean),
+                  nutrition: { ...product?.nutrition, servingSize, calories },
+                  price: Number.isFinite(parseFloat(price))
+                    ? parseFloat(price)
+                    : product?.price || 0,
+                  stock: Number.isFinite(parseInt(stock)) ? parseInt(stock) : (product?.stock ?? 0),
+                })
+              }
               disabled={!dirty || !name || !price || uploading}
               className="rounded-full bg-primary px-5 py-2 text-sm font-bold text-primary-foreground hover:opacity-90 disabled:opacity-50"
             >
@@ -559,7 +762,8 @@ function CategoriesTab() {
     setError(null);
     const r = renameCategory(oldName, editValue);
     if (!r.ok) return setError(r.error ?? "Could not rename.");
-    setEditing(null); setEditValue("");
+    setEditing(null);
+    setEditValue("");
   };
 
   const onRemove = (name: string) => {
@@ -573,7 +777,9 @@ function CategoriesTab() {
     <div className="space-y-5">
       <div className="rounded-2xl bg-card p-6 shadow-sm">
         <h2 className="font-display text-xl font-bold">Add a category</h2>
-        <p className="text-sm text-muted-foreground">New categories appear in the shop sidebar and product editor right away.</p>
+        <p className="text-sm text-muted-foreground">
+          New categories appear in the shop sidebar and product editor right away.
+        </p>
         <form onSubmit={onAdd} className="mt-4 flex flex-wrap gap-2">
           <input
             value={newName}
@@ -608,7 +814,10 @@ function CategoriesTab() {
                         autoFocus
                         value={editValue}
                         onChange={(e) => setEditValue(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === "Enter") onRenameSave(c); if (e.key === "Escape") setEditing(null); }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") onRenameSave(c);
+                          if (e.key === "Escape") setEditing(null);
+                        }}
                         className="rounded-md border border-border bg-background px-2 py-1 text-sm"
                       />
                     ) : (
@@ -620,13 +829,40 @@ function CategoriesTab() {
                     <div className="flex justify-end gap-1">
                       {editing === c ? (
                         <>
-                          <button onClick={() => onRenameSave(c)} className="rounded-md p-1.5 text-primary hover:bg-secondary" aria-label="Save"><Check className="size-4" /></button>
-                          <button onClick={() => setEditing(null)} className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary" aria-label="Cancel"><X className="size-4" /></button>
+                          <button
+                            onClick={() => onRenameSave(c)}
+                            className="rounded-md p-1.5 text-primary hover:bg-secondary"
+                            aria-label="Save"
+                          >
+                            <Check className="size-4" />
+                          </button>
+                          <button
+                            onClick={() => setEditing(null)}
+                            className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary"
+                            aria-label="Cancel"
+                          >
+                            <X className="size-4" />
+                          </button>
                         </>
                       ) : (
                         <>
-                          <button onClick={() => { setEditing(c); setEditValue(c); }} className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary" aria-label="Rename"><Pencil className="size-4" /></button>
-                          <button onClick={() => onRemove(c)} className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-destructive" aria-label="Remove"><Trash2 className="size-4" /></button>
+                          <button
+                            onClick={() => {
+                              setEditing(c);
+                              setEditValue(c);
+                            }}
+                            className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary"
+                            aria-label="Rename"
+                          >
+                            <Pencil className="size-4" />
+                          </button>
+                          <button
+                            onClick={() => onRemove(c)}
+                            className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-destructive"
+                            aria-label="Remove"
+                          >
+                            <Trash2 className="size-4" />
+                          </button>
                         </>
                       )}
                     </div>
@@ -634,7 +870,11 @@ function CategoriesTab() {
                 </tr>
               ))}
               {categories.length === 0 && (
-                <tr><td colSpan={3} className="px-4 py-8 text-center text-muted-foreground">No categories yet.</td></tr>
+                <tr>
+                  <td colSpan={3} className="px-4 py-8 text-center text-muted-foreground">
+                    No categories yet.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
@@ -659,7 +899,9 @@ function OrdersTab() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="font-display text-xl font-bold">Recent Orders</h2>
-            <p className="text-sm text-muted-foreground">Click an order to view full details. Update fulfillment status as orders progress.</p>
+            <p className="text-sm text-muted-foreground">
+              Click an order to view full details. Update fulfillment status as orders progress.
+            </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {(["All", ...allStatuses] as const).map((s) => (
@@ -689,7 +931,11 @@ function OrdersTab() {
             </thead>
             <tbody className="divide-y divide-border">
               {visible.length === 0 ? (
-                <tr><td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">No orders match this filter.</td></tr>
+                <tr>
+                  <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
+                    No orders match this filter.
+                  </td>
+                </tr>
               ) : (
                 visible.map((o) => (
                   <tr
@@ -704,11 +950,16 @@ function OrdersTab() {
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">{o.phone || "—"}</td>
                     <td className="px-4 py-3 text-muted-foreground">
-                      {new Date(o.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                      {new Date(o.createdAt).toLocaleDateString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                      })}
                     </td>
                     <td className="px-4 py-3 font-semibold">{o.total.toFixed(2)} DA</td>
                     <td className="px-4 py-3">
-                      <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${statusStyles[o.status]}`}>
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${statusStyles[o.status]}`}
+                      >
                         {o.status}
                       </span>
                     </td>
@@ -719,7 +970,9 @@ function OrdersTab() {
                         className="rounded-md border border-border bg-background px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-ring"
                       >
                         {allStatuses.map((s) => (
-                          <option key={s} value={s}>{s}</option>
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
                         ))}
                       </select>
                     </td>
@@ -729,7 +982,9 @@ function OrdersTab() {
             </tbody>
           </table>
         </div>
-        <p className="mt-4 text-xs text-muted-foreground">Showing {visible.length} of {orders.length} orders</p>
+        <p className="mt-4 text-xs text-muted-foreground">
+          Showing {visible.length} of {orders.length} orders
+        </p>
       </div>
 
       {/* Order Detail Panel */}
@@ -739,28 +994,51 @@ function OrdersTab() {
             <div>
               <h3 className="font-display text-lg font-bold">Order {selected.id}</h3>
               <p className="text-xs text-muted-foreground">
-                {new Date(selected.createdAt).toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+                {new Date(selected.createdAt).toLocaleDateString(undefined, {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
               </p>
             </div>
-            <button onClick={() => setSelectedId(null)} className="rounded-full p-2 hover:bg-secondary" aria-label="Close">✕</button>
+            <button
+              onClick={() => setSelectedId(null)}
+              className="rounded-full p-2 hover:bg-secondary"
+              aria-label="Close"
+            >
+              ✕
+            </button>
           </div>
 
           <div className="mt-5 grid gap-6 md:grid-cols-[1fr_280px]">
             {/* Items list */}
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Items ({selected.items.length})</h4>
+              <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                Items ({selected.items.length})
+              </h4>
               <ul className="mt-3 divide-y divide-border rounded-xl border border-border">
                 {selected.items.length === 0 ? (
-                  <li className="px-4 py-4 text-sm text-muted-foreground">Item details not available for this order.</li>
+                  <li className="px-4 py-4 text-sm text-muted-foreground">
+                    Item details not available for this order.
+                  </li>
                 ) : (
                   selected.items.map((item) => (
                     <li key={item.slug} className="flex items-center gap-4 px-4 py-3">
-                      <img src={item.image?.split(',')[0]} alt={item.name} className="size-12 rounded-lg object-cover" />
+                      <img
+                        src={primaryProductImage(item.image)}
+                        alt={item.name}
+                        className="size-12 rounded-lg object-cover"
+                      />
                       <div className="flex-1">
                         <p className="text-sm font-semibold">{item.name}</p>
-                        <p className="text-xs text-muted-foreground">×{item.qty} • {item.unit}</p>
+                        <p className="text-xs text-muted-foreground">
+                          ×{item.qty} • {item.unit}
+                        </p>
                       </div>
-                      <span className="text-sm font-bold text-primary">{(item.price * item.qty).toFixed(2)} DA</span>
+                      <span className="text-sm font-bold text-primary">
+                        {(item.price * item.qty).toFixed(2)} DA
+                      </span>
                     </li>
                   ))
                 )}
@@ -770,31 +1048,54 @@ function OrdersTab() {
             {/* Sidebar info */}
             <div className="space-y-4">
               <div className="rounded-xl border border-border p-4">
-                <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Customer</h4>
+                <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                  Customer
+                </h4>
                 <p className="mt-2 text-sm font-semibold">{selected.address.fullName}</p>
-                {selected.phone && <p className="mt-1 text-sm text-muted-foreground">📱 {selected.phone}</p>}
+                {selected.phone && (
+                  <p className="mt-1 text-sm text-muted-foreground">📱 {selected.phone}</p>
+                )}
                 <p className="mt-1 text-sm text-muted-foreground">{selected.address.street}</p>
                 <p className="text-sm text-muted-foreground">{selected.address.city}</p>
               </div>
 
               <div className="rounded-xl border border-border p-4">
-                <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Shipping</h4>
-                <p className="mt-2 text-sm font-semibold capitalize">{selected.deliveryType === "desk" ? "Desk Delivery" : "Home Delivery"}</p>
-                {selected.shippingCompany && <p className="mt-1 text-sm text-muted-foreground">Via: {selected.shippingCompany}</p>}
+                <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                  Shipping
+                </h4>
+                <p className="mt-2 text-sm font-semibold capitalize">
+                  {selected.deliveryType === "desk" ? "Desk Delivery" : "Home Delivery"}
+                </p>
+                {selected.shippingCompany && (
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Via: {selected.shippingCompany}
+                  </p>
+                )}
               </div>
 
               <div className="rounded-xl border border-border p-4">
-                <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Payment</h4>
+                <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                  Payment
+                </h4>
                 <p className="mt-2 text-sm font-semibold">Cash on Delivery</p>
               </div>
 
               <div className="rounded-xl border border-primary/30 bg-tertiary/20 p-4">
-                <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Totals</h4>
+                <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                  Totals
+                </h4>
                 <dl className="mt-2 space-y-1 text-sm">
-                  <div className="flex justify-between"><dt>Subtotal</dt><dd>{selected.subtotal.toFixed(2)} DA</dd></div>
-                  <div className="flex justify-between"><dt>Shipping</dt><dd>{selected.shipping.toFixed(2)} DA</dd></div>
+                  <div className="flex justify-between">
+                    <dt>Subtotal</dt>
+                    <dd>{selected.subtotal.toFixed(2)} DA</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt>Shipping</dt>
+                    <dd>{selected.shipping.toFixed(2)} DA</dd>
+                  </div>
                   <div className="flex justify-between border-t border-border pt-2 font-bold">
-                    <dt>Total</dt><dd className="text-primary">{selected.total.toFixed(2)} DA</dd>
+                    <dt>Total</dt>
+                    <dd className="text-primary">{selected.total.toFixed(2)} DA</dd>
                   </div>
                 </dl>
               </div>
@@ -821,16 +1122,27 @@ function AccountsTab({ currentId }: { currentId: string }) {
   const [sortKey, setSortKey] = useState<SortKey>("createdAt");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState(1);
-  const [pendingRole, setPendingRole] = useState<{ id: string; name: string; role: Role } | null>(null);
+  const [pendingRole, setPendingRole] = useState<{ id: string; name: string; role: Role } | null>(
+    null,
+  );
 
-  useEffect(() => { fetchAccounts(); }, [fetchAccounts]);
+  useEffect(() => {
+    fetchAccounts();
+  }, [fetchAccounts]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     let list = accounts;
-    if (q) list = list.filter((a) => a.name.toLowerCase().includes(q) || a.email.toLowerCase().includes(q) || a.role.includes(q));
+    if (q)
+      list = list.filter(
+        (a) =>
+          a.name.toLowerCase().includes(q) ||
+          a.email.toLowerCase().includes(q) ||
+          a.role.includes(q),
+      );
     list = [...list].sort((a, b) => {
-      const av = a[sortKey]; const bv = b[sortKey];
+      const av = a[sortKey];
+      const bv = b[sortKey];
       if (av < bv) return sortDir === "asc" ? -1 : 1;
       if (av > bv) return sortDir === "asc" ? 1 : -1;
       return 0;
@@ -842,15 +1154,22 @@ function AccountsTab({ currentId }: { currentId: string }) {
   const safePage = Math.min(page, pageCount);
   const visible = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  useEffect(() => { setPage(1); }, [query, sortKey, sortDir]);
+  useEffect(() => {
+    setPage(1);
+  }, [query, sortKey, sortDir]);
 
   const toggleSort = (k: SortKey) => {
     if (sortKey === k) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    else { setSortKey(k); setSortDir("asc"); }
+    else {
+      setSortKey(k);
+      setSortDir("asc");
+    }
   };
 
   const startEdit = (id: string, name: string, email: string) => {
-    setEditing(id); setDraftName(name); setDraftEmail(email);
+    setEditing(id);
+    setDraftName(name);
+    setDraftEmail(email);
   };
   const saveEdit = (id: string) => {
     updateAccount(id, { name: draftName, email: draftEmail });
@@ -858,9 +1177,13 @@ function AccountsTab({ currentId }: { currentId: string }) {
   };
 
   const SortHeader = ({ k, label }: { k: SortKey; label: string }) => (
-    <button onClick={() => toggleSort(k)} className="inline-flex items-center gap-1 hover:text-foreground">
+    <button
+      onClick={() => toggleSort(k)}
+      className="inline-flex items-center gap-1 hover:text-foreground"
+    >
       {label}
-      {sortKey === k && (sortDir === "asc" ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />)}
+      {sortKey === k &&
+        (sortDir === "asc" ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />)}
     </button>
   );
 
@@ -869,7 +1192,9 @@ function AccountsTab({ currentId }: { currentId: string }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="font-display text-xl font-bold">Accounts Management</h2>
-          <p className="text-sm text-muted-foreground">Promote shoppers to admins, edit profiles, or remove accounts.</p>
+          <p className="text-sm text-muted-foreground">
+            Promote shoppers to admins, edit profiles, or remove accounts.
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 rounded-full bg-secondary/60 px-3 py-1.5 text-sm">
@@ -881,7 +1206,9 @@ function AccountsTab({ currentId }: { currentId: string }) {
               className="w-44 bg-transparent text-sm focus:outline-none"
             />
           </div>
-          <span className="rounded-full bg-tertiary px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">{accounts.length} users</span>
+          <span className="rounded-full bg-tertiary px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
+            {accounts.length} users
+          </span>
         </div>
       </div>
 
@@ -889,10 +1216,18 @@ function AccountsTab({ currentId }: { currentId: string }) {
         <table className="w-full text-sm">
           <thead className="bg-secondary/60 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             <tr>
-              <th className="px-4 py-3 text-left"><SortHeader k="name" label="User" /></th>
-              <th className="px-4 py-3 text-left"><SortHeader k="email" label="Email" /></th>
-              <th className="px-4 py-3 text-left"><SortHeader k="role" label="Role" /></th>
-              <th className="px-4 py-3 text-left"><SortHeader k="createdAt" label="Joined" /></th>
+              <th className="px-4 py-3 text-left">
+                <SortHeader k="name" label="User" />
+              </th>
+              <th className="px-4 py-3 text-left">
+                <SortHeader k="email" label="Email" />
+              </th>
+              <th className="px-4 py-3 text-left">
+                <SortHeader k="role" label="Role" />
+              </th>
+              <th className="px-4 py-3 text-left">
+                <SortHeader k="createdAt" label="Joined" />
+              </th>
               <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
@@ -909,10 +1244,18 @@ function AccountsTab({ currentId }: { currentId: string }) {
                   ) : (
                     <div className="flex items-center gap-3">
                       <div className="grid size-9 place-items-center rounded-full bg-tertiary text-xs font-bold text-primary">
-                        {a.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                        {a.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .slice(0, 2)
+                          .join("")}
                       </div>
                       <span className="font-semibold">{a.name}</span>
-                      {a.id === currentId && <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary">You</span>}
+                      {a.id === currentId && (
+                        <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary">
+                          You
+                        </span>
+                      )}
                     </div>
                   )}
                 </td>
@@ -930,7 +1273,9 @@ function AccountsTab({ currentId }: { currentId: string }) {
                 <td className="px-4 py-3">
                   <select
                     value={a.role}
-                    onChange={(e) => setPendingRole({ id: a.id, name: a.name, role: e.target.value as Role })}
+                    onChange={(e) =>
+                      setPendingRole({ id: a.id, name: a.name, role: e.target.value as Role })
+                    }
                     disabled={a.id === currentId}
                     className="rounded-md border border-border bg-background px-2 py-1 text-xs disabled:opacity-60"
                   >
@@ -939,14 +1284,30 @@ function AccountsTab({ currentId }: { currentId: string }) {
                   </select>
                 </td>
                 <td className="px-4 py-3 text-xs text-muted-foreground">
-                  {new Date(a.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+                  {new Date(a.createdAt).toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-1">
                     {editing === a.id ? (
                       <>
-                        <button onClick={() => saveEdit(a.id)} className="rounded-md p-1.5 text-primary hover:bg-secondary" aria-label="Save"><Check className="size-4" /></button>
-                        <button onClick={() => setEditing(null)} className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary" aria-label="Cancel"><X className="size-4" /></button>
+                        <button
+                          onClick={() => saveEdit(a.id)}
+                          className="rounded-md p-1.5 text-primary hover:bg-secondary"
+                          aria-label="Save"
+                        >
+                          <Check className="size-4" />
+                        </button>
+                        <button
+                          onClick={() => setEditing(null)}
+                          className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary"
+                          aria-label="Cancel"
+                        >
+                          <X className="size-4" />
+                        </button>
                       </>
                     ) : (
                       <>
@@ -959,8 +1320,10 @@ function AccountsTab({ currentId }: { currentId: string }) {
                         </button>
                         <button
                           onClick={() => {
-                            if (a.id === currentId) return alert("You can't delete your own account here.");
-                            if (confirm(`Delete account for ${a.name}? This can't be undone.`)) removeAccount(a.id);
+                            if (a.id === currentId)
+                              return alert("You can't delete your own account here.");
+                            if (confirm(`Delete account for ${a.name}? This can't be undone.`))
+                              removeAccount(a.id);
                           }}
                           disabled={a.id === currentId}
                           className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-destructive disabled:opacity-40"
@@ -975,27 +1338,39 @@ function AccountsTab({ currentId }: { currentId: string }) {
               </tr>
             ))}
             {visible.length === 0 && (
-              <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">No accounts match your search.</td></tr>
+              <tr>
+                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                  No accounts match your search.
+                </td>
+              </tr>
             )}
           </tbody>
         </table>
       </div>
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-        <span>Showing {visible.length} of {filtered.length} accounts</span>
+        <span>
+          Showing {visible.length} of {filtered.length} accounts
+        </span>
         {pageCount > 1 && (
           <div className="flex items-center gap-1">
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={safePage === 1}
               className="rounded-md border border-border px-3 py-1 disabled:opacity-40 hover:bg-secondary"
-            >Prev</button>
-            <span className="px-2">Page {safePage} of {pageCount}</span>
+            >
+              Prev
+            </button>
+            <span className="px-2">
+              Page {safePage} of {pageCount}
+            </span>
             <button
               onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
               disabled={safePage === pageCount}
               className="rounded-md border border-border px-3 py-1 disabled:opacity-40 hover:bg-secondary"
-            >Next</button>
+            >
+              Next
+            </button>
           </div>
         )}
       </div>
@@ -1006,24 +1381,53 @@ function AccountsTab({ currentId }: { currentId: string }) {
           message={`Set ${pendingRole.name}'s role to ${pendingRole.role}? They'll ${pendingRole.role === "admin" ? "gain access to the admin dashboard." : "lose access to admin tools."}`}
           confirmLabel={`Yes, make ${pendingRole.role}`}
           onCancel={() => setPendingRole(null)}
-          onConfirm={() => { updateAccount(pendingRole.id, { role: pendingRole.role }); setPendingRole(null); }}
+          onConfirm={() => {
+            updateAccount(pendingRole.id, { role: pendingRole.role });
+            setPendingRole(null);
+          }}
         />
       )}
     </div>
   );
 }
 
-function ConfirmDialog({ title, message, confirmLabel, onConfirm, onCancel }: {
-  title: string; message: string; confirmLabel: string; onConfirm: () => void; onCancel: () => void;
+function ConfirmDialog({
+  title,
+  message,
+  confirmLabel,
+  onConfirm,
+  onCancel,
+}: {
+  title: string;
+  message: string;
+  confirmLabel: string;
+  onConfirm: () => void;
+  onCancel: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-background/70 backdrop-blur-sm p-4" onClick={onCancel}>
-      <div className="w-full max-w-md rounded-2xl bg-card p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-50 grid place-items-center bg-background/70 backdrop-blur-sm p-4"
+      onClick={onCancel}
+    >
+      <div
+        className="w-full max-w-md rounded-2xl bg-card p-6 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         <h3 className="font-display text-lg font-bold">{title}</h3>
         <p className="mt-2 text-sm text-muted-foreground">{message}</p>
         <div className="mt-5 flex justify-end gap-2">
-          <button onClick={onCancel} className="rounded-full border border-border px-5 py-2 text-sm font-semibold hover:bg-secondary">Cancel</button>
-          <button onClick={onConfirm} className="rounded-full bg-primary px-5 py-2 text-sm font-bold text-primary-foreground hover:opacity-90">{confirmLabel}</button>
+          <button
+            onClick={onCancel}
+            className="rounded-full border border-border px-5 py-2 text-sm font-semibold hover:bg-secondary"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="rounded-full bg-primary px-5 py-2 text-sm font-bold text-primary-foreground hover:opacity-90"
+          >
+            {confirmLabel}
+          </button>
         </div>
       </div>
     </div>
@@ -1044,7 +1448,8 @@ function SettingsTab() {
     alert("Site settings saved.");
   };
 
-  const set = <K extends keyof typeof draft>(k: K, v: (typeof draft)[K]) => setDraft((d) => ({ ...d, [k]: v }));
+  const set = <K extends keyof typeof draft>(k: K, v: (typeof draft)[K]) =>
+    setDraft((d) => ({ ...d, [k]: v }));
 
   return (
     <form onSubmit={onSave} className="grid gap-6 lg:grid-cols-[1fr_320px]">
@@ -1062,19 +1467,43 @@ function SettingsTab() {
           />
         </Panel>
 
-        <Panel title="Contact information" subtitle="Visible in the footer and on the contact page.">
-          <Input label="Contact email" type="email" value={draft.contactEmail} onChange={(v) => set("contactEmail", v)} />
-          <Input label="Contact phone" value={draft.contactPhone} onChange={(v) => set("contactPhone", v)} />
+        <Panel
+          title="Contact information"
+          subtitle="Visible in the footer and on the contact page."
+        >
+          <Input
+            label="Contact email"
+            type="email"
+            value={draft.contactEmail}
+            onChange={(v) => set("contactEmail", v)}
+          />
+          <Input
+            label="Contact phone"
+            value={draft.contactPhone}
+            onChange={(v) => set("contactPhone", v)}
+          />
           <Input label="Address" value={draft.address} onChange={(v) => set("address", v)} />
         </Panel>
 
         <Panel title="Home page banner" subtitle="The hero block visitors see first.">
-          <Input label="Eyebrow text" value={draft.heroEyebrow} onChange={(v) => set("heroEyebrow", v)} />
+          <Input
+            label="Eyebrow text"
+            value={draft.heroEyebrow}
+            onChange={(v) => set("heroEyebrow", v)}
+          />
           <div className="grid gap-4 sm:grid-cols-2">
             <Input label="Headline" value={draft.heroTitle} onChange={(v) => set("heroTitle", v)} />
-            <Input label="Accent line" value={draft.heroAccent} onChange={(v) => set("heroAccent", v)} />
+            <Input
+              label="Accent line"
+              value={draft.heroAccent}
+              onChange={(v) => set("heroAccent", v)}
+            />
           </div>
-          <Textarea label="Subtitle" value={draft.heroSubtitle} onChange={(v) => set("heroSubtitle", v)} />
+          <Textarea
+            label="Subtitle"
+            value={draft.heroSubtitle}
+            onChange={(v) => set("heroSubtitle", v)}
+          />
           <ImageField
             label="Hero image"
             value={draft.heroImageUrl}
@@ -1086,16 +1515,25 @@ function SettingsTab() {
         </Panel>
 
         <Panel title="Footer" subtitle="Appears beneath the brand line in the footer.">
-          <Textarea label="Footer note" value={draft.footerNote} onChange={(v) => set("footerNote", v)} />
+          <Textarea
+            label="Footer note"
+            value={draft.footerNote}
+            onChange={(v) => set("footerNote", v)}
+          />
         </Panel>
 
         <div className="flex flex-wrap gap-3">
-          <button type="submit" className="rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:opacity-90">
+          <button
+            type="submit"
+            className="rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:opacity-90"
+          >
             Save all settings
           </button>
           <button
             type="button"
-            onClick={() => { if (confirm("Reset site settings to defaults?")) reset(); }}
+            onClick={() => {
+              if (confirm("Reset site settings to defaults?")) reset();
+            }}
             className="rounded-full border border-border px-6 py-3 text-sm font-semibold hover:bg-secondary"
           >
             Reset to defaults
@@ -1106,24 +1544,42 @@ function SettingsTab() {
       <aside className="space-y-4">
         <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
           <div className="aspect-[4/3] w-full bg-muted">
-            <img src={draft.heroImageUrl || "/placeholder.svg"} alt="Hero preview" className="size-full object-cover" />
+            <img
+              src={draft.heroImageUrl || "/placeholder.svg"}
+              alt="Hero preview"
+              className="size-full object-cover"
+            />
           </div>
           <div className="p-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-primary">{draft.heroEyebrow}</p>
-            <h3 className="mt-2 font-display text-xl font-bold">{draft.heroTitle} <span className="text-primary">{draft.heroAccent}</span></h3>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-primary">
+              {draft.heroEyebrow}
+            </p>
+            <h3 className="mt-2 font-display text-xl font-bold">
+              {draft.heroTitle} <span className="text-primary">{draft.heroAccent}</span>
+            </h3>
             <p className="mt-2 text-xs text-muted-foreground">{draft.heroSubtitle}</p>
           </div>
         </div>
         <div className="rounded-2xl bg-primary p-6 text-primary-foreground shadow-sm">
           <h3 className="font-display text-lg font-bold">Live preview</h3>
-          <p className="mt-2 text-xs opacity-90">Changes apply instantly across the site after saving.</p>
+          <p className="mt-2 text-xs opacity-90">
+            Changes apply instantly across the site after saving.
+          </p>
         </div>
       </aside>
     </form>
   );
 }
 
-function Panel({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
+function Panel({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="rounded-2xl bg-card p-6 shadow-sm">
       <h2 className="font-display text-lg font-bold">{title}</h2>
@@ -1133,10 +1589,20 @@ function Panel({ title, subtitle, children }: { title: string; subtitle?: string
   );
 }
 
-function Input({ label, value, onChange, ...props }: { label: string; value: string; onChange: (v: string) => void } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">) {
+function Input({
+  label,
+  value,
+  onChange,
+  ...props
+}: { label: string; value: string; onChange: (v: string) => void } & Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "value" | "onChange"
+>) {
   return (
     <label className="block">
-      <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{label}</span>
+      <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+        {label}
+      </span>
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -1147,10 +1613,20 @@ function Input({ label, value, onChange, ...props }: { label: string; value: str
   );
 }
 
-function Textarea({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+function Textarea({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
   return (
     <label className="block">
-      <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{label}</span>
+      <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+        {label}
+      </span>
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -1164,7 +1640,12 @@ function Textarea({ label, value, onChange }: { label: string; value: string; on
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
 
 function ImageField({
-  label, value, onChange, placeholder, previewClass, maxSizeMB = 2,
+  label,
+  value,
+  onChange,
+  placeholder,
+  previewClass,
+  maxSizeMB = 2,
 }: {
   label: string;
   value: string;
@@ -1188,44 +1669,77 @@ function ImageField({
       return;
     }
     if (file.size > maxSizeMB * 1024 * 1024) {
-      setError(`Image must be under ${maxSizeMB} MB (yours is ${(file.size / 1024 / 1024).toFixed(2)} MB).`);
+      setError(
+        `Image must be under ${maxSizeMB} MB (yours is ${(file.size / 1024 / 1024).toFixed(2)} MB).`,
+      );
       return;
     }
     const reader = new FileReader();
     reader.onerror = () => setError("We couldn't read that file. Try a different one.");
-    reader.onload = () => { setPreviewError(false); onChange(String(reader.result)); };
+    reader.onload = () => {
+      setPreviewError(false);
+      onChange(String(reader.result));
+    };
     reader.readAsDataURL(file);
   };
 
   return (
     <div className="space-y-2">
-      <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{label}</span>
+      <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+        {label}
+      </span>
       <div className="flex flex-wrap items-center gap-2">
         <input
           value={value}
-          onChange={(e) => { setPreviewError(false); setError(null); onChange(e.target.value); }}
+          onChange={(e) => {
+            setPreviewError(false);
+            setError(null);
+            onChange(e.target.value);
+          }}
           placeholder={placeholder}
           className="min-w-0 flex-1 rounded-lg bg-secondary/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         />
         <label className="cursor-pointer rounded-full border border-border bg-background px-4 py-2 text-xs font-semibold hover:bg-secondary">
           Upload
-          <input type="file" accept={ALLOWED_IMAGE_TYPES.join(",")} className="hidden" onChange={(e) => onPick(e.target.files?.[0] ?? null)} />
+          <input
+            type="file"
+            accept={ALLOWED_IMAGE_TYPES.join(",")}
+            className="hidden"
+            onChange={(e) => onPick(e.target.files?.[0] ?? null)}
+          />
         </label>
         {value && (
-          <button type="button" onClick={() => { onChange(""); setError(null); setPreviewError(false); }} className="rounded-full px-3 py-2 text-xs text-muted-foreground hover:bg-secondary">
+          <button
+            type="button"
+            onClick={() => {
+              onChange("");
+              setError(null);
+              setPreviewError(false);
+            }}
+            className="rounded-full px-3 py-2 text-xs text-muted-foreground hover:bg-secondary"
+          >
             Clear
           </button>
         )}
       </div>
-      <p className="text-[11px] text-muted-foreground">JPG, PNG, WEBP, GIF or SVG · max {maxSizeMB} MB</p>
+      <p className="text-[11px] text-muted-foreground">
+        JPG, PNG, WEBP, GIF or SVG · max {maxSizeMB} MB
+      </p>
       {error && <p className="text-xs text-destructive">{error}</p>}
       {value && !error && (
         <div className="flex items-center gap-3 rounded-lg bg-secondary/60 p-3">
           <ImageIcon className="size-4 text-muted-foreground" />
           {previewError ? (
-            <span className="text-xs text-destructive">Preview failed — the URL doesn't load as an image.</span>
+            <span className="text-xs text-destructive">
+              Preview failed — the URL doesn't load as an image.
+            </span>
           ) : (
-            <img src={value} alt={`${label} preview`} className={previewClass ?? "h-12 w-auto"} onError={() => setPreviewError(true)} />
+            <img
+              src={value}
+              alt={`${label} preview`}
+              className={previewClass ?? "h-12 w-auto"}
+              onError={() => setPreviewError(true)}
+            />
           )}
         </div>
       )}
@@ -1244,10 +1758,21 @@ function BannersTab() {
       <div className="flex items-center justify-between gap-4">
         <div>
           <h2 className="font-display text-xl font-bold">Banners & Visuals</h2>
-          <p className="text-sm text-muted-foreground">Manage Hero banners displayed on the home page.</p>
+          <p className="text-sm text-muted-foreground">
+            Manage Hero banners displayed on the home page.
+          </p>
         </div>
         <button
-          onClick={() => addBanner({ title: "New Banner", imageUrl: "", link: "/shop", location: "Hero", order: banners.length, status: "Active" })}
+          onClick={() =>
+            addBanner({
+              title: "New Banner",
+              imageUrl: "",
+              link: "/shop",
+              location: "Hero",
+              order: banners.length,
+              status: "Active",
+            })
+          }
           className="inline-flex items-center gap-1 rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground hover:opacity-90"
         >
           <Plus className="size-4" /> Add Banner
@@ -1259,8 +1784,16 @@ function BannersTab() {
           <div key={b.id} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 space-y-4">
-                <Input label="Title" value={b.title} onChange={(v) => updateBanner(b.id, { title: v })} />
-                <Input label="Link URL" value={b.link} onChange={(v) => updateBanner(b.id, { link: v })} />
+                <Input
+                  label="Title"
+                  value={b.title}
+                  onChange={(v) => updateBanner(b.id, { title: v })}
+                />
+                <Input
+                  label="Link URL"
+                  value={b.link}
+                  onChange={(v) => updateBanner(b.id, { link: v })}
+                />
                 <ImageField
                   label="Banner Image"
                   value={b.imageUrl}
@@ -1274,13 +1807,17 @@ function BannersTab() {
                   <input
                     type="checkbox"
                     checked={b.status === "Active"}
-                    onChange={(e) => updateBanner(b.id, { status: e.target.checked ? "Active" : "Inactive" })}
+                    onChange={(e) =>
+                      updateBanner(b.id, { status: e.target.checked ? "Active" : "Inactive" })
+                    }
                     className="size-4 accent-primary"
                   />
                   Active
                 </label>
                 <button
-                  onClick={() => { if (confirm("Remove this banner?")) removeBanner(b.id); }}
+                  onClick={() => {
+                    if (confirm("Remove this banner?")) removeBanner(b.id);
+                  }}
                   className="mt-4 rounded-full border border-destructive/20 px-3 py-1.5 text-xs font-semibold text-destructive hover:bg-destructive/10"
                 >
                   <Trash2 className="size-3 inline mr-1" /> Delete
@@ -1318,9 +1855,22 @@ function ShippingTab() {
         <h2 className="font-display text-xl font-bold">Add Shipping Company</h2>
         <form onSubmit={onAdd} className="mt-4 flex flex-wrap items-end gap-3">
           <Input label="Company Name" value={newCompanyName} onChange={setNewCompanyName} />
-          <Input label="Default Desk Rate (DA)" type="number" value={String(deskRate)} onChange={(v) => setDeskRate(Number(v))} />
-          <Input label="Default Home Rate (DA)" type="number" value={String(homeRate)} onChange={(v) => setHomeRate(Number(v))} />
-          <button type="submit" className="mb-0.5 inline-flex items-center gap-1 rounded-lg bg-primary px-5 py-2 text-sm font-bold text-primary-foreground hover:opacity-90">
+          <Input
+            label="Default Desk Rate (DA)"
+            type="number"
+            value={String(deskRate)}
+            onChange={(v) => setDeskRate(Number(v))}
+          />
+          <Input
+            label="Default Home Rate (DA)"
+            type="number"
+            value={String(homeRate)}
+            onChange={(v) => setHomeRate(Number(v))}
+          />
+          <button
+            type="submit"
+            className="mb-0.5 inline-flex items-center gap-1 rounded-lg bg-primary px-5 py-2 text-sm font-bold text-primary-foreground hover:opacity-90"
+          >
             <Plus className="size-4" /> Add
           </button>
         </form>
@@ -1348,20 +1898,34 @@ function ShippingTab() {
                 </label>
               </div>
               <button
-                onClick={() => { if (confirm("Remove this shipping company?")) removeCompany(c.id); }}
+                onClick={() => {
+                  if (confirm("Remove this shipping company?")) removeCompany(c.id);
+                }}
                 className="rounded-full p-2 text-muted-foreground hover:bg-secondary hover:text-destructive"
               >
                 <Trash2 className="size-4" />
               </button>
             </div>
-            
+
             <div className="grid gap-4 sm:grid-cols-2 mb-6">
-              <Input label="Default Desk Rate (DA)" type="number" value={String(c.defaultDeskRate)} onChange={(v) => updateCompany(c.id, { defaultDeskRate: Number(v) })} />
-              <Input label="Default Home Rate (DA)" type="number" value={String(c.defaultHomeRate)} onChange={(v) => updateCompany(c.id, { defaultHomeRate: Number(v) })} />
+              <Input
+                label="Default Desk Rate (DA)"
+                type="number"
+                value={String(c.defaultDeskRate)}
+                onChange={(v) => updateCompany(c.id, { defaultDeskRate: Number(v) })}
+              />
+              <Input
+                label="Default Home Rate (DA)"
+                type="number"
+                value={String(c.defaultHomeRate)}
+                onChange={(v) => updateCompany(c.id, { defaultHomeRate: Number(v) })}
+              />
             </div>
 
             <details className="group">
-              <summary className="cursor-pointer font-semibold text-primary hover:underline outline-none">Configure Custom Rates per Wilaya</summary>
+              <summary className="cursor-pointer font-semibold text-primary hover:underline outline-none">
+                Configure Custom Rates per Wilaya
+              </summary>
               <div className="mt-4 max-h-[400px] overflow-y-auto rounded-xl border border-border">
                 <table className="w-full text-sm">
                   <thead className="bg-secondary/60 text-[10px] font-bold uppercase tracking-widest text-muted-foreground sticky top-0 backdrop-blur-md">
@@ -1373,7 +1937,10 @@ function ShippingTab() {
                   </thead>
                   <tbody className="divide-y divide-border">
                     {wilayas.map((w) => {
-                      const rate = c.rates[w] || { desk: c.defaultDeskRate, home: c.defaultHomeRate };
+                      const rate = c.rates[w] || {
+                        desk: c.defaultDeskRate,
+                        home: c.defaultHomeRate,
+                      };
                       return (
                         <tr key={w}>
                           <td className="px-4 py-2 font-semibold">{w}</td>
@@ -1381,7 +1948,9 @@ function ShippingTab() {
                             <input
                               type="number"
                               value={rate.desk}
-                              onChange={(e) => updateRate(c.id, w, Number(e.target.value), rate.home)}
+                              onChange={(e) =>
+                                updateRate(c.id, w, Number(e.target.value), rate.home)
+                              }
                               className="w-24 rounded-md border border-border bg-background px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                             />
                           </td>
@@ -1389,7 +1958,9 @@ function ShippingTab() {
                             <input
                               type="number"
                               value={rate.home}
-                              onChange={(e) => updateRate(c.id, w, rate.desk, Number(e.target.value))}
+                              onChange={(e) =>
+                                updateRate(c.id, w, rate.desk, Number(e.target.value))
+                              }
                               className="w-24 rounded-md border border-border bg-background px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                             />
                           </td>

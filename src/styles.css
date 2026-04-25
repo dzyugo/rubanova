@@ -40,18 +40,18 @@
   --radius: 0.75rem;
 
   /* Verdant Vitality — light */
-  --background: oklch(0.985 0.005 240);            /* #F9FAFB */
-  --foreground: oklch(0.27 0.03 240);              /* near #2E3A46 */
+  --background: oklch(0.985 0.005 240); /* #F9FAFB */
+  --foreground: oklch(0.27 0.03 240); /* near #2E3A46 */
 
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.27 0.03 240);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.27 0.03 240);
 
-  --primary: oklch(0.66 0.16 152);                 /* #38B673 */
+  --primary: oklch(0.66 0.16 152); /* #38B673 */
   --primary-foreground: oklch(1 0 0);
 
-  --secondary: oklch(0.96 0.015 155);              /* near #E8F5EE */
+  --secondary: oklch(0.96 0.015 155); /* near #E8F5EE */
   --secondary-foreground: oklch(0.27 0.03 240);
 
   --muted: oklch(0.96 0.005 240);
@@ -60,7 +60,7 @@
   --accent: oklch(0.95 0.025 155);
   --accent-foreground: oklch(0.27 0.03 240);
 
-  --tertiary: oklch(0.96 0.025 155);               /* #E8F5EE */
+  --tertiary: oklch(0.96 0.025 155); /* #E8F5EE */
   --success: oklch(0.66 0.16 152);
 
   --destructive: oklch(0.6 0.22 27);
@@ -76,10 +76,10 @@
 }
 
 .dark {
-  --background: oklch(0.18 0.015 240);             /* #121417 */
+  --background: oklch(0.18 0.015 240); /* #121417 */
   --foreground: oklch(0.96 0.005 240);
 
-  --card: oklch(0.23 0.015 200);                   /* #2D3A3A */
+  --card: oklch(0.23 0.015 200); /* #2D3A3A */
   --card-foreground: oklch(0.96 0.005 240);
   --popover: oklch(0.23 0.015 200);
   --popover-foreground: oklch(0.96 0.005 240);
@@ -93,7 +93,7 @@
   --muted: oklch(0.26 0.015 200);
   --muted-foreground: oklch(0.72 0.02 240);
 
-  --accent: oklch(0.78 0.13 152);                  /* #6FCF97 */
+  --accent: oklch(0.78 0.13 152); /* #6FCF97 */
   --accent-foreground: oklch(0.18 0.015 240);
 
   --tertiary: oklch(0.78 0.13 152);
@@ -116,7 +116,10 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
   }
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-display);
     letter-spacing: -0.015em;
     font-weight: 700;
@@ -137,8 +140,14 @@
 
 /* Image fade-in on load */
 @keyframes img-reveal {
-  from { opacity: 0; transform: scale(1.02); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(1.02);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 .img-reveal {
   animation: img-reveal 0.4s ease forwards;

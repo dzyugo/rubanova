@@ -1,6 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { User, MapPin, Package, Plus, Trash2, Star, ChevronRight, LogIn, UserPlus, LogOut, ShieldCheck } from "lucide-react";
+import {
+  User,
+  MapPin,
+  Package,
+  Plus,
+  Trash2,
+  Star,
+  ChevronRight,
+  LogIn,
+  UserPlus,
+  LogOut,
+  ShieldCheck,
+} from "lucide-react";
 import { useOrders, type OrderStatus } from "@/store/orders";
 import { useAuth, selectCurrentUser } from "@/store/auth";
 import { useT } from "@/lib/i18n";
@@ -61,7 +73,9 @@ function AuthGate() {
         <div className="mx-auto grid size-14 place-items-center rounded-full bg-tertiary text-primary">
           <User className="size-6" />
         </div>
-        <h1 className="mt-4 font-display text-3xl font-bold">{mode === "login" ? t("auth.welcome") : t("auth.create")}</h1>
+        <h1 className="mt-4 font-display text-3xl font-bold">
+          {mode === "login" ? t("auth.welcome") : t("auth.create")}
+        </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           {mode === "login" ? t("auth.login.sub") : t("auth.signup.sub")}
         </p>
@@ -70,14 +84,36 @@ function AuthGate() {
       <form onSubmit={onSubmit} className="space-y-4 rounded-2xl bg-card p-6 shadow-sm">
         {mode === "signup" && <Field name="name" label={t("auth.fullname")} required />}
         <Field name="email" label={t("auth.email")} type="email" required />
-        <Field name="password" label={t("auth.password")} type="password" required minLength={mode === "signup" ? 6 : undefined} />
+        <Field
+          name="password"
+          label={t("auth.password")}
+          type="password"
+          required
+          minLength={mode === "signup" ? 6 : undefined}
+        />
         {error && <p className="text-sm text-destructive">{error}</p>}
-        <button disabled={busy} className="flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3 text-sm font-bold text-primary-foreground hover:opacity-90 disabled:opacity-60">
-          {busy ? t("auth.wait") : mode === "login" ? <><LogIn className="size-4" /> {t("auth.signin")}</> : <><UserPlus className="size-4" /> {t("auth.createaccount")}</>}
+        <button
+          disabled={busy}
+          className="flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3 text-sm font-bold text-primary-foreground hover:opacity-90 disabled:opacity-60"
+        >
+          {busy ? (
+            t("auth.wait")
+          ) : mode === "login" ? (
+            <>
+              <LogIn className="size-4" /> {t("auth.signin")}
+            </>
+          ) : (
+            <>
+              <UserPlus className="size-4" /> {t("auth.createaccount")}
+            </>
+          )}
         </button>
         <button
           type="button"
-          onClick={() => { setMode(mode === "login" ? "signup" : "login"); setError(null); }}
+          onClick={() => {
+            setMode(mode === "login" ? "signup" : "login");
+            setError(null);
+          }}
           className="w-full text-center text-xs font-semibold text-muted-foreground hover:text-primary"
         >
           {mode === "login" ? t("auth.needaccount") : t("auth.havaccount")}
@@ -134,20 +170,33 @@ function AccountDashboard() {
             <User className="size-6" />
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-primary">{t("auth.myaccount")}</p>
-            <h1 className="font-display text-3xl font-bold sm:text-4xl">{t("auth.welcomeback")} {user.name.split(" ")[0]}</h1>
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary">
+              {t("auth.myaccount")}
+            </p>
+            <h1 className="font-display text-3xl font-bold sm:text-4xl">
+              {t("auth.welcomeback")} {user.name.split(" ")[0]}
+            </h1>
             <p className="text-xs text-muted-foreground">
-              {user.email} • <span className="font-semibold uppercase tracking-wider text-primary">{user.role}</span>
+              {user.email} •{" "}
+              <span className="font-semibold uppercase tracking-wider text-primary">
+                {user.role}
+              </span>
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           {user.role === "admin" && (
-            <Link to="/admin" className="inline-flex items-center gap-2 rounded-full bg-tertiary px-4 py-2 text-sm font-semibold text-primary hover:bg-tertiary/80">
+            <Link
+              to="/admin"
+              className="inline-flex items-center gap-2 rounded-full bg-tertiary px-4 py-2 text-sm font-semibold text-primary hover:bg-tertiary/80"
+            >
               <ShieldCheck className="size-4" /> {t("nav.admin")}
             </Link>
           )}
-          <button onClick={logout} className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold hover:bg-secondary">
+          <button
+            onClick={logout}
+            className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold hover:bg-secondary"
+          >
             <LogOut className="size-4" /> {t("nav.signout")}
           </button>
         </div>
@@ -163,7 +212,9 @@ function AccountDashboard() {
             key={tb.id}
             onClick={() => setTab(tb.id as typeof tab)}
             className={`-mb-px flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
-              tab === tb.id ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+              tab === tb.id
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
             <tb.icon className="size-4" /> {tb.label}
@@ -182,14 +233,24 @@ function AccountDashboard() {
               <article key={o.id} className="rounded-2xl bg-card p-6 shadow-sm">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{t("auth.order")}</p>
-                    <p className="font-display text-lg font-bold tracking-wider text-primary">{o.id}</p>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                      {t("auth.order")}
+                    </p>
+                    <p className="font-display text-lg font-bold tracking-wider text-primary">
+                      {o.id}
+                    </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {new Date(o.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+                      {new Date(o.createdAt).toLocaleDateString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${statusStyles[o.status]}`}>
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${statusStyles[o.status]}`}
+                    >
                       {o.status}
                     </span>
                     <span className="font-display text-xl font-bold">{o.total.toFixed(2)} DA</span>
@@ -217,7 +278,10 @@ function AccountDashboard() {
         <div className="mt-8">
           <div className="grid gap-4 sm:grid-cols-2">
             {addresses.map((a) => (
-              <div key={a.id} className={`rounded-2xl border-2 p-5 shadow-sm ${a.isDefault ? "border-primary bg-tertiary/40" : "border-border bg-card"}`}>
+              <div
+                key={a.id}
+                className={`rounded-2xl border-2 p-5 shadow-sm ${a.isDefault ? "border-primary bg-tertiary/40" : "border-border bg-card"}`}
+              >
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-2">
@@ -230,7 +294,9 @@ function AccountDashboard() {
                     </div>
                     <p className="mt-2 text-sm font-semibold">{a.fullName}</p>
                     <p className="text-sm text-muted-foreground">{a.street}</p>
-                    <p className="text-sm text-muted-foreground">{a.city}, {a.zip}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {a.city}, {a.zip}
+                    </p>
                   </div>
                   <button
                     onClick={() => removeAddress(a.id)}
@@ -261,17 +327,32 @@ function AccountDashboard() {
           </div>
 
           {showForm && (
-            <form onSubmit={handleAdd} className="mt-6 grid gap-4 rounded-2xl bg-card p-6 shadow-sm sm:grid-cols-2">
+            <form
+              onSubmit={handleAdd}
+              className="mt-6 grid gap-4 rounded-2xl bg-card p-6 shadow-sm sm:grid-cols-2"
+            >
               <Field name="label" label={t("auth.label")} required />
               <Field name="fullName" label={t("auth.fullname")} required />
-              <Field name="street" label={t("checkout.street")} className="sm:col-span-2" required />
+              <Field
+                name="street"
+                label={t("checkout.street")}
+                className="sm:col-span-2"
+                required
+              />
               <Field name="city" label={t("checkout.city")} required />
               <Field name="zip" label={t("checkout.zip")} required />
               <div className="flex gap-3 sm:col-span-2">
-                <button type="submit" className="rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground hover:opacity-90">
+                <button
+                  type="submit"
+                  className="rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground hover:opacity-90"
+                >
                   {t("auth.saveaddress")}
                 </button>
-                <button type="button" onClick={() => setShowForm(false)} className="rounded-full border border-border px-5 py-2.5 text-sm font-semibold hover:bg-secondary">
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="rounded-full border border-border px-5 py-2.5 text-sm font-semibold hover:bg-secondary"
+                >
                   {t("auth.cancel")}
                 </button>
               </div>
@@ -285,7 +366,13 @@ function AccountDashboard() {
           <h2 className="font-display text-xl font-bold">{t("auth.profiledetails")}</h2>
           <form onSubmit={handleProfile} className="mt-5 grid gap-4">
             <Field name="name" label={t("auth.fullname")} defaultValue={user.name} required />
-            <Field name="email" label={t("auth.email")} type="email" defaultValue={user.email} required />
+            <Field
+              name="email"
+              label={t("auth.email")}
+              type="email"
+              defaultValue={user.email}
+              required
+            />
             <button className="mt-2 w-fit rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-primary-foreground hover:opacity-90">
               {t("auth.savechanges")}
             </button>
@@ -296,11 +383,20 @@ function AccountDashboard() {
   );
 }
 
-function Field({ label, className, ...props }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+function Field({
+  label,
+  className,
+  ...props
+}: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <label className={`block ${className ?? ""}`}>
-      <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{label}</span>
-      <input {...props} className="mt-2 w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+      <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+        {label}
+      </span>
+      <input
+        {...props}
+        className="mt-2 w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+      />
     </label>
   );
 }

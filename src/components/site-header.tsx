@@ -1,5 +1,14 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Search, ShoppingCart, User, Sun, Moon, LogOut, ShieldCheck, Languages } from "lucide-react";
+import {
+  Search,
+  ShoppingCart,
+  User,
+  Sun,
+  Moon,
+  LogOut,
+  ShieldCheck,
+  Languages,
+} from "lucide-react";
 import { useCart } from "@/store/cart";
 import { useState } from "react";
 import { useTheme } from "@/hooks/use-theme";
@@ -35,7 +44,9 @@ export function SiteHeader() {
           {settings.logoUrl ? (
             <img src={settings.logoUrl} alt={settings.name} className="h-8 w-auto" />
           ) : null}
-          <span className="font-display text-2xl font-bold tracking-tight text-primary">{settings.name}</span>
+          <span className="font-display text-2xl font-bold tracking-tight text-primary">
+            {settings.name}
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
@@ -103,7 +114,11 @@ export function SiteHeader() {
             >
               {user ? (
                 <span className="grid size-7 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                  {user.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                  {user.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .slice(0, 2)
+                    .join("")}
                 </span>
               ) : (
                 <User className="size-5" />
@@ -124,21 +139,30 @@ export function SiteHeader() {
                       </span>
                     </div>
                     <button
-                      onClick={() => { setMenu(false); navigate({ to: "/account" }); }}
+                      onClick={() => {
+                        setMenu(false);
+                        navigate({ to: "/account" });
+                      }}
                       className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-start hover:bg-secondary"
                     >
                       <User className="size-4" /> {t("nav.myaccount")}
                     </button>
                     {isAdmin && (
                       <button
-                        onClick={() => { setMenu(false); navigate({ to: "/admin" }); }}
+                        onClick={() => {
+                          setMenu(false);
+                          navigate({ to: "/admin" });
+                        }}
                         className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-start hover:bg-secondary"
                       >
                         <ShieldCheck className="size-4" /> {t("nav.admindash")}
                       </button>
                     )}
                     <button
-                      onClick={() => { logout(); setMenu(false); }}
+                      onClick={() => {
+                        logout();
+                        setMenu(false);
+                      }}
                       className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-start text-destructive hover:bg-secondary"
                     >
                       <LogOut className="size-4" /> {t("nav.signout")}
@@ -146,7 +170,10 @@ export function SiteHeader() {
                   </>
                 ) : (
                   <button
-                    onClick={() => { setMenu(false); navigate({ to: "/account" }); }}
+                    onClick={() => {
+                      setMenu(false);
+                      navigate({ to: "/account" });
+                    }}
                     className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-start hover:bg-secondary"
                   >
                     <User className="size-4" /> {t("nav.signin")}
@@ -156,7 +183,11 @@ export function SiteHeader() {
             )}
           </div>
 
-          <Link to="/cart" className="relative hidden md:flex rounded-full p-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground" aria-label="Cart">
+          <Link
+            to="/cart"
+            className="relative hidden md:flex rounded-full p-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground"
+            aria-label="Cart"
+          >
             <ShoppingCart className="size-5" />
             {count > 0 && (
               <span className="absolute -right-0.5 -top-0.5 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">

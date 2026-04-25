@@ -20,7 +20,11 @@ export function useTheme() {
   useEffect(() => {
     const root = document.documentElement;
     root.classList.toggle("dark", theme === "dark");
-    try { window.localStorage.setItem(KEY, theme); } catch { /* ignore */ }
+    try {
+      window.localStorage.setItem(KEY, theme);
+    } catch {
+      /* ignore */
+    }
   }, [theme]);
 
   const toggle = () => setTheme((t) => (t === "dark" ? "light" : "dark"));

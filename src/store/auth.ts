@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { reportError } from "@/lib/observability";
 import { supabase } from "@/lib/supabase";
 
 export type Role = "admin" | "shopper";
@@ -17,7 +18,11 @@ type AuthState = {
   loading: boolean;
   init: () => Promise<void>;
   login: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
-  signup: (input: { name: string; email: string; password: string }) => Promise<{ ok: boolean; error?: string }>;
+  signup: (input: {
+    name: string;
+    email: string;
+    password: string;
+  }) => Promise<{ ok: boolean; error?: string }>;
   logout: () => Promise<void>;
   updateAccount: (id: string, patch: Partial<Pick<Account, "name" | "email" | "role">>) => void;
   removeAccount: (id: string) => void;
@@ -30,7 +35,9 @@ export const useAuth = create<AuthState>()((set, get) => ({
   loading: true,
 
   init: async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     if (session?.user) {
       const { data: profile } = await supabase
         .from("profiles")
@@ -88,7 +95,13 @@ export const useAuth = create<AuthState>()((set, get) => ({
     if (patch.name) dbPatch.name = patch.name;
     if (patch.email) dbPatch.email = patch.email;
     if (patch.role) dbPatch.role = patch.role;
-    supabase.from("profiles").update(dbPatch).eq("id", id).then(({ error }) => { if (error) console.error("Supabase error:", error); });
+    supabase
+      .from("profiles")
+      .update(dbPatch)
+      .eq("id", id)
+      .then(({ error }) => {
+        if (error) reportError(error, { scope: "auth-store", action: "updateAccount" });
+      });
   },
 
   removeAccount: (id) => {

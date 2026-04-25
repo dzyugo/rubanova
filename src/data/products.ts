@@ -11,7 +11,13 @@ export type Product = {
   image: string;
   category: string;
   badges: string[];
-  nutrition: { servingSize: string; calories: string; vitaminK?: string; vitaminC?: string; fiber?: string };
+  nutrition: {
+    servingSize: string;
+    calories: string;
+    vitaminK?: string;
+    vitaminC?: string;
+    fiber?: string;
+  };
   is_featured?: boolean;
   stock?: number;
 };

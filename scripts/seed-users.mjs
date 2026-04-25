@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 const supabase = createClient(
   "https://zwubytfejkuniggsqckv.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3dWJ5dGZlamt1bmlnZ3NxY2t2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzEwMjE4MywiZXhwIjoyMDkyNjc4MTgzfQ.ujydKs2nc71ZSzxBNEEr9RSgcpUItPG0h8tozawkclg",
-  { auth: { autoRefreshToken: false, persistSession: false } }
+  { auth: { autoRefreshToken: false, persistSession: false } },
 );
 
 async function main() {
@@ -16,7 +16,10 @@ async function main() {
   });
   if (e1) console.error("Admin error:", e1.message);
   else {
-    await supabase.from("profiles").update({ role: "admin", email: "admin@rubanova.com" }).eq("id", a.user.id);
+    await supabase
+      .from("profiles")
+      .update({ role: "admin", email: "admin@rubanova.com" })
+      .eq("id", a.user.id);
     console.log("✓ Admin created:", a.user.id);
   }
 

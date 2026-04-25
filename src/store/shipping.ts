@@ -1,5 +1,7 @@
 import { create } from "zustand";
+import { reportError } from "@/lib/observability";
 import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 
 export type ShippingCompany = {
   id: string;
@@ -16,7 +18,9 @@ function loadLocal(): ShippingCompany[] {
   try {
     const raw = localStorage.getItem(LOCAL_KEY);
     if (raw) return JSON.parse(raw);
-  } catch { /* empty */ }
+  } catch {
+    /* empty */
+  }
   // Default companies if nothing saved
   return [
     {
@@ -37,7 +41,7 @@ function loadLocal(): ShippingCompany[] {
       defaultHomeRate: 500,
       rates: {},
       active: true,
-    }
+    },
   ];
 }
 
@@ -79,6 +83,7 @@ export const useShipping = create<ShippingState>()((set, get) => ({
 
   addCompany: (name, deskRate, homeRate) => {
     const id = Math.random().toString(36).substring(2, 8);
+    const prevCompanies = get().companies;
     set((s) => {
       const next = [
         ...s.companies,
@@ -87,12 +92,28 @@ export const useShipping = create<ShippingState>()((set, get) => ({
       saveLocal(next);
       return { companies: next };
     });
-    supabase.from("shipping_companies").insert({
-      id, name, default_desk_rate: deskRate, default_home_rate: homeRate, rates: {}, active: true,
-    }).then(({ error }) => { if (error) console.error("Supabase error:", error); });
+    supabase
+      .from("shipping_companies")
+      .insert({
+        id,
+        name,
+        default_desk_rate: deskRate,
+        default_home_rate: homeRate,
+        rates: {},
+        active: true,
+      })
+      .then(({ error }) => {
+        if (error) {
+          reportError(error, { scope: "shipping-store", action: "supabase-operation" });
+          set({ companies: prevCompanies });
+          saveLocal(prevCompanies);
+          toast.error("Failed to add shipping company.");
+        }
+      });
   },
 
   updateCompany: (id, patch) => {
+    const prevCompanies = get().companies;
     set((s) => {
       const next = s.companies.map((c) => (c.id === id ? { ...c, ...patch } : c));
       saveLocal(next);
@@ -104,19 +125,43 @@ export const useShipping = create<ShippingState>()((set, get) => ({
     if (patch.defaultHomeRate !== undefined) dbPatch.default_home_rate = patch.defaultHomeRate;
     if (patch.active !== undefined) dbPatch.active = patch.active;
     if (patch.rates !== undefined) dbPatch.rates = patch.rates;
-    supabase.from("shipping_companies").update(dbPatch).eq("id", id).then(({ error }) => { if (error) console.error("Supabase error:", error); });
+    supabase
+      .from("shipping_companies")
+      .update(dbPatch)
+      .eq("id", id)
+      .then(({ error }) => {
+        if (error) {
+          reportError(error, { scope: "shipping-store", action: "supabase-operation" });
+          set({ companies: prevCompanies });
+          saveLocal(prevCompanies);
+          toast.error("Failed to update shipping company.");
+        }
+      });
   },
 
   removeCompany: (id) => {
+    const prevCompanies = get().companies;
     set((s) => {
       const next = s.companies.filter((c) => c.id !== id);
       saveLocal(next);
       return { companies: next };
     });
-    supabase.from("shipping_companies").delete().eq("id", id).then(({ error }) => { if (error) console.error("Supabase error:", error); });
+    supabase
+      .from("shipping_companies")
+      .delete()
+      .eq("id", id)
+      .then(({ error }) => {
+        if (error) {
+          reportError(error, { scope: "shipping-store", action: "supabase-operation" });
+          set({ companies: prevCompanies });
+          saveLocal(prevCompanies);
+          toast.error("Failed to remove shipping company.");
+        }
+      });
   },
 
   updateRate: (companyId, wilaya, desk, home) => {
+    const prevCompanies = get().companies;
     set((s) => {
       const next = s.companies.map((c) => {
         if (c.id !== companyId) return c;
@@ -128,7 +173,18 @@ export const useShipping = create<ShippingState>()((set, get) => ({
     // Sync full rates object to Supabase
     const company = get().companies.find((c) => c.id === companyId);
     if (company) {
-      supabase.from("shipping_companies").update({ rates: company.rates }).eq("id", companyId).then(({ error }) => { if (error) console.error("Supabase error:", error); });
+      supabase
+        .from("shipping_companies")
+        .update({ rates: company.rates })
+        .eq("id", companyId)
+        .then(({ error }) => {
+          if (error) {
+            reportError(error, { scope: "shipping-store", action: "supabase-operation" });
+            set({ companies: prevCompanies });
+            saveLocal(prevCompanies);
+            toast.error("Failed to update shipping rate.");
+          }
+        });
     }
   },
 }));
