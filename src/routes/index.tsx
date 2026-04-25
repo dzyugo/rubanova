@@ -5,6 +5,7 @@ import { useCatalog, useMergedProducts } from "@/store/catalog";
 import { useSite } from "@/store/site";
 import { useBanners } from "@/store/banners";
 import { useT } from "@/lib/i18n";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -118,7 +119,7 @@ function HomePage() {
                 <h3 className="mt-3 font-display text-2xl font-bold">{big.name}</h3>
                 <p className="text-sm text-muted-foreground">{big.tagline}.</p>
                 <button
-                  onClick={(e) => { e.preventDefault(); add(big); }}
+                  onClick={(e) => { e.preventDefault(); add(big); toast.success(`${big.name} — ${t("toast.added")}`); }}
                   className="mt-4 inline-flex items-center gap-2 rounded-full bg-background px-5 py-2.5 text-sm font-semibold shadow-sm transition hover:bg-secondary"
                 >
                   {t("home.addtocart")} — {formatPrice(big.price)}
@@ -145,7 +146,7 @@ function HomePage() {
                 </Link>
                 <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
                   <span className="font-display text-lg font-bold text-primary">{formatPrice(prod.price)}</span>
-                  <button onClick={() => add(prod)} aria-label={`Add ${prod.name} to cart`} className="grid size-9 place-items-center rounded-full bg-primary text-primary-foreground transition hover:opacity-90">
+                  <button onClick={() => { add(prod); toast.success(`${prod.name} — ${t("toast.added")}`); }} aria-label={`Add ${prod.name} to cart`} className="grid size-9 place-items-center rounded-full bg-primary text-primary-foreground transition hover:opacity-90">
                     <Plus className="size-4" />
                   </button>
                 </div>

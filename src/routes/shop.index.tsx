@@ -20,7 +20,11 @@ function ShopPage() {
   const loading = useCatalog((s) => s.loading);
   const [activeCat, setActiveCat] = useState<string | "All">("All");
   const [activeDiets, setActiveDiets] = useState<Diet[]>([]);
-  const [maxPrice, setMaxPrice] = useState(50);
+  const computedMax = useMemo(() => {
+    if (products.length === 0) return 10000;
+    return Math.ceil(Math.max(...products.map((p) => p.price)) / 100) * 100;
+  }, [products]);
+  const [maxPrice, setMaxPrice] = useState(99999);
   const [sort, setSort] = useState<"latest" | "price-asc" | "price-desc">("latest");
   const add = useCart((s) => s.add);
   const { t } = useT();
@@ -116,14 +120,15 @@ function ShopPage() {
             <input
               type="range"
               min={0}
-              max={50}
-              value={maxPrice}
+              max={computedMax}
+              step={50}
+              value={Math.min(maxPrice, computedMax)}
               onChange={(e) => setMaxPrice(Number(e.target.value))}
               className="mt-4 w-full accent-primary"
             />
             <div className="mt-1 flex justify-between text-xs text-muted-foreground">
               <span>0 DA</span>
-              <span>{maxPrice}+ DA</span>
+              <span>{maxPrice >= computedMax ? `${computedMax}+` : maxPrice} DA</span>
             </div>
           </div>
         </aside>

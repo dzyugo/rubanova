@@ -4,6 +4,7 @@ import { Minus, Plus, ShoppingBag, Leaf, Truck, Droplet, ChevronRight } from "lu
 import { useCart } from "@/store/cart";
 import { useMergedProducts } from "@/store/catalog";
 import { useT } from "@/lib/i18n";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/shop/$slug")({
   component: ProductPage,
@@ -105,7 +106,7 @@ function ProductPage() {
               </button>
             </div>
             <button
-              onClick={() => add(product, qty)}
+              onClick={() => { add(product, qty); toast.success(`${product.name} ×${qty} — ${t("toast.added")}`); }}
               className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-md transition hover:opacity-90"
             >
               <ShoppingBag className="size-4" /> {t("product.addtocart")}

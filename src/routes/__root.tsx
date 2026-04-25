@@ -2,6 +2,7 @@ import { Outlet, Link, createRootRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MobileNav } from "@/components/mobile-nav";
+import { Toaster } from "sonner";
 import { useEffect } from "react";
 import { useAuth } from "@/store/auth";
 import { useCatalog } from "@/store/catalog";
@@ -67,6 +68,7 @@ function RootComponent() {
       </main>
       <SiteFooter />
       <MobileNav />
+      <Toaster position="top-center" richColors closeButton duration={2500} />
     </div>
   );
 }

@@ -71,3 +71,27 @@ INSERT INTO banners (id, title, image_url, link, "order", status)
 VALUES
   ('b1', 'Launch Offer: -15%', '/images/hero-produce.jpg', '/shop', 0, 'Active')
 ON CONFLICT (id) DO NOTHING;
+
+-- 6. Create storage bucket for product images
+-- NOTE: Run this in Supabase Dashboard > Storage > New Bucket
+-- Bucket name: product-images
+-- Public: Yes
+-- Or run this SQL:
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('product-images', 'product-images', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Allow public reads on product images
+CREATE POLICY "Public read product images"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'product-images');
+
+-- Allow authenticated uploads
+CREATE POLICY "Authenticated upload product images"
+  ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'product-images' AND auth.role() = 'authenticated');
+
+-- Allow authenticated deletes
+CREATE POLICY "Authenticated delete product images"
+  ON storage.objects FOR DELETE
+  USING (bucket_id = 'product-images' AND auth.role() = 'authenticated');

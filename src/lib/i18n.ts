@@ -192,6 +192,16 @@ const dict = {
   // Language
   "lang.en": { en: "English", ar: "English" },
   "lang.ar": { en: "العربية", ar: "العربية" },
+
+  // Mobile Nav
+  "mobile.home": { en: "Home", ar: "الرئيسية" },
+  "mobile.catalog": { en: "Catalog", ar: "المتجر" },
+  "mobile.cart": { en: "Cart", ar: "السلة" },
+  "mobile.orders": { en: "Orders", ar: "الطلبات" },
+
+  // Toast notifications
+  "toast.added": { en: "Added to cart", ar: "أُضيف إلى السلة" },
+  "toast.removed": { en: "Removed from cart", ar: "أُزيل من السلة" },
 } as const;
 
 export type TKey = keyof typeof dict;

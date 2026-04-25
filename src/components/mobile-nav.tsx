@@ -8,10 +8,10 @@ export function MobileNav() {
   const { t } = useT();
 
   const navItems = [
-    { to: "/", icon: Home, label: "Home" },
-    { to: "/shop", icon: LayoutGrid, label: "Catalog" },
-    { to: "/cart", icon: ShoppingCart, label: "Cart", badge: count },
-    { to: "/account", icon: ClipboardList, label: "Orders" },
+    { to: "/", icon: Home, label: t("mobile.home") },
+    { to: "/shop", icon: LayoutGrid, label: t("mobile.catalog") },
+    { to: "/cart", icon: ShoppingCart, label: t("mobile.cart"), badge: count },
+    { to: "/account", icon: ClipboardList, label: t("mobile.orders") },
   ];
 
   return (
