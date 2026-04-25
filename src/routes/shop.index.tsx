@@ -11,6 +11,13 @@ export const Route = createFileRoute("/shop/")({
   validateSearch: z.object({
     q: z.string().optional(),
   }),
+  head: () => ({
+    meta: [
+      { title: "Shop — Ruba Nova" },
+      { name: "description", content: "Browse our full collection of fresh organic produce and natural goods. Filter by category, dietary needs, and price." },
+      { property: "og:title", content: "Shop — Ruba Nova" },
+    ],
+  }),
   component: ShopPage,
 });
 
@@ -165,6 +172,11 @@ function ShopPage() {
                         <span key={b} className="rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary backdrop-blur">{b}</span>
                       ))}
                     </div>
+                    {p.stock === 0 && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-[2px]">
+                        <span className="rounded-full bg-destructive px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-destructive-foreground">Out of Stock</span>
+                      </div>
+                    )}
                   </div>
                 </Link>
                 <div className="p-5">
@@ -180,7 +192,8 @@ function ShopPage() {
                     <button
                       onClick={() => add(p)}
                       aria-label={`Add ${p.name} to cart`}
-                      className="grid size-10 place-items-center rounded-full bg-primary text-primary-foreground transition hover:opacity-90"
+                      disabled={p.stock === 0}
+                      className="grid size-10 place-items-center rounded-full bg-primary text-primary-foreground transition hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       <ShoppingCart className="size-4" />
                     </button>

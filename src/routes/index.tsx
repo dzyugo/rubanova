@@ -6,8 +6,16 @@ import { useSite } from "@/store/site";
 import { useBanners } from "@/store/banners";
 import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Ruba Nova — Fresh Organic Produce & Natural Goods" },
+      { name: "description", content: "Discover premium organic produce and natural goods sourced from trusted Algerian farms. Order online with cash on delivery nationwide." },
+      { property: "og:title", content: "Ruba Nova — Fresh Organic Produce & Natural Goods" },
+    ],
+  }),
   component: HomePage,
 });
 
@@ -23,6 +31,20 @@ function HomePage() {
   const featured = products.filter((p) => featuredSlugs.includes(p.slug));
   const big = featured[0] ?? products[0];
   const rest = featured.slice(1, 5);
+
+  const handleNewsletter = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const email = (new FormData(form).get("email") as string)?.trim();
+    if (!email) return;
+    const { error } = await supabase.from("newsletter_subscribers").upsert({ email }, { onConflict: "email" });
+    if (error) {
+      toast.error("Something went wrong. Please try again.");
+    } else {
+      toast.success(t("home.thanks"));
+      form.reset();
+    }
+  };
 
   if (loading) {
     return (
@@ -165,11 +187,12 @@ function HomePage() {
           <h2 className="mt-5 font-display text-2xl font-bold">{t("home.newsletter.title", { name: settings.name })}</h2>
           <p className="mt-2 text-sm text-muted-foreground">{t("home.newsletter.sub")}</p>
           <form
-            onSubmit={(e) => { e.preventDefault(); alert(t("home.thanks")); }}
+            onSubmit={handleNewsletter}
             className="mx-auto mt-6 flex max-w-md gap-2"
           >
             <input
               required
+              name="email"
               type="email"
               placeholder="vitality@example.com"
               className="flex-1 rounded-full border border-border bg-background px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"

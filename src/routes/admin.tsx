@@ -23,8 +23,7 @@ export const Route = createFileRoute("/admin")({
 type Tab = "dashboard" | "banners" | "products" | "categories" | "orders" | "shipping" | "accounts" | "settings";
 
 // Sidebar moved to AdminPage body for translations
-const sales = [12, 45, 30, 75, 95, 25, 18];
-const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 const statusStyles: Record<OrderStatus, string> = {
   Processing: "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300",
@@ -78,6 +77,23 @@ function AdminPage() {
   const pending = orders.filter((o) => o.status === "Processing").length;
   const products = useMergedProducts();
   const lowStockCount = products.filter((p) => p.stock !== undefined && p.stock < 10).length;
+
+  // Build last-7-days chart data from real orders
+  const chartData = useMemo(() => {
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const result: { day: string; revenue: number }[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dayName = dayNames[d.getDay()];
+      const dateStr = d.toDateString();
+      const revenue = orders
+        .filter((o) => new Date(o.createdAt).toDateString() === dateStr)
+        .reduce((s, o) => s + o.total, 0);
+      result.push({ day: dayName, revenue: Math.round(revenue) });
+    }
+    return result;
+  }, [orders]);
 
   const stats = [
     { label: t("admin.totalsales"), value: `${totalRevenue.toFixed(2)} DA`, trend: `${orders.length} orders`, icon: Banknote },
@@ -151,23 +167,23 @@ function AdminPage() {
               <div className="flex items-end justify-between">
                 <div>
                   <h2 className="font-display text-xl font-bold">Sales Performance</h2>
-                  <p className="text-sm text-muted-foreground">Real-time revenue tracking for the current week</p>
+                  <p className="text-sm text-muted-foreground">Revenue for the last 7 days (DA)</p>
                 </div>
-                <select className="rounded-md border border-border bg-background px-3 py-1.5 text-xs">
-                  <option>This Week</option>
-                  <option>This Month</option>
-                </select>
               </div>
-              <div className="mt-8 flex h-56 items-end gap-3">
-                {sales.map((v, i) => (
-                  <div key={i} className="flex flex-1 flex-col items-center gap-2">
-                    <div
-                      className="w-full rounded-t-lg transition"
-                      style={{ height: `${v}%`, background: `color-mix(in oklab, var(--primary) ${20 + v}%, transparent)` }}
+              <div className="mt-6 h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} barSize={28}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+                    <XAxis dataKey="day" tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} width={55} tickFormatter={(v) => `${v} DA`} />
+                    <Tooltip
+                      contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: "0.75rem", fontSize: 12 }}
+                      formatter={(v: number) => [`${v.toLocaleString()} DA`, "Revenue"]}
+                      cursor={{ fill: "var(--color-secondary)" }}
                     />
-                    <span className="text-xs text-muted-foreground">{days[i]}</span>
-                  </div>
-                ))}
+                    <Bar dataKey="revenue" fill="var(--color-primary)" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
           </>

@@ -32,6 +32,23 @@ function NotFoundComponent() {
 }
 
 export const Route = createRootRoute({
+  head: () => ({
+    meta: [
+      { charSet: "utf-8" },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "theme-color", content: "#38B673" },
+      { name: "description", content: "Ruba Nova — fresh organic produce & natural goods delivered to your door across Algeria." },
+      { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Ruba Nova" },
+      { property: "og:description", content: "Fresh organic produce & natural goods — delivered across Algeria." },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+    links: [
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600&display=swap" },
+    ],
+  }),
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
 });

@@ -7,6 +7,12 @@ import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/shop/$slug")({
+  head: ({ params }) => ({
+    meta: [
+      { title: `${params.slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} — Ruba Nova` },
+      { property: "og:title", content: `${params.slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} — Ruba Nova` },
+    ],
+  }),
   component: ProductPage,
   notFoundComponent: NotFoundProduct,
   errorComponent: ({ error }) => (
@@ -66,7 +72,14 @@ function ProductPage() {
         {/* Image */}
         <div>
           <div className="overflow-hidden rounded-3xl bg-card shadow-sm">
-            <img src={images[activeImage] || images[0]} alt={product.name} width={800} height={800} className="aspect-square w-full object-cover" />
+            <img
+              src={images[activeImage] || images[0]}
+              alt={product.name}
+              width={800}
+              height={800}
+              className="aspect-square w-full object-cover img-reveal"
+              key={activeImage}
+            />
           </div>
           {images.length > 1 && (
             <div className="mt-4 grid grid-cols-4 gap-3">
@@ -93,6 +106,23 @@ function ProductPage() {
             <span className="font-display text-4xl font-bold text-primary">{product.price.toFixed(2)} DA</span>
             <span className="text-sm text-muted-foreground">/ {product.unit}</span>
           </div>
+          {product.stock !== undefined && (
+            <div className="mt-3">
+              {product.stock === 0 ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/10 px-3 py-1 text-xs font-bold text-destructive">
+                  ● Out of Stock
+                </span>
+              ) : product.stock < 10 ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-600 dark:text-amber-400">
+                  ● Only {product.stock} left in stock
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-tertiary px-3 py-1 text-xs font-bold text-primary">
+                  ● In Stock
+                </span>
+              )}
+            </div>
+          )}
 
           <p className="mt-8 text-xs font-semibold uppercase tracking-widest text-muted-foreground">{t("product.qty")}</p>
           <div className="mt-3 flex items-center gap-3">
@@ -107,9 +137,11 @@ function ProductPage() {
             </div>
             <button
               onClick={() => { add(product, qty); toast.success(`${product.name} ×${qty} — ${t("toast.added")}`); }}
-              className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-md transition hover:opacity-90"
+              disabled={product.stock === 0}
+              className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-md transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <ShoppingBag className="size-4" /> {t("product.addtocart")}
+              <ShoppingBag className="size-4" />
+              {product.stock === 0 ? "Out of Stock" : t("product.addtocart")}
             </button>
           </div>
 
