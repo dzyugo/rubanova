@@ -102,6 +102,8 @@ function AdminPage() {
   const uniqueCustomers = useMemo(() => new Set(orders.map((o) => o.address.fullName)).size, [orders]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
 
@@ -110,10 +112,23 @@ function AdminPage() {
       if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
         setShowNotifications(false);
       }
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setSearchFocused(false);
+      }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const searchResults = useMemo(() => {
+    if (searchQuery.trim().length < 3) return null;
+    const q = searchQuery.toLowerCase();
+    
+    const matchedProducts = products.filter(p => p.name.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q)).slice(0, 3);
+    const matchedOrders = orders.filter(o => o.id.toLowerCase().includes(q) || o.address.fullName.toLowerCase().includes(q)).slice(0, 3);
+    
+    return { products: matchedProducts, orders: matchedOrders };
+  }, [searchQuery, products, orders]);
 
   const notifications = useMemo(() => {
     const notifs = [];
@@ -245,10 +260,10 @@ function AdminPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
-              <div>
+              <Link to="/" className="block">
                 <h2 className="font-display text-xl font-bold text-primary">Ruba Nova</h2>
                 <p className="text-xs text-muted-foreground">Admin Console</p>
-              </div>
+              </Link>
               <button onClick={() => setMobileMenuOpen(false)} className="rounded-lg p-2 hover:bg-secondary">
                 <X className="size-5" />
               </button>
@@ -284,10 +299,10 @@ function AdminPage() {
 
       {/* ── Desktop sidebar ── */}
       <aside className="hidden h-fit rounded-3xl border border-border/50 bg-card p-5 shadow-sm lg:block">
-        <div>
+        <Link to="/" className="block">
           <h2 className="font-display text-xl font-bold text-primary">Ruba Nova</h2>
           <p className="text-xs text-muted-foreground">Admin Console</p>
-        </div>
+        </Link>
         <nav className="mt-6 grid gap-1">
           {sidebar.map((item) => (
             <button
@@ -332,14 +347,59 @@ function AdminPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="hidden items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm md:flex focus-within:ring-2 focus-within:ring-primary/20">
-              <Search className="size-4 text-muted-foreground" />
-              <input 
-                placeholder="Search products or orders…" 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-56 bg-transparent text-sm focus:outline-none" 
-              />
+            <div className="relative" ref={searchRef}>
+              <div className="hidden items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm md:flex focus-within:ring-2 focus-within:ring-primary/20">
+                <Search className="size-4 text-muted-foreground" />
+                <input 
+                  placeholder="Search products or orders…" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setSearchFocused(true)}
+                  className="w-56 bg-transparent text-sm focus:outline-none" 
+                />
+              </div>
+
+              {searchFocused && searchResults && (searchResults.products.length > 0 || searchResults.orders.length > 0) && (
+                <div className="absolute left-0 top-12 z-50 w-80 rounded-2xl border border-border bg-card p-2 shadow-xl">
+                  {searchResults.products.length > 0 && (
+                    <div className="mb-2">
+                      <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">Products</p>
+                      {searchResults.products.map((p) => (
+                        <button 
+                          key={p.slug}
+                          onClick={() => { setTab("products"); setSearchFocused(false); }}
+                          className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition hover:bg-secondary"
+                        >
+                          <ShoppingBasket className="size-4 text-primary" />
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-semibold">{p.name}</p>
+                            <p className="text-[10px] text-muted-foreground">{p.price.toFixed(2)} DA</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {searchResults.orders.length > 0 && (
+                    <div>
+                      <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">Orders</p>
+                      {searchResults.orders.map((o) => (
+                        <button 
+                          key={o.id}
+                          onClick={() => { setTab("orders"); setSearchFocused(false); }}
+                          className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition hover:bg-secondary"
+                        >
+                          <ClipboardList className="size-4 text-amber-500" />
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate font-mono text-sm font-bold">{o.id}</p>
+                            <p className="text-[10px] text-muted-foreground">{o.address.fullName}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             
             <div className="relative" ref={notificationsRef}>
