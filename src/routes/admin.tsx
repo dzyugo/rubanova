@@ -26,6 +26,14 @@ import {
   AlertTriangle,
   Check,
   X,
+  Menu,
+  LogOut,
+  Download,
+  TrendingUp,
+  HardDrive,
+  ChevronRight,
+  BarChart3,
+  Eye,
 } from "lucide-react";
 import { type Product } from "@/data/products";
 import { useOrders, type OrderStatus } from "@/store/orders";
@@ -91,6 +99,8 @@ function AdminPage() {
   const totalRevenue = orders.reduce((s, o) => s + o.total, 0);
   const pending = orders.filter((o) => o.status === "Processing").length;
   const lowStockCount = products.filter((p) => p.stock !== undefined && p.stock < 10).length;
+  const uniqueCustomers = useMemo(() => new Set(orders.map((o) => o.address.fullName)).size, [orders]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Build last-7-days chart data from real orders
   const chartData = useMemo(() => {
@@ -146,12 +156,14 @@ function AdminPage() {
       value: `${totalRevenue.toFixed(2)} DA`,
       trend: t("admin.orders.count", { count: String(orders.length) }),
       icon: Banknote,
+      gradient: "from-emerald-500/10 to-transparent",
     },
     {
       label: t("admin.pending"),
       value: String(pending),
       trend: t("admin.needsfulfillment"),
       icon: Package,
+      gradient: "from-amber-500/10 to-transparent",
     },
     {
       label: t("admin.lowstock"),
@@ -159,62 +171,127 @@ function AdminPage() {
       trend: t("admin.actionrequired"),
       trendColor: lowStockCount > 0 ? "text-destructive" : "text-muted-foreground",
       icon: Archive,
+      gradient: "from-rose-500/10 to-transparent",
+    },
+    {
+      label: "Active Customers",
+      value: String(uniqueCustomers),
+      trend: `${orders.length} total orders`,
+      icon: Users,
+      gradient: "from-sky-500/10 to-transparent",
     },
   ];
 
   return (
-    <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-6 md:px-6 md:py-10 lg:grid-cols-[240px_1fr]">
-      <aside className="h-fit rounded-3xl bg-card p-5 shadow-sm">
+    <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-6 md:px-6 md:py-10 lg:grid-cols-[260px_1fr]">
+      {/* ── Mobile menu overlay ── */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden" onClick={() => setMobileMenuOpen(false)}>
+          <div className="absolute inset-0 bg-background/60 backdrop-blur-sm" />
+          <aside
+            className="relative ml-0 h-full w-72 overflow-y-auto bg-card p-5 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="font-display text-xl font-bold text-primary">Ruba Nova</h2>
+                <p className="text-xs text-muted-foreground">Admin Console</p>
+              </div>
+              <button onClick={() => setMobileMenuOpen(false)} className="rounded-lg p-2 hover:bg-secondary">
+                <X className="size-5" />
+              </button>
+            </div>
+            <nav className="mt-6 grid gap-1">
+              {sidebar.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => { setTab(item.id); setMobileMenuOpen(false); }}
+                  className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${tab === item.id ? "bg-tertiary text-primary" : "text-muted-foreground hover:bg-secondary"}`}
+                >
+                  <item.icon className="size-4" /> {item.label}
+                </button>
+              ))}
+            </nav>
+            <div className="mt-6 border-t border-border pt-4">
+              <div className="flex items-center gap-3 rounded-xl bg-secondary/60 p-3">
+                <div className="grid size-9 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                  {user.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                </div>
+                <div className="min-w-0 flex-1 text-xs">
+                  <p className="truncate font-semibold">{user.name}</p>
+                  <p className="text-muted-foreground capitalize">{user.role}</p>
+                </div>
+              </div>
+              <Link to="/" className="mt-3 flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-muted-foreground hover:bg-secondary">
+                <LogOut className="size-4" /> Logout
+              </Link>
+            </div>
+          </aside>
+        </div>
+      )}
+
+      {/* ── Desktop sidebar ── */}
+      <aside className="hidden h-fit rounded-3xl border border-border/50 bg-card p-5 shadow-sm lg:block">
         <div>
           <h2 className="font-display text-xl font-bold text-primary">Ruba Nova</h2>
-          <p className="text-xs text-muted-foreground">Admin Dashboard</p>
+          <p className="text-xs text-muted-foreground">Admin Console</p>
         </div>
-        <nav className="mt-6 grid grid-cols-2 gap-1 lg:grid-cols-1">
+        <nav className="mt-6 grid gap-1">
           {sidebar.map((item) => (
             <button
               key={item.id}
               onClick={() => setTab(item.id)}
-              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${tab === item.id ? "bg-tertiary text-primary" : "text-muted-foreground hover:bg-secondary"}`}
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${tab === item.id ? "bg-tertiary text-primary shadow-sm" : "text-muted-foreground hover:bg-secondary"}`}
             >
               <item.icon className="size-4" /> {item.label}
+              {tab === item.id && <ChevronRight className="ml-auto size-3.5 text-primary/60" />}
             </button>
           ))}
         </nav>
-        <div className="mt-8 hidden items-center gap-3 rounded-xl bg-secondary/60 p-3 lg:flex">
-          <div className="grid size-9 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-            {user.name
-              .split(" ")
-              .map((n) => n[0])
-              .slice(0, 2)
-              .join("")}
+        <div className="mt-6 border-t border-border pt-4">
+          <div className="flex items-center gap-3 rounded-xl bg-secondary/60 p-3">
+            <div className="grid size-9 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+              {user.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+            </div>
+            <div className="min-w-0 flex-1 text-xs">
+              <p className="truncate font-semibold">{user.name}</p>
+              <p className="text-muted-foreground capitalize">{user.role}</p>
+            </div>
           </div>
-          <div className="text-xs">
-            <p className="font-semibold">{user.name}</p>
-            <p className="text-muted-foreground capitalize">{user.role}</p>
-          </div>
+          <Link to="/" className="mt-3 flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-muted-foreground hover:bg-secondary transition">
+            <LogOut className="size-4" /> Logout
+          </Link>
         </div>
       </aside>
 
+      {/* ── Main content ── */}
       <div className="space-y-6">
+        {/* Header bar */}
         <div className="flex items-center justify-between gap-4">
-          <h1 className="font-display text-2xl font-bold capitalize">
-            {tab === "settings" ? "Site Settings" : tab}
-          </h1>
           <div className="flex items-center gap-3">
-            <div className="hidden items-center gap-2 rounded-full bg-card px-4 py-2 text-sm shadow-sm md:flex">
-              <Search className="size-4 text-muted-foreground" />
-              <input
-                placeholder="Search…"
-                className="w-44 bg-transparent text-sm focus:outline-none"
-              />
-            </div>
-            <button className="grid size-9 place-items-center rounded-full bg-card shadow-sm">
-              <Bell className="size-4" />
+            <button onClick={() => setMobileMenuOpen(true)} className="grid size-10 place-items-center rounded-xl bg-card shadow-sm lg:hidden">
+              <Menu className="size-5" />
             </button>
-            <button className="grid size-9 place-items-center rounded-full bg-card shadow-sm">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Overview</p>
+              <h1 className="font-display text-2xl font-bold capitalize">
+                {tab === "settings" ? "Site Settings" : tab}
+              </h1>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="hidden items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm md:flex">
+              <Search className="size-4 text-muted-foreground" />
+              <input placeholder="Search…" className="w-44 bg-transparent text-sm focus:outline-none" />
+            </div>
+            <button className="relative grid size-10 place-items-center rounded-xl bg-card shadow-sm transition hover:bg-secondary">
+              <Bell className="size-4" />
+              <span className="absolute right-2 top-2 size-2 rounded-full bg-primary" />
+            </button>
+            <button className="grid size-10 place-items-center rounded-xl bg-card shadow-sm transition hover:bg-secondary">
               <HelpCircle className="size-4" />
             </button>
-            <button className="grid size-9 place-items-center rounded-full bg-card shadow-sm">
+            <button className="grid size-10 place-items-center rounded-xl bg-card shadow-sm transition hover:bg-secondary">
               <User className="size-4" />
             </button>
           </div>
@@ -222,69 +299,134 @@ function AdminPage() {
 
         {tab === "dashboard" && (
           <>
-            <div className="grid gap-4 md:grid-cols-3">
+            {/* ── 4-Column KPI Cards ── */}
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {stats.map((s) => (
                 <div
                   key={s.label}
-                  className="flex items-start justify-between rounded-2xl bg-card p-5 shadow-sm"
+                  className={`relative overflow-hidden rounded-2xl border border-border/50 bg-card p-5 shadow-sm transition hover:shadow-md bg-gradient-to-br ${s.gradient}`}
                 >
-                  <div>
-                    <p className="text-xs text-muted-foreground">{s.label}</p>
-                    <p className="mt-2 font-display text-3xl font-bold">{s.value}</p>
-                    <p
-                      className={`mt-2 flex items-center gap-1 text-xs font-semibold ${s.trendColor ?? "text-primary"}`}
-                    >
-                      <ArrowUpRight className="size-3" /> {s.trend}
-                    </p>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{s.label}</p>
+                      <p className="mt-2 font-display text-3xl font-bold tracking-tight">{s.value}</p>
+                    </div>
+                    <div className="grid size-11 place-items-center rounded-xl bg-tertiary text-primary">
+                      <s.icon className="size-5" />
+                    </div>
                   </div>
-                  <div className="grid size-11 place-items-center rounded-xl bg-tertiary text-primary">
-                    <s.icon className="size-5" />
-                  </div>
+                  <p className={`mt-3 flex items-center gap-1 text-xs font-semibold ${s.trendColor ?? "text-primary"}`}>
+                    <TrendingUp className="size-3" /> {s.trend}
+                  </p>
                 </div>
               ))}
             </div>
 
-            <div className="rounded-2xl bg-card p-6 shadow-sm">
-              <div className="flex items-end justify-between">
-                <div>
-                  <h2 className="font-display text-xl font-bold">Sales Performance</h2>
-                  <p className="text-sm text-muted-foreground">Revenue for the last 7 days (DA)</p>
+            {/* ── Chart + Sidebar row ── */}
+            <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
+              {/* Sales chart */}
+              <div className="rounded-2xl border border-border/50 bg-card p-6 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="font-display text-lg font-bold">Sales Performance</h2>
+                    <p className="text-xs text-muted-foreground">Revenue for the last 7 days (DA)</p>
+                  </div>
+                  <div className="flex items-center gap-1 rounded-full bg-tertiary px-3 py-1.5">
+                    <BarChart3 className="size-3.5 text-primary" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Weekly</span>
+                  </div>
+                </div>
+                <div className="mt-6 h-56">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData} barSize={28}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+                      <XAxis dataKey="day" tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} width={55} tickFormatter={(v) => `${v} DA`} />
+                      <Tooltip
+                        contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: "0.75rem", fontSize: 12 }}
+                        formatter={(v: number) => [`${v.toLocaleString()} DA`, "Revenue"]}
+                        cursor={{ fill: "var(--color-secondary)" }}
+                      />
+                      <Bar dataKey="revenue" fill="var(--color-primary)" radius={[6, 6, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
-              <div className="mt-6 h-56">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData} barSize={28}>
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="var(--color-border)"
-                      vertical={false}
-                    />
-                    <XAxis
-                      dataKey="day"
-                      tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <YAxis
-                      tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }}
-                      axisLine={false}
-                      tickLine={false}
-                      width={55}
-                      tickFormatter={(v) => `${v} DA`}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        background: "var(--color-card)",
-                        border: "1px solid var(--color-border)",
-                        borderRadius: "0.75rem",
-                        fontSize: 12,
-                      }}
-                      formatter={(v: number) => [`${v.toLocaleString()} DA`, "Revenue"]}
-                      cursor={{ fill: "var(--color-secondary)" }}
-                    />
-                    <Bar dataKey="revenue" fill="var(--color-primary)" radius={[6, 6, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+
+              {/* Right column: Storage + Quick Actions */}
+              <div className="space-y-6">
+                {/* Storage Usage */}
+                <div className="rounded-2xl border border-border/50 bg-card p-5 shadow-sm">
+                  <div className="flex items-center gap-2">
+                    <HardDrive className="size-4 text-primary" />
+                    <h3 className="text-sm font-bold">Storage Usage</h3>
+                  </div>
+                  <div className="mt-4">
+                    <div className="flex items-end justify-between text-xs">
+                      <span className="text-muted-foreground">1.4 GB used</span>
+                      <span className="font-semibold">2 GB</span>
+                    </div>
+                    <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-secondary">
+                      <div className="h-full w-[70%] rounded-full bg-gradient-to-r from-primary to-emerald-400 transition-all" />
+                    </div>
+                    <p className="mt-2 text-[11px] text-muted-foreground">70% of storage used</p>
+                  </div>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="rounded-2xl border border-border/50 bg-card p-5 shadow-sm">
+                  <h3 className="text-sm font-bold">Quick Actions</h3>
+                  <div className="mt-4 grid gap-2">
+                    <button onClick={() => setTab("products")} className="flex items-center gap-3 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition hover:opacity-90">
+                      <Plus className="size-4" /> Add Product
+                    </button>
+                    <button onClick={() => setTab("banners")} className="flex items-center gap-3 rounded-xl border border-border px-4 py-3 text-sm font-semibold transition hover:bg-secondary">
+                      <ImageIcon className="size-4" /> Create Banner
+                    </button>
+                    <button onClick={() => setTab("orders")} className="flex items-center gap-3 rounded-xl border border-border px-4 py-3 text-sm font-semibold transition hover:bg-secondary">
+                      <Download className="size-4" /> Export Orders
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Recent Orders Summary ── */}
+            <div className="rounded-2xl border border-border/50 bg-card p-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <h2 className="font-display text-lg font-bold">Recent Orders</h2>
+                <button onClick={() => setTab("orders")} className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
+                  View All Orders <ChevronRight className="size-3.5" />
+                </button>
+              </div>
+              <div className="mt-4 overflow-x-auto rounded-xl border border-border">
+                <table className="w-full text-sm">
+                  <thead className="bg-secondary/60 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                    <tr>
+                      <th className="px-4 py-3 text-left">Order</th>
+                      <th className="px-4 py-3 text-left">Customer</th>
+                      <th className="px-4 py-3 text-left">Date</th>
+                      <th className="px-4 py-3 text-left">Total</th>
+                      <th className="px-4 py-3 text-left">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {orders.slice(0, 4).map((o) => (
+                      <tr key={o.id} className="transition hover:bg-secondary/30">
+                        <td className="px-4 py-3 font-mono text-xs font-bold text-primary">{o.id}</td>
+                        <td className="px-4 py-3 font-semibold">{o.address.fullName}</td>
+                        <td className="px-4 py-3 text-muted-foreground">{new Date(o.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</td>
+                        <td className="px-4 py-3 font-semibold">{o.total.toFixed(2)} DA</td>
+                        <td className="px-4 py-3">
+                          <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${statusStyles[o.status]}`}>{o.status}</span>
+                        </td>
+                      </tr>
+                    ))}
+                    {orders.length === 0 && (
+                      <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">No orders yet.</td></tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           </>
