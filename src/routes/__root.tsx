@@ -1,4 +1,4 @@
-import { Outlet, Link, createRootRoute } from "@tanstack/react-router";
+import { Outlet, Link, createRootRoute, useLocation } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { MobileNav } from "@/components/mobile-nav";
@@ -74,6 +74,8 @@ function RootComponent() {
   const initBanners = useBanners((s) => s.init);
   const initShipping = useShipping((s) => s.init);
   const lang = useLang((s) => s.lang);
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin');
 
   useEffect(() => {
     initAuth();
@@ -92,12 +94,12 @@ function RootComponent() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <SiteHeader />
+      {!isAdmin && <SiteHeader />}
       <main className="flex-1 pb-16 md:pb-0">
         <Outlet />
       </main>
-      <SiteFooter />
-      <MobileNav />
+      {!isAdmin && <SiteFooter />}
+      {!isAdmin && <MobileNav />}
       <Toaster position="top-center" richColors closeButton duration={2500} />
     </div>
   );

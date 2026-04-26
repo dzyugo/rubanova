@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import {
   LayoutGrid,
   ShoppingBasket,
@@ -101,6 +101,58 @@ function AdminPage() {
   const lowStockCount = products.filter((p) => p.stock !== undefined && p.stock < 10).length;
   const uniqueCustomers = useMemo(() => new Set(orders.map((o) => o.address.fullName)).size, [orders]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showNotifications, setShowNotifications] = useState(false);
+  const notificationsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
+        setShowNotifications(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const notifications = useMemo(() => {
+    const notifs = [];
+    const recentPending = orders.filter((o) => o.status === "Processing").slice(0, 3);
+    recentPending.forEach((o) => {
+      notifs.push({
+        id: `order-${o.id}`,
+        title: "Order Awaiting Fulfillment",
+        message: `Order ${o.id} from ${o.address.fullName} is processing.`,
+        time: new Date(o.createdAt).toLocaleDateString(),
+        icon: Package,
+        iconColor: "text-amber-500",
+        iconBg: "bg-amber-500/10",
+        onClick: () => {
+          setTab("orders");
+          setShowNotifications(false);
+        }
+      });
+    });
+
+    const lowStock = products.filter((p) => p.stock !== undefined && p.stock < 10);
+    lowStock.forEach((p) => {
+      notifs.push({
+        id: `stock-${p.slug}`,
+        title: "Low Stock Alert",
+        message: `${p.name} is low on stock (${p.stock} remaining).`,
+        time: "Now",
+        icon: AlertTriangle,
+        iconColor: "text-destructive",
+        iconBg: "bg-destructive/10",
+        onClick: () => {
+          setTab("products");
+          setShowNotifications(false);
+        }
+      });
+    });
+
+    return notifs;
+  }, [orders, products]);
 
   // Build last-7-days chart data from real orders
   const chartData = useMemo(() => {
@@ -280,20 +332,58 @@ function AdminPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="hidden items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm md:flex">
+            <div className="hidden items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm md:flex focus-within:ring-2 focus-within:ring-primary/20">
               <Search className="size-4 text-muted-foreground" />
-              <input placeholder="Search…" className="w-44 bg-transparent text-sm focus:outline-none" />
+              <input 
+                placeholder="Search products or orders…" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-56 bg-transparent text-sm focus:outline-none" 
+              />
             </div>
-            <button className="relative grid size-10 place-items-center rounded-xl bg-card shadow-sm transition hover:bg-secondary">
-              <Bell className="size-4" />
-              <span className="absolute right-2 top-2 size-2 rounded-full bg-primary" />
-            </button>
-            <button className="grid size-10 place-items-center rounded-xl bg-card shadow-sm transition hover:bg-secondary">
-              <HelpCircle className="size-4" />
-            </button>
-            <button className="grid size-10 place-items-center rounded-xl bg-card shadow-sm transition hover:bg-secondary">
-              <User className="size-4" />
-            </button>
+            
+            <div className="relative" ref={notificationsRef}>
+              <button 
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative grid size-10 place-items-center rounded-xl bg-card shadow-sm transition hover:bg-secondary"
+              >
+                <Bell className="size-4" />
+                {notifications.length > 0 && (
+                  <span className="absolute right-2 top-2 size-2.5 rounded-full bg-destructive border-2 border-card" />
+                )}
+              </button>
+              
+              {showNotifications && (
+                <div className="absolute right-0 top-12 z-50 w-80 rounded-2xl border border-border bg-card p-4 shadow-xl">
+                  <div className="mb-3 flex items-center justify-between">
+                    <h3 className="font-display font-bold">Notifications</h3>
+                    <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-semibold">{notifications.length}</span>
+                  </div>
+                  <div className="grid max-h-80 gap-2 overflow-y-auto pr-1">
+                    {notifications.length === 0 ? (
+                      <p className="py-4 text-center text-sm text-muted-foreground">No new notifications</p>
+                    ) : (
+                      notifications.map((n) => (
+                        <button 
+                          key={n.id} 
+                          onClick={n.onClick}
+                          className="flex items-start gap-3 rounded-xl p-2 text-left transition hover:bg-secondary"
+                        >
+                          <div className={`mt-0.5 grid size-8 shrink-0 place-items-center rounded-full ${n.iconBg} ${n.iconColor}`}>
+                            <n.icon className="size-4" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold">{n.title}</p>
+                            <p className="mt-0.5 text-xs text-muted-foreground">{n.message}</p>
+                            <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">{n.time}</p>
+                          </div>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -432,9 +522,9 @@ function AdminPage() {
           </>
         )}
 
-        {tab === "products" && <ProductsTab />}
+        {tab === "products" && <ProductsTab searchQuery={searchQuery} />}
         {tab === "categories" && <CategoriesTab />}
-        {tab === "orders" && <OrdersTab />}
+        {tab === "orders" && <OrdersTab searchQuery={searchQuery} />}
         {tab === "accounts" && <AccountsTab currentId={user.id} />}
         {tab === "settings" && <SettingsTab />}
         {tab === "banners" && <BannersTab />}
@@ -444,7 +534,7 @@ function AdminPage() {
   );
 }
 
-function ProductsTab() {
+function ProductsTab({ searchQuery = "" }: { searchQuery?: string }) {
   const featuredSlugs = useCatalog((s) => s.featuredSlugs);
   const toggle = useCatalog((s) => s.toggleFeatured);
   const products = useMergedProducts();
@@ -491,7 +581,13 @@ function ProductsTab() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {products.map((p, i) => {
+            {products
+              .filter((p) => {
+                if (!searchQuery.trim()) return true;
+                const q = searchQuery.toLowerCase();
+                return p.name.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q) || p.category.toLowerCase().includes(q);
+              })
+              .map((p, i) => {
               const isFeatured = featuredSlugs.includes(p.slug);
               return (
                 <tr key={p.slug}>
@@ -1026,13 +1122,24 @@ function CategoriesTab() {
   );
 }
 
-function OrdersTab() {
+function OrdersTab({ searchQuery = "" }: { searchQuery?: string }) {
   const orders = useOrders((s) => s.orders);
   const setStatus = useOrders((s) => s.setStatus);
   const [filter, setFilter] = useState<OrderStatus | "All">("All");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const visible = filter === "All" ? orders : orders.filter((o) => o.status === filter);
+  const visible = useMemo(() => {
+    let list = filter === "All" ? orders : orders.filter((o) => o.status === filter);
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter((o) => 
+        o.id.toLowerCase().includes(q) || 
+        o.address.fullName.toLowerCase().includes(q) || 
+        (o.phone && o.phone.toLowerCase().includes(q))
+      );
+    }
+    return list;
+  }, [orders, filter, searchQuery]);
   const selected = selectedId ? orders.find((o) => o.id === selectedId) : null;
 
   return (
