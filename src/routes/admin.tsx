@@ -250,7 +250,7 @@ function AdminPage() {
   ];
 
   return (
-    <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-6 md:px-6 md:py-10 lg:grid-cols-[260px_1fr]">
+    <section className="mx-auto grid w-full max-w-7xl gap-6 overflow-x-hidden px-3 py-6 sm:px-4 md:px-6 md:py-10 lg:grid-cols-[260px_1fr]">
       {/* ── Mobile menu overlay ── */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden" onClick={() => setMobileMenuOpen(false)}>
@@ -450,30 +450,30 @@ function AdminPage() {
         {tab === "dashboard" && (
           <>
             {/* ── 4-Column KPI Cards ── */}
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
               {stats.map((s) => (
                 <div
                   key={s.label}
-                  className={`relative overflow-hidden rounded-2xl border border-border/50 bg-card p-5 shadow-sm transition hover:shadow-md bg-gradient-to-br ${s.gradient}`}
+                  className={`relative overflow-hidden rounded-2xl border border-border/50 bg-card p-3 sm:p-5 shadow-sm transition hover:shadow-md bg-gradient-to-br ${s.gradient}`}
                 >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{s.label}</p>
-                      <p className="mt-2 font-display text-3xl font-bold tracking-tight">{s.value}</p>
+                  <div className="flex items-start justify-between gap-1">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-muted-foreground truncate">{s.label}</p>
+                      <p className="mt-1 sm:mt-2 font-display text-lg sm:text-2xl xl:text-3xl font-bold tracking-tight truncate">{s.value}</p>
                     </div>
-                    <div className="grid size-11 place-items-center rounded-xl bg-tertiary text-primary">
-                      <s.icon className="size-5" />
+                    <div className="grid size-8 sm:size-11 shrink-0 place-items-center rounded-lg sm:rounded-xl bg-tertiary text-primary">
+                      <s.icon className="size-4 sm:size-5" />
                     </div>
                   </div>
-                  <p className={`mt-3 flex items-center gap-1 text-xs font-semibold ${s.trendColor ?? "text-primary"}`}>
-                    <TrendingUp className="size-3" /> {s.trend}
+                  <p className={`mt-2 sm:mt-3 flex items-center gap-1 text-[10px] sm:text-xs font-semibold ${s.trendColor ?? "text-primary"}`}>
+                    <TrendingUp className="size-3 shrink-0" /> <span className="truncate">{s.trend}</span>
                   </p>
                 </div>
               ))}
             </div>
 
             {/* ── Chart + Sidebar row ── */}
-            <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
+            <div className="grid gap-4 sm:gap-6 xl:grid-cols-[1fr_320px]">
               {/* Sales chart */}
               <div className="rounded-2xl border border-border/50 bg-card p-4 sm:p-6 shadow-sm">
                 <div className="flex items-center justify-between">
@@ -486,12 +486,12 @@ function AdminPage() {
                     <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Weekly</span>
                   </div>
                 </div>
-                <div className="mt-6 h-56">
+                <div className="mt-4 sm:mt-6 h-48 sm:h-56">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData} barSize={28}>
+                    <BarChart data={chartData} barSize={20}>
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
-                      <XAxis dataKey="day" tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} width={55} tickFormatter={(v) => `${v} DA`} />
+                      <XAxis dataKey="day" tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} width={40} tickFormatter={(v) => `${v}`} />
                       <Tooltip
                         contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: "0.75rem", fontSize: 12 }}
                         formatter={(v: number) => [`${v.toLocaleString()} DA`, "Revenue"]}
@@ -549,8 +549,8 @@ function AdminPage() {
                   View All Orders <ChevronRight className="size-3.5" />
                 </button>
               </div>
-              <div className="mt-4 overflow-x-auto rounded-xl border border-border">
-                <table className="w-full min-w-[560px] text-sm">
+              <div className="mt-4 overflow-x-auto rounded-xl border border-border -mx-1 sm:mx-0">
+                <table className="w-full min-w-[480px] text-sm">
                   <thead className="bg-secondary/60 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                     <tr>
                       <th className="px-4 py-3 text-left">Order</th>
@@ -628,7 +628,62 @@ function ProductsTab({ searchQuery = "" }: { searchQuery?: string }) {
           </button>
         </div>
       </div>
-      <div className="mt-5 overflow-x-auto rounded-xl border border-border">
+      {/* Mobile card layout */}
+      <div className="mt-5 grid gap-3 sm:hidden">
+        {products
+          .filter((p) => {
+            if (!searchQuery.trim()) return true;
+            const q = searchQuery.toLowerCase();
+            return p.name.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q) || p.category.toLowerCase().includes(q);
+          })
+          .map((p) => {
+            const isFeatured = featuredSlugs.includes(p.slug);
+            return (
+              <div key={p.slug} className="rounded-xl border border-border bg-secondary/20 p-3">
+                <div className="flex items-center gap-3">
+                  <img src={primaryProductImage(p.image)} alt="" className="size-12 rounded-lg object-cover shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-sm truncate">{p.name}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="rounded-full bg-tertiary px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary">
+                        {p.category}
+                      </span>
+                      <span className="text-xs font-semibold">{p.price.toFixed(2)} DA</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button onClick={() => setEditingSlug(p.slug)} className="rounded-md p-2 text-muted-foreground hover:bg-secondary" aria-label={`Edit ${p.name}`}>
+                      <Pencil className="size-4" />
+                    </button>
+                    <button
+                      onClick={() => { if (confirm(`Delete ${p.name}?`)) removeProduct(p.slug); }}
+                      className="rounded-md p-2 text-muted-foreground hover:bg-destructive hover:text-destructive-foreground"
+                      aria-label={`Delete ${p.name}`}
+                    >
+                      <Trash2 className="size-4" />
+                    </button>
+                  </div>
+                </div>
+                <div className="mt-2 flex items-center justify-between gap-2">
+                  <span className={`flex items-center gap-1.5 text-xs ${p.stock && p.stock < 10 ? "text-amber-600" : "text-primary"}`}>
+                    <span className="size-1.5 rounded-full bg-current" />
+                    {p.stock && p.stock < 10 ? `Low (${p.stock})` : `In Stock (${p.stock ?? 0})`}
+                  </span>
+                  <button
+                    onClick={() => toggle(p.slug)}
+                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider transition ${isFeatured ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}
+                  >
+                    <Star className={`size-2.5 ${isFeatured ? "fill-current" : ""}`} />
+                    {isFeatured ? "Featured" : "Feature"}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+      </div>
+
+      {/* Desktop table layout */}
+      <div className="mt-5 hidden overflow-x-auto rounded-xl border border-border sm:block">
         <table className="w-full min-w-[640px] text-sm">
           <thead className="bg-secondary/60 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             <tr>
@@ -647,17 +702,13 @@ function ProductsTab({ searchQuery = "" }: { searchQuery?: string }) {
                 const q = searchQuery.toLowerCase();
                 return p.name.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q) || p.category.toLowerCase().includes(q);
               })
-              .map((p, i) => {
+              .map((p) => {
               const isFeatured = featuredSlugs.includes(p.slug);
               return (
                 <tr key={p.slug}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <img
-                        src={primaryProductImage(p.image)}
-                        alt=""
-                        className="size-10 rounded-lg object-cover"
-                      />
+                      <img src={primaryProductImage(p.image)} alt="" className="size-10 rounded-lg object-cover" />
                       <span className="font-semibold">{p.name}</span>
                     </div>
                   </td>
@@ -668,23 +719,15 @@ function ProductsTab({ searchQuery = "" }: { searchQuery?: string }) {
                   </td>
                   <td className="px-4 py-3 font-semibold">{p.price.toFixed(2)} DA</td>
                   <td className="px-4 py-3">
-                    <span
-                      className={`flex items-center gap-1.5 ${p.stock && p.stock < 10 ? "text-amber-600" : "text-primary"}`}
-                    >
+                    <span className={`flex items-center gap-1.5 ${p.stock && p.stock < 10 ? "text-amber-600" : "text-primary"}`}>
                       <span className="size-2 rounded-full bg-current" />
-                      {p.stock && p.stock < 10
-                        ? `Low Stock (${p.stock})`
-                        : `In Stock (${p.stock ?? 0})`}
+                      {p.stock && p.stock < 10 ? `Low Stock (${p.stock})` : `In Stock (${p.stock ?? 0})`}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <button
                       onClick={() => toggle(p.slug)}
-                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition ${
-                        isFeatured
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-secondary text-muted-foreground hover:bg-tertiary hover:text-primary"
-                      }`}
+                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition ${isFeatured ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:bg-tertiary hover:text-primary"}`}
                       aria-pressed={isFeatured}
                     >
                       <Star className={`size-3 ${isFeatured ? "fill-current" : ""}`} />
@@ -693,20 +736,12 @@ function ProductsTab({ searchQuery = "" }: { searchQuery?: string }) {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <button
-                        onClick={() => setEditingSlug(p.slug)}
-                        className="rounded-md p-2 sm:p-1.5 text-muted-foreground transition hover:bg-secondary"
-                        aria-label={`Edit ${p.name}`}
-                      >
+                      <button onClick={() => setEditingSlug(p.slug)} className="rounded-md p-1.5 text-muted-foreground transition hover:bg-secondary" aria-label={`Edit ${p.name}`}>
                         <Pencil className="size-4" />
                       </button>
                       <button
-                        onClick={() => {
-                          if (confirm(`Are you sure you want to delete ${p.name}?`)) {
-                            removeProduct(p.slug);
-                          }
-                        }}
-                        className="rounded-md p-2 sm:p-1.5 text-muted-foreground transition hover:bg-destructive hover:text-destructive-foreground"
+                        onClick={() => { if (confirm(`Are you sure you want to delete ${p.name}?`)) removeProduct(p.slug); }}
+                        className="rounded-md p-1.5 text-muted-foreground transition hover:bg-destructive hover:text-destructive-foreground"
                         aria-label={`Delete ${p.name}`}
                       >
                         <Trash2 className="size-4" />
@@ -1095,7 +1130,7 @@ function CategoriesTab() {
       <div className="rounded-2xl bg-card p-4 sm:p-6 shadow-sm">
         <h2 className="font-display text-xl font-bold">All categories</h2>
         <div className="mt-4 overflow-x-auto rounded-xl border border-border">
-          <table className="w-full min-w-[640px] text-sm">
+          <table className="w-full min-w-[400px] text-sm">
             <thead className="bg-secondary/60 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
               <tr>
                 <th className="px-4 py-3 text-left">Name</th>
@@ -1226,7 +1261,7 @@ function OrdersTab({ searchQuery = "" }: { searchQuery?: string }) {
         </div>
 
         <div className="mt-5 overflow-x-auto rounded-xl border border-border">
-          <table className="w-full min-w-[640px] text-sm">
+          <table className="w-full min-w-[540px] text-sm">
             <thead className="bg-secondary/60 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
               <tr>
                 <th className="px-4 py-3 text-left">Order ID</th>
@@ -1522,7 +1557,7 @@ function AccountsTab({ currentId }: { currentId: string }) {
       </div>
 
       <div className="mt-5 overflow-x-auto rounded-xl border border-border">
-        <table className="w-full min-w-[640px] text-sm">
+        <table className="w-full min-w-[540px] text-sm">
           <thead className="bg-secondary/60 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             <tr>
               <th className="px-4 py-3 text-left">
