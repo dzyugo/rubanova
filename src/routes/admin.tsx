@@ -250,7 +250,7 @@ function AdminPage() {
   ];
 
   return (
-    <section className="mx-auto grid w-full max-w-7xl gap-6 overflow-x-hidden px-3 py-6 sm:px-4 md:px-6 md:py-10 lg:grid-cols-[260px_1fr]">
+    <section className="mx-auto grid w-full max-w-7xl gap-4 sm:gap-6 px-3 py-4 sm:px-4 sm:py-6 md:px-6 md:py-10 lg:grid-cols-[260px_minmax(0,1fr)]">
       {/* ── Mobile menu overlay ── */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden" onClick={() => setMobileMenuOpen(false)}>
@@ -347,7 +347,7 @@ function AdminPage() {
       </aside>
 
       {/* ── Main content ── */}
-      <div className="space-y-6">
+      <div className="min-w-0 space-y-4 sm:space-y-6">
         {/* Header bar */}
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -429,7 +429,7 @@ function AdminPage() {
               </button>
               
               {showNotifications && (
-                <div className="absolute right-0 top-12 z-50 w-80 rounded-2xl border border-border bg-card p-4 shadow-xl">
+                <div className="absolute right-0 top-12 z-50 w-[calc(100vw-2rem)] max-w-80 rounded-2xl border border-border bg-card p-4 shadow-xl">
                   <div className="mb-3 flex items-center justify-between">
                     <h3 className="font-display font-bold">Notifications</h3>
                     <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-semibold">{notifications.length}</span>
@@ -643,7 +643,7 @@ function ProductsTab({ searchQuery = "" }: { searchQuery?: string }) {
   const editing = editingSlug ? (products.find((p) => p.slug === editingSlug) ?? null) : null;
 
   return (
-    <div className="rounded-2xl bg-card p-4 sm:p-6 shadow-sm">
+    <div className="min-w-0 rounded-2xl bg-card p-3 sm:p-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="font-display text-xl font-bold">Products Management</h2>
@@ -1142,29 +1142,70 @@ function CategoriesTab() {
   };
 
   return (
-    <div className="space-y-5">
-      <div className="rounded-2xl bg-card p-4 sm:p-6 shadow-sm">
+    <div className="min-w-0 space-y-4 sm:space-y-5">
+      <div className="rounded-2xl bg-card p-3 sm:p-6 shadow-sm">
         <h2 className="font-display text-xl font-bold">Add a category</h2>
         <p className="text-sm text-muted-foreground">
           New categories appear in the shop sidebar and product editor right away.
         </p>
-        <form onSubmit={onAdd} className="mt-4 flex flex-wrap gap-2">
+        <form onSubmit={onAdd} className="mt-4 flex gap-2">
           <input
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             placeholder="e.g. Herbs & Spices"
-            className="min-w-[220px] flex-1 rounded-lg bg-secondary/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            className="min-w-0 flex-1 rounded-lg bg-secondary/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
-          <button className="inline-flex items-center gap-1 rounded-full bg-primary px-5 py-2 text-sm font-bold text-primary-foreground hover:opacity-90">
+          <button className="shrink-0 inline-flex items-center gap-1 rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground hover:opacity-90">
             <Plus className="size-4" /> Add
           </button>
         </form>
         {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
       </div>
 
-      <div className="rounded-2xl bg-card p-4 sm:p-6 shadow-sm">
+      <div className="rounded-2xl bg-card p-3 sm:p-6 shadow-sm">
         <h2 className="font-display text-xl font-bold">All categories</h2>
-        <div className="mt-4 overflow-x-auto rounded-xl border border-border">
+        {/* Mobile category cards */}
+        <div className="mt-4 grid gap-2 sm:hidden">
+          {categories.map((c) => (
+            <div key={c} className="flex items-center justify-between gap-2 rounded-xl border border-border p-3">
+              <div className="min-w-0 flex-1">
+                {editing === c ? (
+                  <input
+                    autoFocus
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") onRenameSave(c);
+                      if (e.key === "Escape") setEditing(null);
+                    }}
+                    className="w-full rounded-md border border-border bg-background px-2 py-1 text-sm"
+                  />
+                ) : (
+                  <div>
+                    <p className="font-semibold text-sm">{c}</p>
+                    <p className="text-xs text-muted-foreground">{counts[c] ?? 0} products</p>
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                {editing === c ? (
+                  <>
+                    <button onClick={() => onRenameSave(c)} className="rounded-md p-2 text-primary hover:bg-secondary" aria-label="Save"><Check className="size-4" /></button>
+                    <button onClick={() => setEditing(null)} className="rounded-md p-2 text-muted-foreground hover:bg-secondary" aria-label="Cancel"><X className="size-4" /></button>
+                  </>
+                ) : (
+                  <>
+                    <button onClick={() => { setEditing(c); setEditValue(c); }} className="rounded-md p-2 text-muted-foreground hover:bg-secondary" aria-label="Rename"><Pencil className="size-4" /></button>
+                    <button onClick={() => onRemove(c)} className="rounded-md p-2 text-muted-foreground hover:bg-secondary hover:text-destructive" aria-label="Remove"><Trash2 className="size-4" /></button>
+                  </>
+                )}
+              </div>
+            </div>
+          ))}
+          {categories.length === 0 && <p className="py-6 text-center text-sm text-muted-foreground">No categories yet.</p>}
+        </div>
+        {/* Desktop category table */}
+        <div className="mt-4 hidden overflow-x-auto rounded-xl border border-border sm:block">
           <table className="w-full text-sm">
             <thead className="bg-secondary/60 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
               <tr>
@@ -1273,8 +1314,8 @@ function OrdersTab({ searchQuery = "" }: { searchQuery?: string }) {
   const selected = selectedId ? orders.find((o) => o.id === selectedId) : null;
 
   return (
-    <div className="space-y-5">
-      <div className="rounded-2xl bg-card p-4 sm:p-6 shadow-sm">
+    <div className="min-w-0 space-y-4 sm:space-y-5">
+      <div className="min-w-0 rounded-2xl bg-card p-3 sm:p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="font-display text-xl font-bold">Recent Orders</h2>
@@ -1590,7 +1631,7 @@ function AccountsTab({ currentId }: { currentId: string }) {
   );
 
   return (
-    <div className="rounded-2xl bg-card p-4 sm:p-6 shadow-sm">
+    <div className="min-w-0 rounded-2xl bg-card p-3 sm:p-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="font-display text-xl font-bold">Accounts Management</h2>
@@ -2202,7 +2243,7 @@ function BannersTab() {
   const removeBanner = useBanners((s) => s.removeBanner);
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-4 sm:space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div>
           <h2 className="font-display text-xl font-bold">Banners & Visuals</h2>
@@ -2298,10 +2339,10 @@ function ShippingTab() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-2xl bg-card p-4 sm:p-6 shadow-sm">
+    <div className="min-w-0 space-y-4 sm:space-y-6">
+      <div className="rounded-2xl bg-card p-3 sm:p-6 shadow-sm">
         <h2 className="font-display text-xl font-bold">Add Shipping Company</h2>
-        <form onSubmit={onAdd} className="mt-4 flex flex-wrap items-end gap-3">
+        <form onSubmit={onAdd} className="mt-4 grid gap-3 sm:flex sm:flex-wrap sm:items-end">
           <Input label="Company Name" value={newCompanyName} onChange={setNewCompanyName} />
           <Input
             label="Default Desk Rate (DA)"

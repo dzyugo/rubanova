@@ -152,3 +152,9 @@
 .img-reveal {
   animation: img-reveal 0.4s ease forwards;
 }
+
+/* Prevent horizontal overflow on mobile */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
