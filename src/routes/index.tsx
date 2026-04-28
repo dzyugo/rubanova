@@ -72,7 +72,7 @@ function HomePage() {
           activeBanners.map((banner, i) => (
             <div
               key={banner.id}
-              className="relative h-[520px] w-full shrink-0 snap-center overflow-hidden md:h-[640px]"
+              className="relative h-[380px] w-full shrink-0 snap-center overflow-hidden sm:h-[460px] md:h-[520px] lg:h-[640px]"
             >
               <img
                 src={banner.imageUrl || "/images/hero-produce.jpg"}
@@ -81,26 +81,26 @@ function HomePage() {
                 width={1600}
                 height={1024}
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-background/85 via-background/30 to-transparent rtl:bg-gradient-to-l" />
-              <div className="relative mx-auto flex h-full w-full max-w-7xl items-center px-6">
+              <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/50 to-transparent rtl:bg-gradient-to-l" />
+              <div className="relative mx-auto flex h-full w-full max-w-7xl items-center px-4 sm:px-6">
                 <div className="max-w-xl">
                   {i === 0 && (
                     <span className="inline-flex items-center gap-2 rounded-full bg-tertiary/80 px-3 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary">
                       <Leaf className="size-3.5" /> {settings.heroEyebrow}
                     </span>
                   )}
-                  <h1 className="mt-5 font-display text-5xl leading-[1.05] md:text-7xl">
+                  <h1 className="mt-4 font-display text-3xl leading-tight sm:text-4xl md:text-5xl lg:text-7xl">
                     {banner.title}
                   </h1>
                   {i === 0 && (
-                    <p className="mt-5 max-w-md text-base text-foreground/80 md:text-lg">
+                    <p className="mt-3 max-w-md text-sm text-foreground/80 sm:text-base md:text-lg">
                       {settings.heroSubtitle}
                     </p>
                   )}
-                  <div className="mt-8 flex flex-wrap gap-3">
+                  <div className="mt-6 flex flex-wrap gap-3">
                     <Link
                       to={banner.link || "/shop"}
-                      className="inline-flex items-center justify-center rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground shadow-md transition hover:opacity-90"
+                      className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-md transition hover:opacity-90 sm:px-7 sm:py-3"
                     >
                       {t("home.shopnow")}
                     </Link>
@@ -110,7 +110,7 @@ function HomePage() {
             </div>
           ))
         ) : (
-          <div className="relative h-[520px] w-full shrink-0 snap-center overflow-hidden md:h-[640px]">
+          <div className="relative h-[380px] w-full shrink-0 snap-center overflow-hidden sm:h-[460px] md:h-[520px] lg:h-[640px]">
             <img
               src={settings.heroImageUrl || "/images/hero-produce.jpg"}
               alt="Fresh organic produce"
@@ -118,24 +118,24 @@ function HomePage() {
               width={1600}
               height={1024}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-background/85 via-background/30 to-transparent rtl:bg-gradient-to-l" />
-            <div className="relative mx-auto flex h-full w-full max-w-7xl items-center px-6">
+            <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/50 to-transparent rtl:bg-gradient-to-l" />
+            <div className="relative mx-auto flex h-full w-full max-w-7xl items-center px-4 sm:px-6">
               <div className="max-w-xl">
                 <span className="inline-flex items-center gap-2 rounded-full bg-tertiary/80 px-3 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary">
                   <Leaf className="size-3.5" /> {settings.heroEyebrow}
                 </span>
-                <h1 className="mt-5 font-display text-5xl leading-[1.05] md:text-7xl">
+                <h1 className="mt-4 font-display text-3xl leading-tight sm:text-4xl md:text-5xl lg:text-7xl">
                   {settings.heroTitle}
                   <br />
                   <span className="text-primary">{settings.heroAccent}</span>
                 </h1>
-                <p className="mt-5 max-w-md text-base text-foreground/80 md:text-lg">
+                <p className="mt-3 max-w-md text-sm text-foreground/80 sm:text-base md:text-lg">
                   {settings.heroSubtitle}
                 </p>
-                <div className="mt-8 flex flex-wrap gap-3">
+                <div className="mt-6 flex flex-wrap gap-3">
                   <Link
                     to="/shop"
-                    className="inline-flex items-center justify-center rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground shadow-md transition hover:opacity-90"
+                    className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-md transition hover:opacity-90 sm:px-7 sm:py-3"
                   >
                     {t("home.shopnow")}
                   </Link>
@@ -147,62 +147,64 @@ function HomePage() {
       </section>
 
       {/* Featured harvest */}
-      <section className="mx-auto w-full max-w-7xl px-6 py-16">
-        <div className="flex items-end justify-between">
+      <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-16">
+        <div className="flex items-end justify-between gap-4">
           <div>
-            <h2 className="font-display text-3xl font-bold md:text-4xl">{t("home.featured")}</h2>
-            <p className="mt-2 text-muted-foreground">{t("home.featured.sub")}</p>
+            <h2 className="font-display text-2xl font-bold sm:text-3xl md:text-4xl">{t("home.featured")}</h2>
+            <p className="mt-1 text-sm text-muted-foreground sm:mt-2">{t("home.featured.sub")}</p>
           </div>
           <Link
             to="/shop"
-            className="hidden text-sm font-semibold text-primary hover:underline md:block"
+            className="shrink-0 text-sm font-semibold text-primary hover:underline"
           >
             {t("home.viewall")}
           </Link>
         </div>
 
         {featured.length === 0 ? (
-          <div className="mt-16 rounded-3xl border border-dashed border-border p-12 text-center text-muted-foreground">
+          <div className="mt-10 rounded-2xl border border-dashed border-border p-8 text-center text-muted-foreground sm:mt-16 sm:p-12">
             {t("shop.nomatch", "No products available right now.")}
           </div>
         ) : (
-          <div className="mt-8 grid gap-6 lg:grid-cols-3">
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid lg:grid-cols-3">
+            {/* Big featured card — full width on mobile, spans 2 cols on lg */}
             <Link
               to="/shop/$slug"
               params={{ slug: big.slug }}
-              className="group relative overflow-hidden rounded-3xl bg-card lg:row-span-2"
+              className="group relative overflow-hidden rounded-2xl bg-card sm:rounded-3xl lg:row-span-2 lg:col-span-2"
             >
               <img
                 src={primaryProductImage(big.image)}
                 alt={big.name}
-                className="aspect-square w-full object-cover transition duration-700 group-hover:scale-105 lg:aspect-auto lg:h-full"
+                className="aspect-[4/3] w-full object-cover transition duration-700 group-hover:scale-105 sm:aspect-square lg:aspect-auto lg:h-full"
                 loading="lazy"
               />
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/95 via-background/70 to-transparent p-6">
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/95 via-background/70 to-transparent p-4 sm:inset-x-0 sm:p-6">
                 <span className="inline-block rounded-full bg-primary/90 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary-foreground">
                   {t("home.featured.badge")}
                 </span>
-                <h3 className="mt-3 font-display text-2xl font-bold">{big.name}</h3>
-                <p className="text-sm text-muted-foreground">{big.tagline}.</p>
+                <h3 className="mt-2 font-display text-xl font-bold sm:mt-3 sm:text-2xl lg:text-3xl">{big.name}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">{big.tagline}.</p>
                 <button
                   onClick={(e) => {
                     e.preventDefault();
                     add(big);
                     toast.success(`${big.name} — ${t("toast.added")}`);
                   }}
-                  className="mt-4 inline-flex items-center gap-2 rounded-full bg-background px-5 py-2.5 text-sm font-semibold shadow-sm transition hover:bg-secondary"
+                  className="mt-3 inline-flex items-center gap-2 rounded-full bg-background px-4 py-2 text-xs font-semibold shadow-sm transition hover:bg-secondary sm:mt-4 sm:px-5 sm:py-2.5 sm:text-sm"
                 >
                   {t("home.addtocart")} — {formatPrice(big.price)}
                 </button>
               </div>
             </Link>
 
+            {/* Smaller cards */}
             {rest.map((prod) => (
-              <div key={prod.slug} className="rounded-3xl bg-card p-4 shadow-sm">
+              <div key={prod.slug} className="rounded-2xl bg-card p-3 shadow-sm sm:rounded-3xl sm:p-4">
                 <Link
                   to="/shop/$slug"
                   params={{ slug: prod.slug }}
-                  className="block overflow-hidden rounded-2xl"
+                  className="block overflow-hidden rounded-xl"
                 >
                   <img
                     src={primaryProductImage(prod.image)}
@@ -211,7 +213,7 @@ function HomePage() {
                     loading="lazy"
                   />
                 </Link>
-                <div className="mt-4 flex flex-wrap gap-1.5">
+                <div className="mt-3 flex flex-wrap gap-1.5">
                   <span className="inline-flex items-center gap-1 rounded-full bg-primary/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
                     ★ {t("home.featured.badge")}
                   </span>
@@ -225,11 +227,11 @@ function HomePage() {
                   ))}
                 </div>
                 <Link to="/shop/$slug" params={{ slug: prod.slug }} className="mt-2 block">
-                  <h3 className="font-display text-lg font-bold">{prod.name}</h3>
-                  <p className="text-sm text-muted-foreground">{prod.tagline}.</p>
+                  <h3 className="font-display text-base font-bold sm:text-lg">{prod.name}</h3>
+                  <p className="text-xs text-muted-foreground sm:text-sm">{prod.tagline}.</p>
                 </Link>
-                <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
-                  <span className="font-display text-lg font-bold text-primary">
+                <div className="mt-3 flex items-center justify-between border-t border-border pt-3 sm:mt-4 sm:pt-4">
+                  <span className="font-display text-base font-bold text-primary sm:text-lg">
                     {formatPrice(prod.price)}
                   </span>
                   <button
@@ -238,7 +240,7 @@ function HomePage() {
                       toast.success(`${prod.name} — ${t("toast.added")}`);
                     }}
                     aria-label={`Add ${prod.name} to cart`}
-                    className="grid size-9 place-items-center rounded-full bg-primary text-primary-foreground transition hover:opacity-90"
+                    className="grid size-8 place-items-center rounded-full bg-primary text-primary-foreground transition hover:opacity-90 sm:size-9"
                   >
                     <Plus className="size-4" />
                   </button>
@@ -251,15 +253,15 @@ function HomePage() {
 
       {/* Newsletter */}
       <section className="bg-tertiary/60">
-        <div className="mx-auto w-full max-w-2xl px-6 py-16 text-center">
-          <div className="mx-auto grid size-14 place-items-center rounded-full bg-background shadow-sm">
-            <Mail className="size-6 text-primary" />
+        <div className="mx-auto w-full max-w-2xl px-4 py-12 text-center sm:px-6 sm:py-16">
+          <div className="mx-auto grid size-12 place-items-center rounded-full bg-background shadow-sm sm:size-14">
+            <Mail className="size-5 text-primary sm:size-6" />
           </div>
-          <h2 className="mt-5 font-display text-2xl font-bold">
+          <h2 className="mt-5 font-display text-xl font-bold sm:text-2xl md:text-3xl">
             {t("home.newsletter.title", { name: settings.name })}
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">{t("home.newsletter.sub")}</p>
-          <form onSubmit={handleNewsletter} className="mx-auto mt-6 flex max-w-md gap-2">
+          <form onSubmit={handleNewsletter} className="mx-auto mt-6 flex flex-col gap-2 sm:flex-row sm:max-w-md sm:gap-3">
             <input
               required
               name="email"

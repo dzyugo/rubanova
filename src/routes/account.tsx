@@ -68,12 +68,12 @@ function AuthGate() {
   };
 
   return (
-    <section className="mx-auto flex w-full max-w-md flex-col gap-6 px-6 py-16">
+    <section className="mx-auto flex w-full max-w-md flex-col gap-5 px-4 py-12 sm:max-w-md sm:px-6 sm:py-16">
       <div className="text-center">
-        <div className="mx-auto grid size-14 place-items-center rounded-full bg-tertiary text-primary">
-          <User className="size-6" />
+        <div className="mx-auto grid size-12 place-items-center rounded-full bg-tertiary text-primary sm:size-14">
+          <User className="size-5 sm:size-6" />
         </div>
-        <h1 className="mt-4 font-display text-3xl font-bold">
+        <h1 className="mt-4 font-display text-2xl font-bold sm:text-3xl">
           {mode === "login" ? t("auth.welcome") : t("auth.create")}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
@@ -81,7 +81,7 @@ function AuthGate() {
         </p>
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-4 rounded-2xl bg-card p-6 shadow-sm">
+      <form onSubmit={onSubmit} className="space-y-4 rounded-2xl bg-card p-5 shadow-sm sm:p-6">
         {mode === "signup" && <Field name="name" label={t("auth.fullname")} required />}
         <Field name="email" label={t("auth.email")} type="email" required />
         <Field
@@ -163,20 +163,20 @@ function AccountDashboard() {
   };
 
   return (
-    <section className="mx-auto w-full max-w-6xl px-6 py-12">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="grid size-14 place-items-center rounded-full bg-tertiary text-primary">
-            <User className="size-6" />
+    <section className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="grid size-12 shrink-0 place-items-center rounded-full bg-tertiary text-primary sm:size-14">
+            <User className="size-5 sm:size-6" />
           </div>
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-primary">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-primary sm:text-xs">
               {t("auth.myaccount")}
             </p>
-            <h1 className="font-display text-3xl font-bold sm:text-4xl">
+            <h1 className="font-display text-xl font-bold sm:text-2xl lg:text-3xl">
               {t("auth.welcomeback")} {user.name.split(" ")[0]}
             </h1>
-            <p className="text-xs text-muted-foreground">
+            <p className="truncate text-xs text-muted-foreground">
               {user.email} •{" "}
               <span className="font-semibold uppercase tracking-wider text-primary">
                 {user.role}
@@ -188,21 +188,22 @@ function AccountDashboard() {
           {user.role === "admin" && (
             <Link
               to="/admin"
-              className="inline-flex items-center gap-2 rounded-full bg-tertiary px-4 py-2 text-sm font-semibold text-primary hover:bg-tertiary/80"
+              className="inline-flex items-center gap-1.5 rounded-full bg-tertiary px-3 py-1.5 text-xs font-semibold text-primary hover:bg-tertiary/80 sm:px-4 sm:py-2 sm:text-sm"
             >
-              <ShieldCheck className="size-4" /> {t("nav.admin")}
+              <ShieldCheck className="size-3 sm:size-4" /> {t("nav.admin")}
             </Link>
           )}
           <button
             onClick={logout}
-            className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold hover:bg-secondary"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold hover:bg-secondary sm:px-4 sm:py-2 sm:text-sm"
           >
-            <LogOut className="size-4" /> {t("nav.signout")}
+            <LogOut className="size-3 sm:size-4" /> <span className="hidden sm:inline">{t("nav.signout")}</span>
           </button>
         </div>
       </div>
 
-      <div className="mt-8 flex gap-2 border-b border-border">
+      {/* Tabs — scrollable on mobile */}
+      <div className="mt-6 -mb-px flex gap-1 overflow-x-auto border-b border-border hide-scrollbar sm:mt-8 sm:gap-2">
         {[
           { id: "orders", label: t("auth.orders"), icon: Package },
           { id: "addresses", label: t("auth.addresses"), icon: MapPin },
@@ -211,35 +212,35 @@ function AccountDashboard() {
           <button
             key={tb.id}
             onClick={() => setTab(tb.id as typeof tab)}
-            className={`-mb-px flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${
+            className={`-mb-px flex shrink-0 items-center gap-1.5 border-b-2 px-3 py-2.5 text-xs font-semibold transition sm:gap-2 sm:px-4 sm:py-3 sm:text-sm ${
               tab === tb.id
                 ? "border-primary text-primary"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
-            <tb.icon className="size-4" /> {tb.label}
+            <tb.icon className="size-3.5 sm:size-4" /> {tb.label}
           </button>
         ))}
       </div>
 
       {tab === "orders" && (
-        <div className="mt-8 space-y-4">
+        <div className="mt-5 space-y-3 sm:mt-8 sm:space-y-4">
           {orders.length === 0 ? (
-            <div className="rounded-2xl bg-card p-10 text-center shadow-sm">
-              <p className="text-muted-foreground">{t("auth.noorders")}</p>
+            <div className="rounded-xl bg-card p-8 text-center shadow-sm sm:rounded-2xl sm:p-10">
+              <p className="text-sm text-muted-foreground sm:text-base">{t("auth.noorders")}</p>
             </div>
           ) : (
             orders.map((o) => (
-              <article key={o.id} className="rounded-2xl bg-card p-6 shadow-sm">
-                <div className="flex flex-wrap items-start justify-between gap-4">
+              <article key={o.id} className="rounded-xl bg-card p-4 shadow-sm sm:rounded-2xl sm:p-6">
+                <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground sm:text-xs">
                       {t("auth.order")}
                     </p>
-                    <p className="font-display text-lg font-bold tracking-wider text-primary">
+                    <p className="font-display text-base font-bold tracking-wider text-primary sm:text-lg">
                       {o.id}
                     </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
+                    <p className="mt-0.5 text-xs text-muted-foreground sm:mt-1">
                       {new Date(o.createdAt).toLocaleDateString(undefined, {
                         month: "short",
                         day: "numeric",
@@ -247,25 +248,25 @@ function AccountDashboard() {
                       })}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <span
-                      className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${statusStyles[o.status]}`}
+                      className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider sm:text-xs ${statusStyles[o.status]}`}
                     >
                       {o.status}
                     </span>
-                    <span className="font-display text-xl font-bold">{o.total.toFixed(2)} DA</span>
+                    <span className="font-display text-lg font-bold sm:text-xl">{o.total.toFixed(2)} DA</span>
                   </div>
                 </div>
-                <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
-                  <p className="text-sm text-muted-foreground">
+                <div className="mt-3 flex items-center justify-between border-t border-border pt-3 sm:mt-4 sm:pt-4">
+                  <p className="text-xs text-muted-foreground sm:text-sm">
                     {t("misc.shippedto")} {o.address.fullName}, {o.address.city}
                   </p>
                   <Link
                     to="/order-confirmation/$id"
                     params={{ id: o.id }}
-                    className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline sm:text-sm"
                   >
-                    {t("auth.viewreceipt")} <ChevronRight className="size-4" />
+                    {t("auth.viewreceipt")} <ChevronRight className="size-3 sm:size-4" />
                   </Link>
                 </div>
               </article>
@@ -275,32 +276,32 @@ function AccountDashboard() {
       )}
 
       {tab === "addresses" && (
-        <div className="mt-8">
-          <div className="grid gap-4 sm:grid-cols-2">
+        <div className="mt-5 sm:mt-8">
+          <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
             {addresses.map((a) => (
               <div
                 key={a.id}
-                className={`rounded-2xl border-2 p-5 shadow-sm ${a.isDefault ? "border-primary bg-tertiary/40" : "border-border bg-card"}`}
+                className={`rounded-xl border-2 p-4 shadow-sm sm:rounded-2xl sm:p-5 ${a.isDefault ? "border-primary bg-tertiary/40" : "border-border bg-card"}`}
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div>
+                  <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="font-display text-base font-bold">{a.label}</p>
+                      <p className="font-display text-sm font-bold sm:text-base">{a.label}</p>
                       {a.isDefault && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary-foreground sm:text-[10px]">
                           <Star className="size-2.5" /> {t("auth.default")}
                         </span>
                       )}
                     </div>
-                    <p className="mt-2 text-sm font-semibold">{a.fullName}</p>
-                    <p className="text-sm text-muted-foreground">{a.street}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="mt-1.5 text-sm font-semibold sm:mt-2">{a.fullName}</p>
+                    <p className="text-xs text-muted-foreground sm:text-sm">{a.street}</p>
+                    <p className="text-xs text-muted-foreground sm:text-sm">
                       {a.city}, {a.zip}
                     </p>
                   </div>
                   <button
                     onClick={() => removeAddress(a.id)}
-                    className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-destructive"
+                    className="shrink-0 rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-destructive"
                     aria-label="Remove address"
                   >
                     <Trash2 className="size-4" />
@@ -309,7 +310,7 @@ function AccountDashboard() {
                 {!a.isDefault && (
                   <button
                     onClick={() => setDefaultAddress(a.id)}
-                    className="mt-4 text-xs font-semibold text-primary hover:underline"
+                    className="mt-3 text-xs font-semibold text-primary hover:underline sm:mt-4"
                   >
                     {t("auth.makedefault")}
                   </button>
@@ -319,17 +320,17 @@ function AccountDashboard() {
 
             <button
               onClick={() => setShowForm((s) => !s)}
-              className="flex min-h-[160px] flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-card p-5 text-muted-foreground transition hover:border-primary hover:text-primary"
+              className="flex min-h-[120px] flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-card p-4 text-muted-foreground transition hover:border-primary hover:text-primary sm:min-h-[160px] sm:rounded-2xl sm:p-5"
             >
-              <Plus className="size-6" />
-              <span className="text-sm font-semibold">{t("auth.addaddress")}</span>
+              <Plus className="size-5 sm:size-6" />
+              <span className="text-xs font-semibold sm:text-sm">{t("auth.addaddress")}</span>
             </button>
           </div>
 
           {showForm && (
             <form
               onSubmit={handleAdd}
-              className="mt-6 grid gap-4 rounded-2xl bg-card p-6 shadow-sm sm:grid-cols-2"
+              className="mt-4 grid gap-4 rounded-2xl bg-card p-5 shadow-sm sm:mt-6 sm:p-6 sm:grid-cols-2"
             >
               <Field name="label" label={t("auth.label")} required />
               <Field name="fullName" label={t("auth.fullname")} required />
@@ -344,14 +345,14 @@ function AccountDashboard() {
               <div className="flex gap-3 sm:col-span-2">
                 <button
                   type="submit"
-                  className="rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground hover:opacity-90"
+                  className="rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-foreground hover:opacity-90 sm:px-5 sm:py-2.5"
                 >
                   {t("auth.saveaddress")}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="rounded-full border border-border px-5 py-2.5 text-sm font-semibold hover:bg-secondary"
+                  className="rounded-full border border-border px-4 py-2 text-sm font-semibold hover:bg-secondary sm:px-5 sm:py-2.5"
                 >
                   {t("auth.cancel")}
                 </button>
@@ -362,9 +363,9 @@ function AccountDashboard() {
       )}
 
       {tab === "profile" && (
-        <div className="mt-8 max-w-xl rounded-2xl bg-card p-6 shadow-sm">
-          <h2 className="font-display text-xl font-bold">{t("auth.profiledetails")}</h2>
-          <form onSubmit={handleProfile} className="mt-5 grid gap-4">
+        <div className="mt-5 max-w-xl rounded-xl bg-card p-5 shadow-sm sm:mt-8 sm:rounded-2xl sm:p-6">
+          <h2 className="font-display text-lg font-bold sm:text-xl">{t("auth.profiledetails")}</h2>
+          <form onSubmit={handleProfile} className="mt-4 grid gap-4 sm:mt-5">
             <Field name="name" label={t("auth.fullname")} defaultValue={user.name} required />
             <Field
               name="email"
@@ -373,7 +374,7 @@ function AccountDashboard() {
               defaultValue={user.email}
               required
             />
-            <button className="mt-2 w-fit rounded-full bg-primary px-6 py-2.5 text-sm font-bold text-primary-foreground hover:opacity-90">
+            <button className="mt-2 w-fit rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground hover:opacity-90">
               {t("auth.savechanges")}
             </button>
           </form>

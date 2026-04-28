@@ -68,22 +68,22 @@ function ProductPage() {
   const images = parseProductImages(product.image);
 
   return (
-    <section className="mx-auto w-full max-w-7xl px-6 py-12">
+    <section className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+      <nav className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground sm:text-xs">
         <Link to="/shop" className="hover:text-primary">
           {t("nav.shop")}
         </Link>
         <ChevronRight className="size-3" />
-        <span>{product.category}</span>
-        <ChevronRight className="size-3" />
-        <span className="text-primary">{product.name}</span>
+        <span className="truncate max-w-[120px]">{product.category}</span>
+        <ChevronRight className="size-3 shrink-0" />
+        <span className="truncate max-w-[160px] text-primary">{product.name}</span>
       </nav>
 
-      <div className="mt-8 grid gap-12 lg:grid-cols-2 lg:items-start">
+      <div className="mt-6 grid gap-8 lg:grid lg:grid-cols-2 lg:items-start lg:gap-12">
         {/* Image */}
         <div>
-          <div className="overflow-hidden rounded-3xl bg-card shadow-sm">
+          <div className="overflow-hidden rounded-2xl bg-card shadow-sm sm:rounded-3xl">
             <img
               src={images[activeImage] || images[0]}
               alt={product.name}
@@ -94,17 +94,17 @@ function ProductPage() {
             />
           </div>
           {images.length > 1 && (
-            <div className="mt-4 grid grid-cols-4 gap-3">
+            <div className="mt-3 grid grid-cols-4 gap-2 sm:mt-4 sm:gap-3">
               {images.map((src, i) => (
                 <button
                   key={i}
                   onClick={() => setActiveImage(i)}
-                  className={`overflow-hidden rounded-xl border-2 ${i === activeImage ? "border-primary" : "border-transparent"}`}
+                  className={`overflow-hidden rounded-lg border-2 ${i === activeImage ? "border-primary" : "border-transparent"}`}
                 >
                   <img
                     src={src}
                     alt=""
-                    className={`aspect-square w-full object-cover ${i === activeImage ? "opacity-100" : "opacity-60 hover:opacity-100"}`}
+                    className={`aspect-square w-full object-cover ${i === activeImage ? "opacity-100" : "opacity-50 hover:opacity-80"}`}
                     loading="lazy"
                   />
                 </button>
@@ -115,21 +115,21 @@ function ProductPage() {
 
         {/* Info */}
         <div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5">
             {product.badges.map((b: string) => (
               <span
                 key={b}
-                className="rounded-full bg-tertiary px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary"
+                className="rounded-full bg-tertiary px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary sm:text-xs"
               >
                 {b}
               </span>
             ))}
           </div>
-          <h1 className="mt-4 font-display text-4xl font-bold md:text-5xl">{product.name}</h1>
-          <p className="mt-3 text-base text-muted-foreground">{product.description}</p>
+          <h1 className="mt-3 font-display text-2xl font-bold sm:mt-4 sm:text-3xl md:text-4xl lg:text-5xl">{product.name}</h1>
+          <p className="mt-2 text-sm text-muted-foreground sm:mt-3">{product.description}</p>
 
-          <div className="mt-6 flex items-baseline gap-3">
-            <span className="font-display text-4xl font-bold text-primary">
+          <div className="mt-5 flex items-baseline gap-2 sm:mt-6">
+            <span className="font-display text-3xl font-bold text-primary sm:text-4xl">
               {product.price.toFixed(2)} DA
             </span>
             <span className="text-sm text-muted-foreground">/ {product.unit}</span>
@@ -152,25 +152,25 @@ function ProductPage() {
             </div>
           )}
 
-          <p className="mt-8 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          <p className="mt-6 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground sm:mt-8">
             {t("product.qty")}
           </p>
-          <div className="mt-3 flex items-center gap-3">
-            <div className="flex items-center gap-2 rounded-full border border-border bg-card px-2 py-1">
+          <div className="mt-2 flex items-center gap-3 sm:mt-3">
+            <div className="flex items-center gap-1 rounded-full border border-border bg-card px-1.5 py-1 sm:gap-2 sm:px-2">
               <button
                 onClick={() => setQty((q) => Math.max(1, q - 1))}
                 className="grid size-8 place-items-center rounded-full hover:bg-secondary"
                 aria-label="Decrease"
               >
-                <Minus className="size-4" />
+                <Minus className="size-3.5 sm:size-4" />
               </button>
-              <span className="w-8 text-center text-sm font-semibold">{qty}</span>
+              <span className="w-7 text-center text-sm font-semibold sm:w-8">{qty}</span>
               <button
                 onClick={() => setQty((q) => q + 1)}
                 className="grid size-8 place-items-center rounded-full hover:bg-secondary"
                 aria-label="Increase"
               >
-                <Plus className="size-4" />
+                <Plus className="size-3.5 sm:size-4" />
               </button>
             </div>
             <button
@@ -179,7 +179,7 @@ function ProductPage() {
                 toast.success(`${product.name} ×${qty} — ${t("toast.added")}`);
               }}
               disabled={product.stock === 0}
-              className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-md transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-md transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed sm:px-6 sm:py-3"
             >
               <ShoppingBag className="size-4" />
               {product.stock === 0 ? "Out of Stock" : t("product.addtocart")}
@@ -187,12 +187,12 @@ function ProductPage() {
           </div>
 
           {/* Nutrition */}
-          <div className="mt-8 rounded-2xl border border-border bg-card">
+          <div className="mt-6 rounded-xl border border-border bg-card sm:mt-8 sm:rounded-2xl">
             <button
               onClick={() => setShowNutrition((s) => !s)}
-              className="flex w-full items-center justify-between px-5 py-4"
+              className="flex w-full items-center justify-between px-4 py-3 sm:px-5 sm:py-4"
             >
-              <span className="flex items-center gap-2 font-display text-base font-bold">
+              <span className="flex items-center gap-2 font-display text-sm font-bold sm:text-base">
                 <Leaf className="size-4 text-primary" /> {t("product.nutrition")}
               </span>
               <span className="text-muted-foreground">{showNutrition ? "−" : "+"}</span>
@@ -202,7 +202,7 @@ function ProductPage() {
                 {(Object.entries(product.nutrition) as [string, string | undefined][])
                   .filter(([, v]) => Boolean(v))
                   .map(([k, v]) => (
-                    <div key={k} className="flex justify-between px-5 py-3">
+                    <div key={k} className="flex justify-between px-4 py-2.5 sm:px-5 sm:py-3">
                       <dt className="text-muted-foreground capitalize">
                         {k.replace(/([A-Z])/g, " $1").trim()}
                       </dt>
@@ -214,7 +214,7 @@ function ProductPage() {
           </div>
 
           {/* Trust badges */}
-          <div className="mt-6 grid grid-cols-3 gap-3">
+          <div className="mt-4 grid grid-cols-3 gap-2 sm:mt-6 sm:gap-3">
             {[
               { icon: Leaf, label: t("product.organic") },
               { icon: Truck, label: t("product.fresh") },
@@ -222,10 +222,10 @@ function ProductPage() {
             ].map((b) => (
               <div
                 key={b.label}
-                className="grid place-items-center gap-2 rounded-2xl bg-tertiary/60 py-4"
+                className="grid place-items-center gap-1.5 rounded-xl bg-tertiary/60 py-3 sm:rounded-2xl sm:py-4"
               >
-                <b.icon className="size-5 text-primary" />
-                <span className="text-[11px] font-bold uppercase tracking-wider text-primary">
+                <b.icon className="size-4 text-primary sm:size-5" />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-primary sm:text-[11px]">
                   {b.label}
                 </span>
               </div>
@@ -235,23 +235,23 @@ function ProductPage() {
       </div>
 
       {/* Related */}
-      <section className="mt-20">
-        <div className="flex items-end justify-between">
+      <section className="mt-12 sm:mt-16 lg:mt-20">
+        <div className="flex items-end justify-between gap-4">
           <div>
-            <h2 className="font-display text-3xl font-bold">{t("product.related")}</h2>
-            <p className="mt-1 text-muted-foreground">{t("product.related.sub")}</p>
+            <h2 className="font-display text-xl font-bold sm:text-2xl lg:text-3xl">{t("product.related")}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{t("product.related.sub")}</p>
           </div>
           <Link
             to="/shop"
-            className="hidden text-sm font-semibold text-primary hover:underline md:block"
+            className="shrink-0 text-sm font-semibold text-primary hover:underline"
           >
             {t("product.viewshop")}
           </Link>
         </div>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-5 grid gap-3 grid-cols-2 sm:mt-6 sm:grid-cols-2 lg:grid-cols-4 sm:gap-4">
           {related.map((p) => (
             <Link key={p.slug} to="/shop/$slug" params={{ slug: p.slug }} className="group block">
-              <div className="overflow-hidden rounded-2xl bg-card">
+              <div className="overflow-hidden rounded-xl bg-card sm:rounded-2xl">
                 <img
                   src={primaryProductImage(p.image)}
                   alt={p.name}
@@ -259,11 +259,11 @@ function ProductPage() {
                   loading="lazy"
                 />
               </div>
-              <div className="mt-3 flex items-baseline justify-between">
-                <h3 className="font-display text-base font-bold">{p.name}</h3>
-                <span className="text-sm font-bold text-primary">{p.price.toFixed(2)} DA</span>
+              <div className="mt-2 flex items-baseline justify-between gap-2 sm:mt-3">
+                <h3 className="text-sm font-bold sm:text-base">{p.name}</h3>
+                <span className="text-xs font-bold text-primary sm:text-sm">{p.price.toFixed(2)} DA</span>
               </div>
-              <p className="text-xs text-muted-foreground">{p.unit}</p>
+              <p className="text-[10px] text-muted-foreground sm:text-xs">{p.unit}</p>
             </Link>
           ))}
         </div>

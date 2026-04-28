@@ -45,45 +45,45 @@ function ContactPage() {
   };
 
   return (
-    <section className="mx-auto w-full max-w-6xl px-6 py-20">
-      <div className="grid gap-16 md:grid-cols-2">
+    <section className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16 md:py-20">
+      <div className="grid gap-10 md:grid-cols-2 lg:gap-16">
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary">
+          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-primary sm:text-xs">
             {t("contact.title")}
           </p>
-          <h1 className="mt-3 font-display text-5xl md:text-6xl">{t("contact.title")}</h1>
-          <p className="mt-6 text-lg text-muted-foreground">{t("contact.subtitle")}</p>
+          <h1 className="mt-3 font-display text-3xl sm:text-4xl md:text-5xl">{t("contact.title")}</h1>
+          <p className="mt-4 text-sm text-muted-foreground sm:mt-6 sm:text-base lg:text-lg">{t("contact.subtitle")}</p>
 
-          <dl className="mt-10 space-y-6 text-sm">
+          <dl className="mt-8 space-y-5 text-sm sm:mt-10 sm:space-y-6">
             <div>
-              <dt className="font-display text-xs uppercase tracking-widest text-muted-foreground">
+              <dt className="font-display text-[11px] uppercase tracking-widest text-muted-foreground sm:text-xs">
                 {t("contact.visit")}
               </dt>
-              <dd className="mt-1">{settings.address}</dd>
+              <dd className="mt-1 text-muted-foreground">{settings.address}</dd>
             </div>
             <div>
-              <dt className="font-display text-xs uppercase tracking-widest text-muted-foreground">
+              <dt className="font-display text-[11px] uppercase tracking-widest text-muted-foreground sm:text-xs">
                 {t("contact.email")}
               </dt>
-              <dd className="mt-1">{settings.contactEmail}</dd>
+              <dd className="mt-1 text-muted-foreground">{settings.contactEmail}</dd>
             </div>
             <div>
-              <dt className="font-display text-xs uppercase tracking-widest text-muted-foreground">
+              <dt className="font-display text-[11px] uppercase tracking-widest text-muted-foreground sm:text-xs">
                 {t("contact.call")}
               </dt>
-              <dd className="mt-1">{settings.contactPhone}</dd>
+              <dd className="mt-1 text-muted-foreground">{settings.contactPhone}</dd>
             </div>
           </dl>
         </div>
 
-        <form onSubmit={handleSubmit} className="rounded-3xl border border-border bg-card p-8">
+        <form onSubmit={handleSubmit} className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:rounded-3xl sm:p-8">
           {sent ? (
-            <div className="flex h-full min-h-[300px] flex-col items-center justify-center text-center">
-              <h3 className="font-display text-2xl">{t("contact.sent")}</h3>
+            <div className="flex h-full min-h-[200px] flex-col items-center justify-center text-center sm:min-h-[300px]">
+              <h3 className="font-display text-xl sm:text-2xl">{t("contact.sent")}</h3>
             </div>
           ) : (
-            <div className="space-y-5">
-              <h2 className="font-display text-xl font-bold">{t("contact.sendmsg")}</h2>
+            <div className="space-y-4 sm:space-y-5">
+              <h2 className="font-display text-lg font-bold sm:text-xl">{t("contact.sendmsg")}</h2>
               <div>
                 <label className="text-sm font-medium" htmlFor="name">
                   {t("contact.name")}
@@ -92,7 +92,7 @@ function ContactPage() {
                   id="name"
                   name="name"
                   required
-                  className="mt-2 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
               <div>
@@ -104,7 +104,7 @@ function ContactPage() {
                   name="email"
                   type="email"
                   required
-                  className="mt-2 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
               <div>
@@ -114,9 +114,9 @@ function ContactPage() {
                 <textarea
                   id="message"
                   name="message"
-                  rows={5}
+                  rows={4}
                   required
-                  className="mt-2 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
               <button

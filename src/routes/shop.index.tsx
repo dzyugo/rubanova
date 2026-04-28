@@ -1,12 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState, useEffect } from "react";
 import { z } from "zod";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, SlidersHorizontal, X } from "lucide-react";
 import { diets, type Diet } from "@/data/products";
 import { useCart } from "@/store/cart";
 import { useCatalog, useMergedProducts } from "@/store/catalog";
 import { useT } from "@/lib/i18n";
 import { primaryProductImage } from "@/lib/product-images";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/shop/")({
   validateSearch: z.object({
@@ -75,6 +81,10 @@ function ShopPage() {
   const toggleDiet = (d: Diet) =>
     setActiveDiets((arr) => (arr.includes(d) ? arr.filter((x) => x !== d) : [...arr, d]));
 
+  const [filterOpen, setFilterOpen] = useState(false);
+
+  const activeFilterCount = (activeCat !== "All" ? 1 : 0) + activeDiets.length + (maxPrice < 99999 ? 1 : 0);
+
   if (loading) {
     return (
       <section className="flex min-h-[40vh] items-center justify-center">
@@ -83,91 +93,124 @@ function ShopPage() {
     );
   }
 
+  // Sidebar filter content — shared between desktop and mobile sheet
+  const FilterPanel = () => (
+    <div className="space-y-6">
+      <div>
+        <h3 className="font-display text-sm font-bold text-primary">
+          {t("shop.categories")}
+        </h3>
+        <ul className="mt-3 space-y-1 text-sm">
+          <li>
+            <button
+              onClick={() => { setActiveCat("All"); setFilterOpen(false); }}
+              className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-start transition ${activeCat === "All" ? "border-s-2 border-primary bg-secondary font-semibold text-primary" : "hover:bg-secondary/60"}`}
+            >
+              <span>{t("shop.all")}</span>
+              <span className="text-xs text-muted-foreground">{products.length}</span>
+            </button>
+          </li>
+          {categories.map((c) => (
+            <li key={c}>
+              <button
+                onClick={() => { setActiveCat(c); setFilterOpen(false); }}
+                className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-start transition ${activeCat === c ? "border-s-2 border-primary bg-secondary font-semibold text-primary" : "hover:bg-secondary/60"}`}
+              >
+                <span>{c}</span>
+                <span className="text-xs text-muted-foreground">{counts[c] ?? 0}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <h3 className="font-display text-sm font-bold text-primary">{t("shop.dietary")}</h3>
+        <ul className="mt-3 space-y-2 text-sm">
+          {diets.map((d) => (
+            <li key={d}>
+              <label className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 hover:bg-secondary/60">
+                <input
+                  type="checkbox"
+                  checked={activeDiets.includes(d)}
+                  onChange={() => toggleDiet(d)}
+                  className="size-4 accent-primary"
+                />
+                {d}
+              </label>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <h3 className="font-display text-sm font-bold text-primary">
+          {t("shop.pricerange")}
+        </h3>
+        <input
+          type="range"
+          min={0}
+          max={computedMax}
+          step={50}
+          value={Math.min(maxPrice, computedMax)}
+          onChange={(e) => setMaxPrice(Number(e.target.value))}
+          className="mt-3 w-full accent-primary"
+        />
+        <div className="mt-1 flex justify-between text-xs text-muted-foreground">
+          <span>0 DA</span>
+          <span>{maxPrice >= computedMax ? `${computedMax}+` : maxPrice} DA</span>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <section className="mx-auto w-full max-w-7xl px-6 py-12 md:py-16">
-      <div className="grid gap-10 lg:grid-cols-[240px_1fr]">
-        {/* Sidebar */}
-        <aside className="space-y-8">
-          <div>
-            <h3 className="font-display text-base font-bold text-primary">
+    <section className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-12 md:py-16">
+      {/* Mobile filter sheet */}
+      <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
+        <SheetContent side="left" className="flex w-[300px] flex-col overflow-y-auto sm:w-[320px]">
+          <SheetHeader className="flex flex-row items-center justify-between px-1">
+            <SheetTitle className="font-display text-lg font-bold">
               {t("shop.categories")}
-            </h3>
-            <ul className="mt-4 space-y-1 text-sm">
-              <li>
-                <button
-                  onClick={() => setActiveCat("All")}
-                  className={`flex w-full items-center justify-between rounded-md px-3 py-2 transition ${activeCat === "All" ? "border-s-2 border-primary bg-secondary font-semibold text-primary" : "hover:bg-secondary/60"}`}
-                >
-                  <span>{t("shop.all")}</span>
-                  <span className="text-xs text-muted-foreground">{products.length}</span>
-                </button>
-              </li>
-              {categories.map((c) => (
-                <li key={c}>
-                  <button
-                    onClick={() => setActiveCat(c)}
-                    className={`flex w-full items-center justify-between rounded-md px-3 py-2 transition ${activeCat === c ? "border-s-2 border-primary bg-secondary font-semibold text-primary" : "hover:bg-secondary/60"}`}
-                  >
-                    <span>{c}</span>
-                    <span className="text-xs text-muted-foreground">{counts[c] ?? 0}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
+            </SheetTitle>
+          </SheetHeader>
+          <div className="mt-6 flex-1 overflow-y-auto">
+            <FilterPanel />
           </div>
+        </SheetContent>
+      </Sheet>
 
-          <div>
-            <h3 className="font-display text-base font-bold text-primary">{t("shop.dietary")}</h3>
-            <ul className="mt-4 space-y-2 text-sm">
-              {diets.map((d) => (
-                <li key={d}>
-                  <label className="flex cursor-pointer items-center gap-3 px-3 py-1">
-                    <input
-                      type="checkbox"
-                      checked={activeDiets.includes(d)}
-                      onChange={() => toggleDiet(d)}
-                      className="size-4 accent-primary"
-                    />
-                    {d}
-                  </label>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="font-display text-base font-bold text-primary">
-              {t("shop.pricerange")}
-            </h3>
-            <input
-              type="range"
-              min={0}
-              max={computedMax}
-              step={50}
-              value={Math.min(maxPrice, computedMax)}
-              onChange={(e) => setMaxPrice(Number(e.target.value))}
-              className="mt-4 w-full accent-primary"
-            />
-            <div className="mt-1 flex justify-between text-xs text-muted-foreground">
-              <span>0 DA</span>
-              <span>{maxPrice >= computedMax ? `${computedMax}+` : maxPrice} DA</span>
-            </div>
-          </div>
+      <div className="grid gap-8 lg:grid-cols-[220px_1fr] lg:gap-10">
+        {/* Desktop Sidebar */}
+        <aside className="hidden space-y-6 lg:block">
+          <FilterPanel />
         </aside>
 
         {/* Main */}
         <div>
-          <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h1 className="font-display text-4xl font-bold md:text-5xl">{t("shop.title")}</h1>
-              <p className="mt-2 text-muted-foreground">{t("shop.subtitle")}</p>
+              <h1 className="font-display text-3xl font-bold sm:text-4xl md:text-5xl">{t("shop.title")}</h1>
+              <p className="mt-1 text-sm text-muted-foreground sm:mt-2">{t("shop.subtitle")}</p>
             </div>
-            <div className="flex items-center gap-3 text-sm">
-              <span className="text-muted-foreground">{t("shop.sortby")}</span>
+            <div className="flex items-center gap-2 text-sm">
+              {/* Mobile filter button */}
+              <button
+                onClick={() => setFilterOpen(true)}
+                className="flex items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-sm font-medium transition hover:bg-secondary md:hidden"
+              >
+                <SlidersHorizontal className="size-4" />
+                Filters
+                {activeFilterCount > 0 && (
+                  <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value as typeof sort)}
-                className="rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                className="rounded-full border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="latest">{t("shop.latest")}</option>
                 <option value="price-asc">{t("shop.priceasc")}</option>
@@ -176,11 +219,35 @@ function ShopPage() {
             </div>
           </div>
 
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {/* Active filter chips (mobile) */}
+          {activeFilterCount > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2 md:hidden">
+              {activeCat !== "All" && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs font-medium">
+                  {activeCat}
+                  <button onClick={() => setActiveCat("All")}><X className="size-3" /></button>
+                </span>
+              )}
+              {activeDiets.map((d) => (
+                <span key={d} className="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs font-medium">
+                  {d}
+                  <button onClick={() => toggleDiet(d)}><X className="size-3" /></button>
+                </span>
+              ))}
+              {maxPrice < 99999 && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs font-medium">
+                  ≤{maxPrice} DA
+                  <button onClick={() => setMaxPrice(99999)}><X className="size-3" /></button>
+                </span>
+              )}
+            </div>
+          )}
+
+          <div className="mt-6 grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filtered.map((p) => (
               <article
                 key={p.slug}
-                className="overflow-hidden rounded-2xl bg-card shadow-sm transition hover:shadow-md"
+                className="overflow-hidden rounded-xl bg-card shadow-sm transition hover:shadow-md sm:rounded-2xl"
               >
                 <Link to="/shop/$slug" params={{ slug: p.slug }} className="block">
                   <div className="relative aspect-square overflow-hidden bg-muted">
@@ -190,11 +257,11 @@ function ShopPage() {
                       loading="lazy"
                       className="size-full object-cover transition duration-500 hover:scale-105"
                     />
-                    <div className="absolute start-3 top-3 flex flex-wrap gap-1.5">
+                    <div className="absolute start-2 top-2 flex flex-wrap gap-1">
                       {p.badges.slice(0, 2).map((b) => (
                         <span
                           key={b}
-                          className="rounded-full bg-background/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary backdrop-blur"
+                          className="rounded-full bg-background/90 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary backdrop-blur"
                         >
                           {b}
                         </span>
@@ -209,17 +276,17 @@ function ShopPage() {
                     )}
                   </div>
                 </Link>
-                <div className="p-5">
+                <div className="p-3 sm:p-5">
                   <Link to="/shop/$slug" params={{ slug: p.slug }}>
-                    <h3 className="font-display text-lg font-bold">{p.name}</h3>
+                    <h3 className="font-display text-sm font-bold sm:text-base lg:text-lg">{p.name}</h3>
                   </Link>
-                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{p.tagline}.</p>
-                  <div className="mt-4 flex items-center justify-between">
+                  <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground sm:mt-1 sm:text-sm">{p.tagline}.</p>
+                  <div className="mt-3 flex items-center justify-between sm:mt-4">
                     <div>
-                      <span className="font-display text-xl font-bold text-primary">
+                      <span className="font-display text-sm font-bold text-primary sm:text-base lg:text-xl">
                         {p.price.toFixed(2)} DA
                       </span>
-                      <span className="ms-1 text-xs text-muted-foreground">
+                      <span className="ms-1 text-[10px] text-muted-foreground sm:text-xs">
                         /{p.unit.split(" ")[0]}
                       </span>
                     </div>
@@ -227,9 +294,9 @@ function ShopPage() {
                       onClick={() => add(p)}
                       aria-label={`Add ${p.name} to cart`}
                       disabled={p.stock === 0}
-                      className="grid size-10 place-items-center rounded-full bg-primary text-primary-foreground transition hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="grid size-8 place-items-center rounded-full bg-primary text-primary-foreground transition hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed sm:size-9"
                     >
-                      <ShoppingCart className="size-4" />
+                      <ShoppingCart className="size-3 sm:size-4" />
                     </button>
                   </div>
                 </div>
@@ -238,8 +305,8 @@ function ShopPage() {
           </div>
 
           {filtered.length === 0 && (
-            <div className="mt-16 rounded-2xl border border-dashed border-border p-12 text-center">
-              <p className="text-muted-foreground">{t("shop.nomatch")}</p>
+            <div className="mt-10 rounded-2xl border border-dashed border-border p-8 text-center sm:mt-16 sm:p-12">
+              <p className="text-sm text-muted-foreground sm:text-base">{t("shop.nomatch")}</p>
             </div>
           )}
         </div>
