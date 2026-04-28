@@ -475,7 +475,7 @@ function AdminPage() {
             {/* ── Chart + Sidebar row ── */}
             <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
               {/* Sales chart */}
-              <div className="rounded-2xl border border-border/50 bg-card p-6 shadow-sm">
+              <div className="rounded-2xl border border-border/50 bg-card p-4 sm:p-6 shadow-sm">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="font-display text-lg font-bold">Sales Performance</h2>
@@ -542,7 +542,7 @@ function AdminPage() {
             </div>
 
             {/* ── Recent Orders Summary ── */}
-            <div className="rounded-2xl border border-border/50 bg-card p-6 shadow-sm">
+            <div className="rounded-2xl border border-border/50 bg-card p-4 sm:p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <h2 className="font-display text-lg font-bold">Recent Orders</h2>
                 <button onClick={() => setTab("orders")} className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
@@ -550,7 +550,7 @@ function AdminPage() {
                 </button>
               </div>
               <div className="mt-4 overflow-x-auto rounded-xl border border-border">
-                <table className="w-full text-sm">
+                <table className="w-full min-w-[560px] text-sm">
                   <thead className="bg-secondary/60 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                     <tr>
                       <th className="px-4 py-3 text-left">Order</th>
@@ -608,7 +608,7 @@ function ProductsTab({ searchQuery = "" }: { searchQuery?: string }) {
   const editing = editingSlug ? (products.find((p) => p.slug === editingSlug) ?? null) : null;
 
   return (
-    <div className="rounded-2xl bg-card p-6 shadow-sm">
+    <div className="rounded-2xl bg-card p-4 sm:p-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="font-display text-xl font-bold">Products Management</h2>
@@ -629,7 +629,7 @@ function ProductsTab({ searchQuery = "" }: { searchQuery?: string }) {
         </div>
       </div>
       <div className="mt-5 overflow-x-auto rounded-xl border border-border">
-        <table className="w-full text-sm">
+        <table className="w-full min-w-[640px] text-sm">
           <thead className="bg-secondary/60 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             <tr>
               <th className="px-4 py-3 text-left">Product</th>
@@ -695,7 +695,7 @@ function ProductsTab({ searchQuery = "" }: { searchQuery?: string }) {
                     <div className="flex items-center justify-end gap-1">
                       <button
                         onClick={() => setEditingSlug(p.slug)}
-                        className="rounded-md p-1.5 text-muted-foreground transition hover:bg-secondary"
+                        className="rounded-md p-2 sm:p-1.5 text-muted-foreground transition hover:bg-secondary"
                         aria-label={`Edit ${p.name}`}
                       >
                         <Pencil className="size-4" />
@@ -706,7 +706,7 @@ function ProductsTab({ searchQuery = "" }: { searchQuery?: string }) {
                             removeProduct(p.slug);
                           }
                         }}
-                        className="rounded-md p-1.5 text-muted-foreground transition hover:bg-destructive hover:text-destructive-foreground"
+                        className="rounded-md p-2 sm:p-1.5 text-muted-foreground transition hover:bg-destructive hover:text-destructive-foreground"
                         aria-label={`Delete ${p.name}`}
                       >
                         <Trash2 className="size-4" />
@@ -869,7 +869,7 @@ function ProductEditModal({
       onClick={handleClose}
     >
       <div
-        className="w-full max-w-2xl rounded-3xl bg-card p-6 shadow-xl max-h-[90vh] overflow-y-auto"
+        className="w-full max-w-lg sm:max-w-2xl rounded-3xl bg-card p-4 sm:p-6 shadow-xl max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4">
@@ -896,7 +896,7 @@ function ProductEditModal({
           </div>
         )}
 
-        <div className="mt-5 grid gap-4 md:grid-cols-[180px_1fr]">
+        <div className="mt-5 grid gap-4 sm:grid-cols-[180px_1fr]">
           <div className="space-y-2">
             <div className="flex flex-wrap gap-2">
               {images.map((img, i) => (
@@ -945,7 +945,7 @@ function ProductEditModal({
             <Input label="Name" value={name} onChange={setName} />
             <Input label="Tagline" value={tagline} onChange={setTagline} />
             <Textarea label="Description" value={description} onChange={setDescription} />
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               <Input label="Price (DA)" value={price} onChange={setPrice} type="number" step="1" />
               <Input label="Unit" value={unit} onChange={setUnit} />
               <Input label="Stock" value={stock} onChange={setStock} type="number" step="1" />
@@ -970,7 +970,7 @@ function ProductEditModal({
           </div>
         </div>
 
-        <div className="mt-5 grid gap-3 border-t border-border pt-5 sm:grid-cols-3">
+        <div className="mt-5 grid gap-3 border-t border-border pt-5 grid-cols-1 sm:grid-cols-3">
           <Input
             label="Badges (comma separated)"
             value={badgesStr}
@@ -1073,7 +1073,7 @@ function CategoriesTab() {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-2xl bg-card p-6 shadow-sm">
+      <div className="rounded-2xl bg-card p-4 sm:p-6 shadow-sm">
         <h2 className="font-display text-xl font-bold">Add a category</h2>
         <p className="text-sm text-muted-foreground">
           New categories appear in the shop sidebar and product editor right away.
@@ -1092,10 +1092,10 @@ function CategoriesTab() {
         {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
       </div>
 
-      <div className="rounded-2xl bg-card p-6 shadow-sm">
+      <div className="rounded-2xl bg-card p-4 sm:p-6 shadow-sm">
         <h2 className="font-display text-xl font-bold">All categories</h2>
         <div className="mt-4 overflow-x-auto rounded-xl border border-border">
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[640px] text-sm">
             <thead className="bg-secondary/60 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
               <tr>
                 <th className="px-4 py-3 text-left">Name</th>
@@ -1129,14 +1129,14 @@ function CategoriesTab() {
                         <>
                           <button
                             onClick={() => onRenameSave(c)}
-                            className="rounded-md p-1.5 text-primary hover:bg-secondary"
+                            className="rounded-md p-2 sm:p-1.5 text-primary hover:bg-secondary"
                             aria-label="Save"
                           >
                             <Check className="size-4" />
                           </button>
                           <button
                             onClick={() => setEditing(null)}
-                            className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary"
+                            className="rounded-md p-2 sm:p-1.5 text-muted-foreground hover:bg-secondary"
                             aria-label="Cancel"
                           >
                             <X className="size-4" />
@@ -1149,14 +1149,14 @@ function CategoriesTab() {
                               setEditing(c);
                               setEditValue(c);
                             }}
-                            className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary"
+                            className="rounded-md p-2 sm:p-1.5 text-muted-foreground hover:bg-secondary"
                             aria-label="Rename"
                           >
                             <Pencil className="size-4" />
                           </button>
                           <button
                             onClick={() => onRemove(c)}
-                            className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-destructive"
+                            className="rounded-md p-2 sm:p-1.5 text-muted-foreground hover:bg-secondary hover:text-destructive"
                             aria-label="Remove"
                           >
                             <Trash2 className="size-4" />
@@ -1204,7 +1204,7 @@ function OrdersTab({ searchQuery = "" }: { searchQuery?: string }) {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-2xl bg-card p-6 shadow-sm">
+      <div className="rounded-2xl bg-card p-4 sm:p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="font-display text-xl font-bold">Recent Orders</h2>
@@ -1217,7 +1217,7 @@ function OrdersTab({ searchQuery = "" }: { searchQuery?: string }) {
               <button
                 key={s}
                 onClick={() => setFilter(s)}
-                className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${filter === s ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:bg-tertiary hover:text-primary"}`}
+                className={`rounded-full px-3 py-2 sm:py-1.5 text-xs font-semibold transition ${filter === s ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:bg-tertiary hover:text-primary"}`}
               >
                 {s}
               </button>
@@ -1226,7 +1226,7 @@ function OrdersTab({ searchQuery = "" }: { searchQuery?: string }) {
         </div>
 
         <div className="mt-5 overflow-x-auto rounded-xl border border-border">
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[640px] text-sm">
             <thead className="bg-secondary/60 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
               <tr>
                 <th className="px-4 py-3 text-left">Order ID</th>
@@ -1276,7 +1276,7 @@ function OrdersTab({ searchQuery = "" }: { searchQuery?: string }) {
                       <select
                         value={o.status}
                         onChange={(e) => setStatus(o.id, e.target.value as OrderStatus)}
-                        className="rounded-md border border-border bg-background px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-ring"
+                        className="rounded-md border border-border bg-background px-2 py-2 sm:py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-ring"
                       >
                         {allStatuses.map((s) => (
                           <option key={s} value={s}>
@@ -1298,7 +1298,7 @@ function OrdersTab({ searchQuery = "" }: { searchQuery?: string }) {
 
       {/* Order Detail Panel */}
       {selected && (
-        <div className="rounded-2xl bg-card p-6 shadow-sm">
+        <div className="rounded-2xl bg-card p-4 sm:p-6 shadow-sm">
           <div className="flex items-start justify-between">
             <div>
               <h3 className="font-display text-lg font-bold">Order {selected.id}</h3>
@@ -1497,7 +1497,7 @@ function AccountsTab({ currentId }: { currentId: string }) {
   );
 
   return (
-    <div className="rounded-2xl bg-card p-6 shadow-sm">
+    <div className="rounded-2xl bg-card p-4 sm:p-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="font-display text-xl font-bold">Accounts Management</h2>
@@ -1522,7 +1522,7 @@ function AccountsTab({ currentId }: { currentId: string }) {
       </div>
 
       <div className="mt-5 overflow-x-auto rounded-xl border border-border">
-        <table className="w-full text-sm">
+        <table className="w-full min-w-[640px] text-sm">
           <thead className="bg-secondary/60 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             <tr>
               <th className="px-4 py-3 text-left">
@@ -1605,14 +1605,14 @@ function AccountsTab({ currentId }: { currentId: string }) {
                       <>
                         <button
                           onClick={() => saveEdit(a.id)}
-                          className="rounded-md p-1.5 text-primary hover:bg-secondary"
+                          className="rounded-md p-2 sm:p-1.5 text-primary hover:bg-secondary"
                           aria-label="Save"
                         >
                           <Check className="size-4" />
                         </button>
                         <button
                           onClick={() => setEditing(null)}
-                          className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary"
+                          className="rounded-md p-2 sm:p-1.5 text-muted-foreground hover:bg-secondary"
                           aria-label="Cancel"
                         >
                           <X className="size-4" />
@@ -1622,7 +1622,7 @@ function AccountsTab({ currentId }: { currentId: string }) {
                       <>
                         <button
                           onClick={() => startEdit(a.id, a.name, a.email)}
-                          className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary"
+                          className="rounded-md p-2 sm:p-1.5 text-muted-foreground hover:bg-secondary"
                           aria-label="Edit"
                         >
                           <Pencil className="size-4" />
@@ -1635,7 +1635,7 @@ function AccountsTab({ currentId }: { currentId: string }) {
                               removeAccount(a.id);
                           }}
                           disabled={a.id === currentId}
-                          className="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-destructive disabled:opacity-40"
+                          className="rounded-md p-2 sm:p-1.5 text-muted-foreground hover:bg-secondary hover:text-destructive disabled:opacity-40"
                           aria-label="Delete"
                         >
                           <Trash2 className="size-4" />
@@ -1719,7 +1719,7 @@ function ConfirmDialog({
       onClick={onCancel}
     >
       <div
-        className="w-full max-w-md rounded-2xl bg-card p-6 shadow-xl"
+        className="w-full max-w-sm sm:max-w-md rounded-2xl bg-card p-4 sm:p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="font-display text-lg font-bold">{title}</h3>
@@ -1890,7 +1890,7 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl bg-card p-6 shadow-sm">
+    <div className="rounded-2xl bg-card p-4 sm:p-6 shadow-sm">
       <h2 className="font-display text-lg font-bold">{title}</h2>
       {subtitle && <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>}
       <div className="mt-5 space-y-4">{children}</div>
@@ -2090,7 +2090,7 @@ function BannersTab() {
 
       <div className="grid gap-6">
         {banners.map((b) => (
-          <div key={b.id} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <div key={b.id} className="rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-sm">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 space-y-4">
                 <Input
@@ -2127,7 +2127,7 @@ function BannersTab() {
                   onClick={() => {
                     if (confirm("Remove this banner?")) removeBanner(b.id);
                   }}
-                  className="mt-4 rounded-full border border-destructive/20 px-3 py-1.5 text-xs font-semibold text-destructive hover:bg-destructive/10"
+                  className="mt-4 rounded-full border border-destructive/20 px-3 py-2 sm:py-1.5 text-xs font-semibold text-destructive hover:bg-destructive/10"
                 >
                   <Trash2 className="size-3 inline mr-1" /> Delete
                 </button>
@@ -2160,7 +2160,7 @@ function ShippingTab() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl bg-card p-6 shadow-sm">
+      <div className="rounded-2xl bg-card p-4 sm:p-6 shadow-sm">
         <h2 className="font-display text-xl font-bold">Add Shipping Company</h2>
         <form onSubmit={onAdd} className="mt-4 flex flex-wrap items-end gap-3">
           <Input label="Company Name" value={newCompanyName} onChange={setNewCompanyName} />
@@ -2187,7 +2187,7 @@ function ShippingTab() {
 
       <div className="space-y-6">
         {companies.map((c) => (
-          <div key={c.id} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <div key={c.id} className="rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-4">
                 <input
@@ -2235,8 +2235,8 @@ function ShippingTab() {
               <summary className="cursor-pointer font-semibold text-primary hover:underline outline-none">
                 Configure Custom Rates per Wilaya
               </summary>
-              <div className="mt-4 max-h-[400px] overflow-y-auto rounded-xl border border-border">
-                <table className="w-full text-sm">
+              <div className="mt-4 max-h-[400px] overflow-auto rounded-xl border border-border">
+                <table className="w-full min-w-[560px] text-sm">
                   <thead className="bg-secondary/60 text-[10px] font-bold uppercase tracking-widest text-muted-foreground sticky top-0 backdrop-blur-md">
                     <tr>
                       <th className="px-4 py-3 text-left">Wilaya</th>
