@@ -268,7 +268,22 @@ function AdminPage() {
                 <X className="size-5" />
               </button>
             </div>
-            <nav className="mt-6 grid gap-1">
+            {/* Mobile search bar */}
+            <div className="mt-4 flex items-center gap-2 rounded-xl bg-secondary/60 px-3 py-2 text-sm">
+              <Search className="size-4 shrink-0 text-muted-foreground" />
+              <input
+                placeholder="Search products or orders…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="min-w-0 flex-1 bg-transparent text-sm focus:outline-none"
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery("")} className="shrink-0 rounded p-0.5 hover:bg-secondary">
+                  <X className="size-3.5 text-muted-foreground" />
+                </button>
+              )}
+            </div>
+            <nav className="mt-4 grid gap-1">
               {sidebar.map((item) => (
                 <button
                   key={item.id}
@@ -549,7 +564,27 @@ function AdminPage() {
                   View All Orders <ChevronRight className="size-3.5" />
                 </button>
               </div>
-              <div className="mt-4 overflow-x-auto rounded-xl border border-border -mx-1 sm:mx-0">
+              {/* Mobile recent orders cards */}
+              <div className="mt-4 grid gap-2 sm:hidden">
+                {orders.slice(0, 4).map((o) => (
+                  <div key={o.id} className="rounded-xl border border-border p-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-sm truncate">{o.address.fullName}</p>
+                        <p className="font-mono text-[10px] text-primary">{o.id}</p>
+                      </div>
+                      <span className={`shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${statusStyles[o.status]}`}>{o.status}</span>
+                    </div>
+                    <div className="mt-1.5 flex items-center justify-between text-xs text-muted-foreground">
+                      <span>{new Date(o.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</span>
+                      <span className="font-semibold text-foreground">{o.total.toFixed(2)} DA</span>
+                    </div>
+                  </div>
+                ))}
+                {orders.length === 0 && <p className="py-6 text-center text-sm text-muted-foreground">No orders yet.</p>}
+              </div>
+              {/* Desktop recent orders table */}
+              <div className="mt-4 hidden overflow-x-auto rounded-xl border border-border sm:block">
                 <table className="w-full min-w-[480px] text-sm">
                   <thead className="bg-secondary/60 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                     <tr>
@@ -1130,7 +1165,7 @@ function CategoriesTab() {
       <div className="rounded-2xl bg-card p-4 sm:p-6 shadow-sm">
         <h2 className="font-display text-xl font-bold">All categories</h2>
         <div className="mt-4 overflow-x-auto rounded-xl border border-border">
-          <table className="w-full min-w-[400px] text-sm">
+          <table className="w-full text-sm">
             <thead className="bg-secondary/60 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
               <tr>
                 <th className="px-4 py-3 text-left">Name</th>
@@ -1260,7 +1295,45 @@ function OrdersTab({ searchQuery = "" }: { searchQuery?: string }) {
           </div>
         </div>
 
-        <div className="mt-5 overflow-x-auto rounded-xl border border-border">
+        {/* Mobile order cards */}
+        <div className="mt-5 grid gap-2 sm:hidden">
+          {visible.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">No orders match this filter.</p>
+          ) : (
+            visible.map((o) => (
+              <div
+                key={o.id}
+                onClick={() => setSelectedId(o.id === selectedId ? null : o.id)}
+                className={`cursor-pointer rounded-xl border border-border p-3 transition hover:bg-secondary/30 ${selectedId === o.id ? "bg-tertiary/30 border-primary/30" : ""}`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-sm truncate">{o.address.fullName}</p>
+                    <p className="text-xs text-muted-foreground">{o.address.city} {o.phone ? `• ${o.phone}` : ""}</p>
+                    <p className="font-mono text-[10px] text-primary mt-0.5">{o.id}</p>
+                  </div>
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${statusStyles[o.status]}`}>{o.status}</span>
+                </div>
+                <div className="mt-2 flex items-center justify-between gap-2">
+                  <span className="text-xs text-muted-foreground">{new Date(o.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold">{o.total.toFixed(2)} DA</span>
+                    <select
+                      value={o.status}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => { e.stopPropagation(); setStatus(o.id, e.target.value as OrderStatus); }}
+                      className="rounded-md border border-border bg-background px-1.5 py-1 text-[10px] focus:outline-none"
+                    >
+                      {allStatuses.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+        {/* Desktop order table */}
+        <div className="mt-5 hidden overflow-x-auto rounded-xl border border-border sm:block">
           <table className="w-full min-w-[540px] text-sm">
             <thead className="bg-secondary/60 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
               <tr>
@@ -1276,9 +1349,7 @@ function OrdersTab({ searchQuery = "" }: { searchQuery?: string }) {
             <tbody className="divide-y divide-border">
               {visible.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
-                    No orders match this filter.
-                  </td>
+                  <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">No orders match this filter.</td>
                 </tr>
               ) : (
                 visible.map((o) => (
@@ -1293,31 +1364,18 @@ function OrdersTab({ searchQuery = "" }: { searchQuery?: string }) {
                       <p className="text-xs text-muted-foreground">{o.address.city}</p>
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">{o.phone || "—"}</td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      {new Date(o.createdAt).toLocaleDateString(undefined, {
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">{new Date(o.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</td>
                     <td className="px-4 py-3 font-semibold">{o.total.toFixed(2)} DA</td>
                     <td className="px-4 py-3">
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${statusStyles[o.status]}`}
-                      >
-                        {o.status}
-                      </span>
+                      <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${statusStyles[o.status]}`}>{o.status}</span>
                     </td>
                     <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                       <select
                         value={o.status}
                         onChange={(e) => setStatus(o.id, e.target.value as OrderStatus)}
-                        className="rounded-md border border-border bg-background px-2 py-2 sm:py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-ring"
+                        className="rounded-md border border-border bg-background px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-ring"
                       >
-                        {allStatuses.map((s) => (
-                          <option key={s} value={s}>
-                            {s}
-                          </option>
-                        ))}
+                        {allStatuses.map((s) => <option key={s} value={s}>{s}</option>)}
                       </select>
                     </td>
                   </tr>
@@ -1540,14 +1598,14 @@ function AccountsTab({ currentId }: { currentId: string }) {
             Promote shoppers to admins, edit profiles, or remove accounts.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-2 rounded-full bg-secondary/60 px-3 py-1.5 text-sm">
-            <Search className="size-4 text-muted-foreground" />
+            <Search className="size-4 shrink-0 text-muted-foreground" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search name, email, role…"
-              className="w-44 bg-transparent text-sm focus:outline-none"
+              placeholder="Search…"
+              className="w-28 sm:w-44 bg-transparent text-sm focus:outline-none"
             />
           </div>
           <span className="rounded-full bg-tertiary px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
@@ -1556,7 +1614,53 @@ function AccountsTab({ currentId }: { currentId: string }) {
         </div>
       </div>
 
-      <div className="mt-5 overflow-x-auto rounded-xl border border-border">
+      {/* Mobile account cards */}
+      <div className="mt-5 grid gap-2 sm:hidden">
+        {visible.map((a) => (
+          <div key={a.id} className="rounded-xl border border-border p-3">
+            <div className="flex items-center gap-3">
+              <div className="grid size-9 shrink-0 place-items-center rounded-full bg-tertiary text-xs font-bold text-primary">
+                {a.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="font-semibold text-sm truncate">{a.name}</p>
+                  {a.id === currentId && <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[8px] font-bold uppercase text-primary">You</span>}
+                </div>
+                <p className="text-xs text-muted-foreground truncate">{a.email}</p>
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <button onClick={() => startEdit(a.id, a.name, a.email)} className="rounded-md p-2 text-muted-foreground hover:bg-secondary" aria-label="Edit">
+                  <Pencil className="size-3.5" />
+                </button>
+                <button
+                  onClick={() => { if (a.id === currentId) return alert("You can't delete your own account."); if (confirm(`Delete ${a.name}?`)) removeAccount(a.id); }}
+                  disabled={a.id === currentId}
+                  className="rounded-md p-2 text-muted-foreground hover:bg-secondary hover:text-destructive disabled:opacity-40"
+                  aria-label="Delete"
+                >
+                  <Trash2 className="size-3.5" />
+                </button>
+              </div>
+            </div>
+            <div className="mt-2 flex items-center justify-between gap-2">
+              <select
+                value={a.role}
+                onChange={(e) => setPendingRole({ id: a.id, name: a.name, role: e.target.value as Role })}
+                disabled={a.id === currentId}
+                className="rounded-md border border-border bg-background px-2 py-1 text-[10px] disabled:opacity-60"
+              >
+                <option value="shopper">Shopper</option>
+                <option value="admin">Admin</option>
+              </select>
+              <span className="text-[10px] text-muted-foreground">{new Date(a.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}</span>
+            </div>
+          </div>
+        ))}
+        {visible.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">No accounts match your search.</p>}
+      </div>
+      {/* Desktop account table */}
+      <div className="mt-5 hidden overflow-x-auto rounded-xl border border-border sm:block">
         <table className="w-full min-w-[540px] text-sm">
           <thead className="bg-secondary/60 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             <tr>
@@ -2271,12 +2375,12 @@ function ShippingTab() {
                 Configure Custom Rates per Wilaya
               </summary>
               <div className="mt-4 max-h-[400px] overflow-auto rounded-xl border border-border">
-                <table className="w-full min-w-[560px] text-sm">
+                <table className="w-full min-w-[340px] text-sm">
                   <thead className="bg-secondary/60 text-[10px] font-bold uppercase tracking-widest text-muted-foreground sticky top-0 backdrop-blur-md">
                     <tr>
-                      <th className="px-4 py-3 text-left">Wilaya</th>
-                      <th className="px-4 py-3 text-left">Desk Delivery (DA)</th>
-                      <th className="px-4 py-3 text-left">Home Delivery (DA)</th>
+                      <th className="px-2 sm:px-4 py-3 text-left">Wilaya</th>
+                      <th className="px-2 sm:px-4 py-3 text-left">Desk (DA)</th>
+                      <th className="px-2 sm:px-4 py-3 text-left">Home (DA)</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -2287,25 +2391,25 @@ function ShippingTab() {
                       };
                       return (
                         <tr key={w}>
-                          <td className="px-4 py-2 font-semibold">{w}</td>
-                          <td className="px-4 py-2">
+                          <td className="px-2 sm:px-4 py-2 font-semibold text-xs sm:text-sm">{w}</td>
+                          <td className="px-2 sm:px-4 py-2">
                             <input
                               type="number"
                               value={rate.desk}
                               onChange={(e) =>
                                 updateRate(c.id, w, Number(e.target.value), rate.home)
                               }
-                              className="w-24 rounded-md border border-border bg-background px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                              className="w-16 sm:w-24 rounded-md border border-border bg-background px-1.5 sm:px-2 py-1 text-xs sm:text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                             />
                           </td>
-                          <td className="px-4 py-2">
+                          <td className="px-2 sm:px-4 py-2">
                             <input
                               type="number"
                               value={rate.home}
                               onChange={(e) =>
                                 updateRate(c.id, w, rate.desk, Number(e.target.value))
                               }
-                              className="w-24 rounded-md border border-border bg-background px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                              className="w-16 sm:w-24 rounded-md border border-border bg-background px-1.5 sm:px-2 py-1 text-xs sm:text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                             />
                           </td>
                         </tr>
