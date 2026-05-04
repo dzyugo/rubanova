@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Truck,
   CreditCard,
@@ -10,24 +10,45 @@ import {
   Building2,
   ArrowRight,
 } from "lucide-react";
+import { z } from "zod";
 import { useCart } from "@/store/cart";
 import { useOrders } from "@/store/orders";
 import { useShipping } from "@/store/shipping";
+import { useCatalog, useMergedProducts } from "@/store/catalog";
 import { wilayas } from "@/data/wilayas";
 import { useT } from "@/lib/i18n";
 import { primaryProductImage } from "@/lib/product-images";
 
 export const Route = createFileRoute("/checkout")({
+  validateSearch: z.object({
+    buy: z.string().optional(),
+  }),
   component: CheckoutPage,
 });
 
 function CheckoutPage() {
+  const { buy } = Route.useSearch();
+  const products = useMergedProducts();
+  const catalogLoading = useCatalog((s) => s.loading);
+  
   const items = useCart((s) => s.items);
   const clear = useCart((s) => s.clear);
+  const add = useCart((s) => s.add);
   const addOrder = useOrders((s) => s.addOrder);
   const addGuestOrder = useOrders((s) => s.addGuestOrder);
   const navigate = useNavigate();
   const [step] = useState<0 | 1 | 2>(0);
+
+  useEffect(() => {
+    if (buy && !catalogLoading) {
+      const p = products.find((x) => x.slug === buy);
+      if (p) {
+        clear();
+        add(p, 1);
+      }
+      navigate({ to: "/checkout", search: {} });
+    }
+  }, [buy, catalogLoading, products, clear, add, navigate]);
 
   const { companies } = useShipping();
   const activeCompanies = companies.filter((c) => c.active);
@@ -95,6 +116,14 @@ function CheckoutPage() {
     clear();
     navigate({ to: "/order-confirmation/$id", params: { id: order.id } });
   };
+
+  if (catalogLoading || buy) {
+    return (
+      <section className="flex min-h-[50vh] items-center justify-center">
+        <div className="size-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </section>
+    );
+  }
 
   if (items.length === 0) {
     return (

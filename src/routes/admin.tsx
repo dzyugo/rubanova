@@ -33,7 +33,9 @@ import {
   BarChart3,
   Eye,
   Trash2,
+  Link2,
 } from "lucide-react";
+import { toast } from "sonner";
 import { type Product } from "@/data/products";
 import { useOrders, type OrderStatus } from "@/store/orders";
 import { useAuth, selectCurrentUser, type Role } from "@/store/auth";
@@ -816,6 +818,16 @@ function ProductsTab({ searchQuery = "" }: { searchQuery?: string }) {
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(`${window.location.origin}/checkout?buy=${p.slug}`);
+                        toast.success("Checkout link copied to clipboard!");
+                      }}
+                      className="rounded-md p-2 text-muted-foreground hover:bg-secondary"
+                      aria-label={`Copy buy link for ${p.name}`}
+                    >
+                      <Link2 className="size-4" />
+                    </button>
+                    <button
                       onClick={() => setEditingSlug(p.slug)}
                       className="rounded-md p-2 text-muted-foreground hover:bg-secondary"
                       aria-label={`Edit ${p.name}`}
@@ -913,6 +925,16 @@ function ProductsTab({ searchQuery = "" }: { searchQuery?: string }) {
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(`${window.location.origin}/checkout?buy=${p.slug}`);
+                            toast.success("Checkout link copied to clipboard!");
+                          }}
+                          className="rounded-md p-1.5 text-muted-foreground transition hover:bg-secondary"
+                          aria-label={`Copy buy link for ${p.name}`}
+                        >
+                          <Link2 className="size-4" />
+                        </button>
                         <button
                           onClick={() => setEditingSlug(p.slug)}
                           className="rounded-md p-1.5 text-muted-foreground transition hover:bg-secondary"
