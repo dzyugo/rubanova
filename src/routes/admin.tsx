@@ -29,6 +29,7 @@ import {
   Download,
   TrendingUp,
   HardDrive,
+  ChevronRight,
   BarChart3,
   Eye,
   Trash2,
