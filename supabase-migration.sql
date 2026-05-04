@@ -13,6 +13,7 @@ alter table public.profiles enable row level security;
 
 create policy "Anyone can read profiles" on public.profiles for select using (true);
 create policy "Users can update own profile" on public.profiles for update using (auth.uid() = id);
+create policy "Admins can update profiles" on public.profiles for update using (public.is_admin());
 create policy "Users can insert own profile" on public.profiles for insert with check (auth.uid() = id);
 
 -- Auto-create profile on signup
@@ -92,6 +93,7 @@ alter table public.orders enable row level security;
 
 create policy "Users can read own orders" on public.orders for select using (auth.uid() = user_id or public.is_admin());
 create policy "Users can create orders" on public.orders for insert with check (auth.uid() = user_id);
+create policy "Guests can create orders" on public.orders for insert with check (user_id is null);
 create policy "Admins can update orders" on public.orders for update using (public.is_admin());
 
 

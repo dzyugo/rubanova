@@ -57,10 +57,11 @@ export const useCatalog = create<CatalogState>()((set, get) => ({
       return;
     }
 
-    const [{ data: prods, error: prodsError }, { data: cats, error: catsError }] = await Promise.all([
-      supabase.from("products").select("*").order("sort_order"),
-      supabase.from("categories").select("*").order("sort_order"),
-    ]);
+    const [{ data: prods, error: prodsError }, { data: cats, error: catsError }] =
+      await Promise.all([
+        supabase.from("products").select("*").order("sort_order"),
+        supabase.from("categories").select("*").order("sort_order"),
+      ]);
 
     if (prodsError || catsError) {
       reportError(prodsError ?? catsError, { scope: "catalog-store", action: "init" });

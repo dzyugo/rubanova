@@ -10,7 +10,9 @@ export function SiteFooter() {
     <footer className="mt-12 border-t border-border/60 bg-secondary/40 sm:mt-16">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 sm:flex-row sm:items-start sm:justify-between sm:px-6 sm:py-10">
         <div className="max-w-xs">
-          <h3 className="font-display text-lg font-bold text-primary sm:text-xl">{settings.name}</h3>
+          <h3 className="font-display text-lg font-bold text-primary sm:text-xl">
+            {settings.name}
+          </h3>
           <p className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">
             {settings.tagline} {settings.footerNote}
           </p>

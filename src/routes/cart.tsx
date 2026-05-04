@@ -50,7 +50,10 @@ function CartPage() {
           {/* Items */}
           <div className="space-y-3 sm:space-y-4">
             {items.map((i) => (
-              <article key={i.slug} className="flex gap-3 rounded-xl bg-card p-3 shadow-sm sm:rounded-2xl sm:p-4">
+              <article
+                key={i.slug}
+                className="flex gap-3 rounded-xl bg-card p-3 shadow-sm sm:rounded-2xl sm:p-4"
+              >
                 <img
                   src={primaryProductImage(i.image)}
                   alt={i.name}
@@ -67,7 +70,9 @@ function CartPage() {
                   </button>
                 </div>
                 <div className="flex flex-col items-end justify-between gap-2">
-                  <span className="font-display text-base font-bold sm:text-lg">{p(i.price * i.qty)}</span>
+                  <span className="font-display text-base font-bold sm:text-lg">
+                    {p(i.price * i.qty)}
+                  </span>
                   <div className="flex items-center gap-1 rounded-full border border-border px-1 py-1">
                     <button
                       onClick={() => setQty(i.slug, i.qty - 1)}
@@ -75,7 +80,9 @@ function CartPage() {
                     >
                       <Minus className="size-2.5 sm:size-3" />
                     </button>
-                    <span className="w-5 text-center text-sm font-semibold sm:w-6 sm:text-sm">{i.qty}</span>
+                    <span className="w-5 text-center text-sm font-semibold sm:w-6 sm:text-sm">
+                      {i.qty}
+                    </span>
                     <button
                       onClick={() => setQty(i.slug, i.qty + 1)}
                       className="grid size-6 place-items-center rounded-full hover:bg-secondary sm:size-7"
@@ -105,8 +112,12 @@ function CartPage() {
             </dl>
             <p className="mt-2 text-xs text-muted-foreground">{t("cart.shipping.disclaimer")}</p>
             <div className="mt-4 flex items-baseline justify-between border-t border-border pt-4 sm:mt-5 sm:pt-5">
-              <span className="font-display text-base font-bold sm:text-xl">{t("checkout.total")}</span>
-              <span className="font-display text-2xl font-bold text-primary sm:text-3xl">{p(total)}</span>
+              <span className="font-display text-base font-bold sm:text-xl">
+                {t("checkout.total")}
+              </span>
+              <span className="font-display text-2xl font-bold text-primary sm:text-3xl">
+                {p(total)}
+              </span>
             </div>
             <Link
               to="/checkout"

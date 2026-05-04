@@ -51,8 +51,12 @@ function ContactPage() {
           <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-primary sm:text-xs">
             {t("contact.title")}
           </p>
-          <h1 className="mt-3 font-display text-3xl sm:text-4xl md:text-5xl">{t("contact.title")}</h1>
-          <p className="mt-4 text-sm text-muted-foreground sm:mt-6 sm:text-base lg:text-lg">{t("contact.subtitle")}</p>
+          <h1 className="mt-3 font-display text-3xl sm:text-4xl md:text-5xl">
+            {t("contact.title")}
+          </h1>
+          <p className="mt-4 text-sm text-muted-foreground sm:mt-6 sm:text-base lg:text-lg">
+            {t("contact.subtitle")}
+          </p>
 
           <dl className="mt-8 space-y-5 text-sm sm:mt-10 sm:space-y-6">
             <div>
@@ -76,7 +80,10 @@ function ContactPage() {
           </dl>
         </div>
 
-        <form onSubmit={handleSubmit} className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:rounded-3xl sm:p-8">
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:rounded-3xl sm:p-8"
+        >
           {sent ? (
             <div className="flex h-full min-h-[200px] flex-col items-center justify-center text-center sm:min-h-[300px]">
               <h3 className="font-display text-xl sm:text-2xl">{t("contact.sent")}</h3>

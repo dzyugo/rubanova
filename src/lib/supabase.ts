@@ -43,7 +43,10 @@ const offlineSupabaseClient = {
   auth: {
     getSession: async () => ({ data: { session: null }, error: missingSupabaseError }),
     getUser: async () => ({ data: { user: null }, error: missingSupabaseError }),
-    signInWithPassword: async () => ({ data: { session: null, user: null }, error: missingSupabaseError }),
+    signInWithPassword: async () => ({
+      data: { session: null, user: null },
+      error: missingSupabaseError,
+    }),
     signUp: async () => ({ data: { session: null, user: null }, error: missingSupabaseError }),
     signOut: async () => ({ error: missingSupabaseError }),
   },

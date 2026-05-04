@@ -16,9 +16,15 @@ function AboutPage() {
         <h1 className="mt-3 font-display text-3xl font-bold sm:text-4xl md:text-5xl lg:text-7xl">
           {t("about.title")} <span className="text-primary">{t("about.titleaccent")}</span>
         </h1>
-        <p className="mt-6 text-base leading-relaxed text-muted-foreground sm:mt-8 sm:text-lg">{t("about.p1")}</p>
-        <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:mt-5 sm:text-lg">{t("about.p2")}</p>
-        <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:mt-5 sm:text-lg">{t("about.p3")}</p>
+        <p className="mt-6 text-base leading-relaxed text-muted-foreground sm:mt-8 sm:text-lg">
+          {t("about.p1")}
+        </p>
+        <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:mt-5 sm:text-lg">
+          {t("about.p2")}
+        </p>
+        <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:mt-5 sm:text-lg">
+          {t("about.p3")}
+        </p>
       </section>
 
       <section className="border-y border-border bg-tertiary/40">
@@ -29,7 +35,9 @@ function AboutPage() {
             { n: "24h", l: { en: "Farm to door", ar: "من المزرعة لبابك" } },
           ].map((s) => (
             <div key={s.l.en} className="text-center">
-              <div className="font-display text-4xl font-bold text-primary sm:text-5xl md:text-6xl">{s.n}</div>
+              <div className="font-display text-4xl font-bold text-primary sm:text-5xl md:text-6xl">
+                {s.n}
+              </div>
               <div className="mt-2 text-xs uppercase tracking-widest text-muted-foreground sm:text-sm">
                 {s.l[lang]}
               </div>

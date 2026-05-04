@@ -33,6 +33,7 @@ Single-test file: `npx vitest run src/store/__tests__/checkout.test.ts`
 TanStack Router scans `src/routes/`. Every `*.tsx` file that exports `Route = createFileRoute(...)` becomes a route. The generated `routeTree.gen.ts` is auto-written — never edit it manually.
 
 Route tree:
+
 ```
 / (index.tsx)           — Home page
 /shop (shop.index.tsx)  — Catalog listing
@@ -47,15 +48,15 @@ Route tree:
 
 ### Zustand Stores
 
-| Store | File | Purpose |
-|---|---|---|
-| `useAuth` | `src/store/auth.ts` | User session, login/logout, account CRUD |
-| `useCatalog` | `src/store/catalog.ts` | Products, categories, featured slugs |
-| `useOrders` | `src/store/orders.ts` | Orders, addresses, order status |
-| `useSite` | `src/store/site.ts` | Site settings (hero, footer, brand) |
-| `useBanners` | `src/store/banners.ts` | Banner management |
-| `useShipping` | `src/store/shipping.ts` | Shipping companies + per-wilaya rates |
-| `useCart` | `src/store/cart.ts` | Cart items, quantity, totals |
+| Store         | File                    | Purpose                                  |
+| ------------- | ----------------------- | ---------------------------------------- |
+| `useAuth`     | `src/store/auth.ts`     | User session, login/logout, account CRUD |
+| `useCatalog`  | `src/store/catalog.ts`  | Products, categories, featured slugs     |
+| `useOrders`   | `src/store/orders.ts`   | Orders, addresses, order status          |
+| `useSite`     | `src/store/site.ts`     | Site settings (hero, footer, brand)      |
+| `useBanners`  | `src/store/banners.ts`  | Banner management                        |
+| `useShipping` | `src/store/shipping.ts` | Shipping companies + per-wilaya rates    |
+| `useCart`     | `src/store/cart.ts`     | Cart items, quantity, totals             |
 
 All stores follow the same pattern: optimistic local update first, then background Supabase sync. On sync failure, they roll back state and surface a toast via `sonner`.
 
@@ -78,6 +79,7 @@ Single breakpoint at **768 px**. `useIsMobile()` in `src/hooks/use-mobile.tsx` u
 ### Product Images
 
 Images are stored as semicolon-delimited strings (e.g. `"url1;url2;url3"`). Utilities:
+
 - `parseProductImages(str)` → `string[]`
 - `serializeProductImages(arr)` → `string`
 - `primaryProductImage(str)` → first URL or product placeholder

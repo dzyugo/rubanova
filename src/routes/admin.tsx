@@ -15,11 +15,9 @@ import {
   Pencil,
   Package,
   Star,
-  Trash2,
   Users,
   ShieldCheck,
   Image as ImageIcon,
-  Tag,
   Plus,
   ChevronUp,
   ChevronDown,
@@ -55,15 +53,7 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-type Tab =
-  | "dashboard"
-  | "banners"
-  | "products"
-  | "categories"
-  | "orders"
-  | "shipping"
-  | "accounts"
-  | "settings";
+type Tab = "dashboard" | "banners" | "products" | "orders" | "shipping" | "accounts" | "settings";
 
 // Sidebar moved to AdminPage body for translations
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
@@ -88,7 +78,6 @@ function AdminPage() {
     { id: "dashboard", icon: LayoutGrid, label: t("admin.dashboard") },
     { id: "banners", icon: ImageIcon, label: t("admin.banners") },
     { id: "products", icon: ShoppingBasket, label: t("admin.products") },
-    { id: "categories", icon: Tag, label: t("admin.categories") },
     { id: "orders", icon: ClipboardList, label: t("admin.orders") },
     { id: "shipping", icon: Package, label: t("admin.shipping") },
     { id: "accounts", icon: Users, label: t("admin.accounts") },
@@ -99,7 +88,10 @@ function AdminPage() {
   const totalRevenue = orders.reduce((s, o) => s + o.total, 0);
   const pending = orders.filter((o) => o.status === "Processing").length;
   const lowStockCount = products.filter((p) => p.stock !== undefined && p.stock < 10).length;
-  const uniqueCustomers = useMemo(() => new Set(orders.map((o) => o.address.fullName)).size, [orders]);
+  const uniqueCustomers = useMemo(
+    () => new Set(orders.map((o) => o.address.fullName)).size,
+    [orders],
+  );
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
@@ -123,10 +115,14 @@ function AdminPage() {
   const searchResults = useMemo(() => {
     if (searchQuery.trim().length < 3) return null;
     const q = searchQuery.toLowerCase();
-    
-    const matchedProducts = products.filter(p => p.name.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q)).slice(0, 3);
-    const matchedOrders = orders.filter(o => o.id.toLowerCase().includes(q) || o.address.fullName.toLowerCase().includes(q)).slice(0, 3);
-    
+
+    const matchedProducts = products
+      .filter((p) => p.name.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q))
+      .slice(0, 3);
+    const matchedOrders = orders
+      .filter((o) => o.id.toLowerCase().includes(q) || o.address.fullName.toLowerCase().includes(q))
+      .slice(0, 3);
+
     return { products: matchedProducts, orders: matchedOrders };
   }, [searchQuery, products, orders]);
 
@@ -145,7 +141,7 @@ function AdminPage() {
         onClick: () => {
           setTab("orders");
           setShowNotifications(false);
-        }
+        },
       });
     });
 
@@ -162,7 +158,7 @@ function AdminPage() {
         onClick: () => {
           setTab("products");
           setShowNotifications(false);
-        }
+        },
       });
     });
 
@@ -264,7 +260,10 @@ function AdminPage() {
                 <h2 className="font-display text-xl font-bold text-primary">Ruba Nova</h2>
                 <p className="text-xs text-muted-foreground">Admin Console</p>
               </Link>
-              <button onClick={() => setMobileMenuOpen(false)} className="rounded-lg p-2 hover:bg-secondary">
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-lg p-2 hover:bg-secondary"
+              >
                 <X className="size-5" />
               </button>
             </div>
@@ -278,7 +277,10 @@ function AdminPage() {
                 className="min-w-0 flex-1 bg-transparent text-sm focus:outline-none"
               />
               {searchQuery && (
-                <button onClick={() => setSearchQuery("")} className="shrink-0 rounded p-0.5 hover:bg-secondary">
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="shrink-0 rounded p-0.5 hover:bg-secondary"
+                >
                   <X className="size-3.5 text-muted-foreground" />
                 </button>
               )}
@@ -287,7 +289,10 @@ function AdminPage() {
               {sidebar.map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => { setTab(item.id); setMobileMenuOpen(false); }}
+                  onClick={() => {
+                    setTab(item.id);
+                    setMobileMenuOpen(false);
+                  }}
                   className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition ${tab === item.id ? "bg-tertiary text-primary" : "text-muted-foreground hover:bg-secondary"}`}
                 >
                   <item.icon className="size-4" /> {item.label}
@@ -297,14 +302,21 @@ function AdminPage() {
             <div className="mt-6 border-t border-border pt-4">
               <div className="flex items-center gap-3 rounded-xl bg-secondary/60 p-3">
                 <div className="grid size-9 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-                  {user.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                  {user.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .slice(0, 2)
+                    .join("")}
                 </div>
                 <div className="min-w-0 flex-1 text-xs">
                   <p className="truncate font-semibold">{user.name}</p>
                   <p className="text-muted-foreground capitalize">{user.role}</p>
                 </div>
               </div>
-              <Link to="/" className="mt-3 flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-muted-foreground hover:bg-secondary">
+              <Link
+                to="/"
+                className="mt-3 flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-muted-foreground hover:bg-secondary"
+              >
                 <LogOut className="size-4" /> Logout
               </Link>
             </div>
@@ -333,14 +345,21 @@ function AdminPage() {
         <div className="mt-6 border-t border-border pt-4">
           <div className="flex items-center gap-3 rounded-xl bg-secondary/60 p-3">
             <div className="grid size-9 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-              {user.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+              {user.name
+                .split(" ")
+                .map((n) => n[0])
+                .slice(0, 2)
+                .join("")}
             </div>
             <div className="min-w-0 flex-1 text-xs">
               <p className="truncate font-semibold">{user.name}</p>
               <p className="text-muted-foreground capitalize">{user.role}</p>
             </div>
           </div>
-          <Link to="/" className="mt-3 flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-muted-foreground hover:bg-secondary transition">
+          <Link
+            to="/"
+            className="mt-3 flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold text-muted-foreground hover:bg-secondary transition"
+          >
             <LogOut className="size-4" /> Logout
           </Link>
         </div>
@@ -351,11 +370,16 @@ function AdminPage() {
         {/* Header bar */}
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <button onClick={() => setMobileMenuOpen(true)} className="grid size-10 place-items-center rounded-xl bg-card shadow-sm lg:hidden">
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="grid size-10 place-items-center rounded-xl bg-card shadow-sm lg:hidden"
+            >
               <Menu className="size-5" />
             </button>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Overview</p>
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                Overview
+              </p>
               <h1 className="font-display text-2xl font-bold capitalize">
                 {tab === "settings" ? "Site Settings" : tab}
               </h1>
@@ -365,60 +389,76 @@ function AdminPage() {
             <div className="relative" ref={searchRef}>
               <div className="hidden items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm md:flex focus-within:ring-2 focus-within:ring-primary/20">
                 <Search className="size-4 text-muted-foreground" />
-                <input 
-                  placeholder="Search products or orders…" 
+                <input
+                  placeholder="Search products or orders…"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => setSearchFocused(true)}
-                  className="w-56 bg-transparent text-sm focus:outline-none" 
+                  className="w-56 bg-transparent text-sm focus:outline-none"
                 />
               </div>
 
-              {searchFocused && searchResults && (searchResults.products.length > 0 || searchResults.orders.length > 0) && (
-                <div className="absolute left-0 top-12 z-50 w-80 rounded-2xl border border-border bg-card p-2 shadow-xl">
-                  {searchResults.products.length > 0 && (
-                    <div className="mb-2">
-                      <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">Products</p>
-                      {searchResults.products.map((p) => (
-                        <button 
-                          key={p.slug}
-                          onClick={() => { setTab("products"); setSearchFocused(false); }}
-                          className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition hover:bg-secondary"
-                        >
-                          <ShoppingBasket className="size-4 text-primary" />
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-semibold">{p.name}</p>
-                            <p className="text-[10px] text-muted-foreground">{p.price.toFixed(2)} DA</p>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                  
-                  {searchResults.orders.length > 0 && (
-                    <div>
-                      <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">Orders</p>
-                      {searchResults.orders.map((o) => (
-                        <button 
-                          key={o.id}
-                          onClick={() => { setTab("orders"); setSearchFocused(false); }}
-                          className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition hover:bg-secondary"
-                        >
-                          <ClipboardList className="size-4 text-amber-500" />
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate font-mono text-sm font-bold">{o.id}</p>
-                            <p className="text-[10px] text-muted-foreground">{o.address.fullName}</p>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+              {searchFocused &&
+                searchResults &&
+                (searchResults.products.length > 0 || searchResults.orders.length > 0) && (
+                  <div className="absolute left-0 top-12 z-50 w-80 rounded-2xl border border-border bg-card p-2 shadow-xl">
+                    {searchResults.products.length > 0 && (
+                      <div className="mb-2">
+                        <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                          Products
+                        </p>
+                        {searchResults.products.map((p) => (
+                          <button
+                            key={p.slug}
+                            onClick={() => {
+                              setTab("products");
+                              setSearchFocused(false);
+                            }}
+                            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition hover:bg-secondary"
+                          >
+                            <ShoppingBasket className="size-4 text-primary" />
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-sm font-semibold">{p.name}</p>
+                              <p className="text-[10px] text-muted-foreground">
+                                {p.price.toFixed(2)} DA
+                              </p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {searchResults.orders.length > 0 && (
+                      <div>
+                        <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                          Orders
+                        </p>
+                        {searchResults.orders.map((o) => (
+                          <button
+                            key={o.id}
+                            onClick={() => {
+                              setTab("orders");
+                              setSearchFocused(false);
+                            }}
+                            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition hover:bg-secondary"
+                          >
+                            <ClipboardList className="size-4 text-amber-500" />
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate font-mono text-sm font-bold">{o.id}</p>
+                              <p className="text-[10px] text-muted-foreground">
+                                {o.address.fullName}
+                              </p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
             </div>
-            
+
             <div className="relative" ref={notificationsRef}>
-              <button 
+              <button
                 onClick={() => setShowNotifications(!showNotifications)}
                 className="relative grid size-10 place-items-center rounded-xl bg-card shadow-sm transition hover:bg-secondary"
               >
@@ -427,30 +467,38 @@ function AdminPage() {
                   <span className="absolute right-2 top-2 size-2.5 rounded-full bg-destructive border-2 border-card" />
                 )}
               </button>
-              
+
               {showNotifications && (
                 <div className="absolute right-0 top-12 z-50 w-[calc(100vw-2rem)] max-w-80 rounded-2xl border border-border bg-card p-4 shadow-xl">
                   <div className="mb-3 flex items-center justify-between">
                     <h3 className="font-display font-bold">Notifications</h3>
-                    <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-semibold">{notifications.length}</span>
+                    <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-semibold">
+                      {notifications.length}
+                    </span>
                   </div>
                   <div className="grid max-h-80 gap-2 overflow-y-auto pr-1">
                     {notifications.length === 0 ? (
-                      <p className="py-4 text-center text-sm text-muted-foreground">No new notifications</p>
+                      <p className="py-4 text-center text-sm text-muted-foreground">
+                        No new notifications
+                      </p>
                     ) : (
                       notifications.map((n) => (
-                        <button 
-                          key={n.id} 
+                        <button
+                          key={n.id}
                           onClick={n.onClick}
                           className="flex items-start gap-3 rounded-xl p-2 text-left transition hover:bg-secondary"
                         >
-                          <div className={`mt-0.5 grid size-8 shrink-0 place-items-center rounded-full ${n.iconBg} ${n.iconColor}`}>
+                          <div
+                            className={`mt-0.5 grid size-8 shrink-0 place-items-center rounded-full ${n.iconBg} ${n.iconColor}`}
+                          >
                             <n.icon className="size-4" />
                           </div>
                           <div>
                             <p className="text-sm font-semibold">{n.title}</p>
                             <p className="mt-0.5 text-xs text-muted-foreground">{n.message}</p>
-                            <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">{n.time}</p>
+                            <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">
+                              {n.time}
+                            </p>
                           </div>
                         </button>
                       ))
@@ -473,15 +521,22 @@ function AdminPage() {
                 >
                   <div className="flex items-start justify-between gap-1">
                     <div className="min-w-0 flex-1">
-                      <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-muted-foreground truncate">{s.label}</p>
-                      <p className="mt-1 sm:mt-2 font-display text-lg sm:text-2xl xl:text-3xl font-bold tracking-tight truncate">{s.value}</p>
+                      <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-muted-foreground truncate">
+                        {s.label}
+                      </p>
+                      <p className="mt-1 sm:mt-2 font-display text-lg sm:text-2xl xl:text-3xl font-bold tracking-tight truncate">
+                        {s.value}
+                      </p>
                     </div>
                     <div className="grid size-8 sm:size-11 shrink-0 place-items-center rounded-lg sm:rounded-xl bg-tertiary text-primary">
                       <s.icon className="size-4 sm:size-5" />
                     </div>
                   </div>
-                  <p className={`mt-2 sm:mt-3 flex items-center gap-1 text-[10px] sm:text-xs font-semibold ${s.trendColor ?? "text-primary"}`}>
-                    <TrendingUp className="size-3 shrink-0" /> <span className="truncate">{s.trend}</span>
+                  <p
+                    className={`mt-2 sm:mt-3 flex items-center gap-1 text-[10px] sm:text-xs font-semibold ${s.trendColor ?? "text-primary"}`}
+                  >
+                    <TrendingUp className="size-3 shrink-0" />{" "}
+                    <span className="truncate">{s.trend}</span>
                   </p>
                 </div>
               ))}
@@ -494,21 +549,45 @@ function AdminPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="font-display text-lg font-bold">Sales Performance</h2>
-                    <p className="text-xs text-muted-foreground">Revenue for the last 7 days (DA)</p>
+                    <p className="text-xs text-muted-foreground">
+                      Revenue for the last 7 days (DA)
+                    </p>
                   </div>
                   <div className="flex items-center gap-1 rounded-full bg-tertiary px-3 py-1.5">
                     <BarChart3 className="size-3.5 text-primary" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Weekly</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+                      Weekly
+                    </span>
                   </div>
                 </div>
                 <div className="mt-4 sm:mt-6 h-48 sm:h-56">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData} barSize={20}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
-                      <XAxis dataKey="day" tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} width={40} tickFormatter={(v) => `${v}`} />
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="var(--color-border)"
+                        vertical={false}
+                      />
+                      <XAxis
+                        dataKey="day"
+                        tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }}
+                        axisLine={false}
+                        tickLine={false}
+                        width={40}
+                        tickFormatter={(v) => `${v}`}
+                      />
                       <Tooltip
-                        contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: "0.75rem", fontSize: 12 }}
+                        contentStyle={{
+                          background: "var(--color-card)",
+                          border: "1px solid var(--color-border)",
+                          borderRadius: "0.75rem",
+                          fontSize: 12,
+                        }}
                         formatter={(v: number) => [`${v.toLocaleString()} DA`, "Revenue"]}
                         cursor={{ fill: "var(--color-secondary)" }}
                       />
@@ -542,13 +621,22 @@ function AdminPage() {
                 <div className="rounded-2xl border border-border/50 bg-card p-5 shadow-sm">
                   <h3 className="text-sm font-bold">Quick Actions</h3>
                   <div className="mt-4 grid gap-2">
-                    <button onClick={() => setTab("products")} className="flex items-center gap-3 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition hover:opacity-90">
+                    <button
+                      onClick={() => setTab("products")}
+                      className="flex items-center gap-3 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
+                    >
                       <Plus className="size-4" /> Add Product
                     </button>
-                    <button onClick={() => setTab("banners")} className="flex items-center gap-3 rounded-xl border border-border px-4 py-3 text-sm font-semibold transition hover:bg-secondary">
+                    <button
+                      onClick={() => setTab("banners")}
+                      className="flex items-center gap-3 rounded-xl border border-border px-4 py-3 text-sm font-semibold transition hover:bg-secondary"
+                    >
                       <ImageIcon className="size-4" /> Create Banner
                     </button>
-                    <button onClick={() => setTab("orders")} className="flex items-center gap-3 rounded-xl border border-border px-4 py-3 text-sm font-semibold transition hover:bg-secondary">
+                    <button
+                      onClick={() => setTab("orders")}
+                      className="flex items-center gap-3 rounded-xl border border-border px-4 py-3 text-sm font-semibold transition hover:bg-secondary"
+                    >
                       <Download className="size-4" /> Export Orders
                     </button>
                   </div>
@@ -560,7 +648,10 @@ function AdminPage() {
             <div className="rounded-2xl border border-border/50 bg-card p-4 sm:p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <h2 className="font-display text-lg font-bold">Recent Orders</h2>
-                <button onClick={() => setTab("orders")} className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
+                <button
+                  onClick={() => setTab("orders")}
+                  className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+                >
                   View All Orders <ChevronRight className="size-3.5" />
                 </button>
               </div>
@@ -573,15 +664,26 @@ function AdminPage() {
                         <p className="font-semibold text-sm truncate">{o.address.fullName}</p>
                         <p className="font-mono text-[10px] text-primary">{o.id}</p>
                       </div>
-                      <span className={`shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${statusStyles[o.status]}`}>{o.status}</span>
+                      <span
+                        className={`shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${statusStyles[o.status]}`}
+                      >
+                        {o.status}
+                      </span>
                     </div>
                     <div className="mt-1.5 flex items-center justify-between text-xs text-muted-foreground">
-                      <span>{new Date(o.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</span>
+                      <span>
+                        {new Date(o.createdAt).toLocaleDateString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </span>
                       <span className="font-semibold text-foreground">{o.total.toFixed(2)} DA</span>
                     </div>
                   </div>
                 ))}
-                {orders.length === 0 && <p className="py-6 text-center text-sm text-muted-foreground">No orders yet.</p>}
+                {orders.length === 0 && (
+                  <p className="py-6 text-center text-sm text-muted-foreground">No orders yet.</p>
+                )}
               </div>
               {/* Desktop recent orders table */}
               <div className="mt-4 hidden overflow-x-auto rounded-xl border border-border sm:block">
@@ -598,17 +700,32 @@ function AdminPage() {
                   <tbody className="divide-y divide-border">
                     {orders.slice(0, 4).map((o) => (
                       <tr key={o.id} className="transition hover:bg-secondary/30">
-                        <td className="px-4 py-3 font-mono text-xs font-bold text-primary">{o.id}</td>
+                        <td className="px-4 py-3 font-mono text-xs font-bold text-primary">
+                          {o.id}
+                        </td>
                         <td className="px-4 py-3 font-semibold">{o.address.fullName}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{new Date(o.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</td>
+                        <td className="px-4 py-3 text-muted-foreground">
+                          {new Date(o.createdAt).toLocaleDateString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </td>
                         <td className="px-4 py-3 font-semibold">{o.total.toFixed(2)} DA</td>
                         <td className="px-4 py-3">
-                          <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${statusStyles[o.status]}`}>{o.status}</span>
+                          <span
+                            className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${statusStyles[o.status]}`}
+                          >
+                            {o.status}
+                          </span>
                         </td>
                       </tr>
                     ))}
                     {orders.length === 0 && (
-                      <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">No orders yet.</td></tr>
+                      <tr>
+                        <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                          No orders yet.
+                        </td>
+                      </tr>
                     )}
                   </tbody>
                 </table>
@@ -618,7 +735,6 @@ function AdminPage() {
         )}
 
         {tab === "products" && <ProductsTab searchQuery={searchQuery} />}
-        {tab === "categories" && <CategoriesTab />}
         {tab === "orders" && <OrdersTab searchQuery={searchQuery} />}
         {tab === "accounts" && <AccountsTab currentId={user.id} />}
         {tab === "settings" && <SettingsTab />}
@@ -669,14 +785,22 @@ function ProductsTab({ searchQuery = "" }: { searchQuery?: string }) {
           .filter((p) => {
             if (!searchQuery.trim()) return true;
             const q = searchQuery.toLowerCase();
-            return p.name.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q) || p.category.toLowerCase().includes(q);
+            return (
+              p.name.toLowerCase().includes(q) ||
+              p.slug.toLowerCase().includes(q) ||
+              p.category.toLowerCase().includes(q)
+            );
           })
           .map((p) => {
             const isFeatured = featuredSlugs.includes(p.slug);
             return (
               <div key={p.slug} className="rounded-xl border border-border bg-secondary/20 p-3">
                 <div className="flex items-center gap-3">
-                  <img src={primaryProductImage(p.image)} alt="" className="size-12 rounded-lg object-cover shrink-0" />
+                  <img
+                    src={primaryProductImage(p.image)}
+                    alt=""
+                    className="size-12 rounded-lg object-cover shrink-0"
+                  />
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold text-sm truncate">{p.name}</p>
                     <div className="flex items-center gap-2 mt-1">
@@ -687,11 +811,17 @@ function ProductsTab({ searchQuery = "" }: { searchQuery?: string }) {
                     </div>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
-                    <button onClick={() => setEditingSlug(p.slug)} className="rounded-md p-2 text-muted-foreground hover:bg-secondary" aria-label={`Edit ${p.name}`}>
+                    <button
+                      onClick={() => setEditingSlug(p.slug)}
+                      className="rounded-md p-2 text-muted-foreground hover:bg-secondary"
+                      aria-label={`Edit ${p.name}`}
+                    >
                       <Pencil className="size-4" />
                     </button>
                     <button
-                      onClick={() => { if (confirm(`Delete ${p.name}?`)) removeProduct(p.slug); }}
+                      onClick={() => {
+                        if (confirm(`Delete ${p.name}?`)) removeProduct(p.slug);
+                      }}
                       className="rounded-md p-2 text-muted-foreground hover:bg-destructive hover:text-destructive-foreground"
                       aria-label={`Delete ${p.name}`}
                     >
@@ -700,7 +830,9 @@ function ProductsTab({ searchQuery = "" }: { searchQuery?: string }) {
                   </div>
                 </div>
                 <div className="mt-2 flex items-center justify-between gap-2">
-                  <span className={`flex items-center gap-1.5 text-xs ${p.stock && p.stock < 10 ? "text-amber-600" : "text-primary"}`}>
+                  <span
+                    className={`flex items-center gap-1.5 text-xs ${p.stock && p.stock < 10 ? "text-amber-600" : "text-primary"}`}
+                  >
                     <span className="size-1.5 rounded-full bg-current" />
                     {p.stock && p.stock < 10 ? `Low (${p.stock})` : `In Stock (${p.stock ?? 0})`}
                   </span>
@@ -723,7 +855,6 @@ function ProductsTab({ searchQuery = "" }: { searchQuery?: string }) {
           <thead className="bg-secondary/60 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             <tr>
               <th className="px-4 py-3 text-left">Product</th>
-              <th className="px-4 py-3 text-left">Category</th>
               <th className="px-4 py-3 text-left">Price</th>
               <th className="px-4 py-3 text-left">Stock</th>
               <th className="px-4 py-3 text-left">Featured on Home</th>
@@ -735,57 +866,71 @@ function ProductsTab({ searchQuery = "" }: { searchQuery?: string }) {
               .filter((p) => {
                 if (!searchQuery.trim()) return true;
                 const q = searchQuery.toLowerCase();
-                return p.name.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q) || p.category.toLowerCase().includes(q);
+                return (
+                  p.name.toLowerCase().includes(q) ||
+                  p.slug.toLowerCase().includes(q) ||
+                  p.category.toLowerCase().includes(q)
+                );
               })
               .map((p) => {
-              const isFeatured = featuredSlugs.includes(p.slug);
-              return (
-                <tr key={p.slug}>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <img src={primaryProductImage(p.image)} alt="" className="size-10 rounded-lg object-cover" />
-                      <span className="font-semibold">{p.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="rounded-full bg-tertiary px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">
-                      {p.category}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 font-semibold">{p.price.toFixed(2)} DA</td>
-                  <td className="px-4 py-3">
-                    <span className={`flex items-center gap-1.5 ${p.stock && p.stock < 10 ? "text-amber-600" : "text-primary"}`}>
-                      <span className="size-2 rounded-full bg-current" />
-                      {p.stock && p.stock < 10 ? `Low Stock (${p.stock})` : `In Stock (${p.stock ?? 0})`}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <button
-                      onClick={() => toggle(p.slug)}
-                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition ${isFeatured ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:bg-tertiary hover:text-primary"}`}
-                      aria-pressed={isFeatured}
-                    >
-                      <Star className={`size-3 ${isFeatured ? "fill-current" : ""}`} />
-                      {isFeatured ? "On Home" : "Add to Home"}
-                    </button>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <button onClick={() => setEditingSlug(p.slug)} className="rounded-md p-1.5 text-muted-foreground transition hover:bg-secondary" aria-label={`Edit ${p.name}`}>
-                        <Pencil className="size-4" />
-                      </button>
-                      <button
-                        onClick={() => { if (confirm(`Are you sure you want to delete ${p.name}?`)) removeProduct(p.slug); }}
-                        className="rounded-md p-1.5 text-muted-foreground transition hover:bg-destructive hover:text-destructive-foreground"
-                        aria-label={`Delete ${p.name}`}
+                const isFeatured = featuredSlugs.includes(p.slug);
+                return (
+                  <tr key={p.slug}>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={primaryProductImage(p.image)}
+                          alt=""
+                          className="size-10 rounded-lg object-cover"
+                        />
+                        <span className="font-semibold">{p.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 font-semibold">{p.price.toFixed(2)} DA</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`flex items-center gap-1.5 ${p.stock && p.stock < 10 ? "text-amber-600" : "text-primary"}`}
                       >
-                        <Trash2 className="size-4" />
+                        <span className="size-2 rounded-full bg-current" />
+                        {p.stock && p.stock < 10
+                          ? `Low Stock (${p.stock})`
+                          : `In Stock (${p.stock ?? 0})`}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() => toggle(p.slug)}
+                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition ${isFeatured ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:bg-tertiary hover:text-primary"}`}
+                        aria-pressed={isFeatured}
+                      >
+                        <Star className={`size-3 ${isFeatured ? "fill-current" : ""}`} />
+                        {isFeatured ? "On Home" : "Add to Home"}
                       </button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => setEditingSlug(p.slug)}
+                          className="rounded-md p-1.5 text-muted-foreground transition hover:bg-secondary"
+                          aria-label={`Edit ${p.name}`}
+                        >
+                          <Pencil className="size-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm(`Are you sure you want to delete ${p.name}?`))
+                              removeProduct(p.slug);
+                          }}
+                          className="rounded-md p-1.5 text-muted-foreground transition hover:bg-destructive hover:text-destructive-foreground"
+                          aria-label={`Delete ${p.name}`}
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
           </tbody>
         </table>
       </div>
@@ -834,14 +979,13 @@ function ProductEditModal({
   onSave: (patch: ProductOverride) => void;
   onReset?: () => void;
 }) {
-  const categories = useCatalog((s) => s.categories);
   const [name, setName] = useState(product?.name || "");
   const [tagline, setTagline] = useState(product?.tagline || "");
   const [description, setDescription] = useState(product?.description || "");
   const [price, setPrice] = useState(product ? String(product.price) : "");
   const [unit, setUnit] = useState(product?.unit || "");
   const [images, setImages] = useState<string[]>(parseProductImages(product?.image));
-  const [category, setCategory] = useState<string>(product?.category || categories[0] || "");
+
   const [badgesStr, setBadgesStr] = useState(product?.badges?.join(", ") || "");
   const [servingSize, setServingSize] = useState(product?.nutrition?.servingSize || "100g");
   const [calories, setCalories] = useState(product?.nutrition?.calories || "0");
@@ -858,7 +1002,6 @@ function ProductEditModal({
     description !== product.description ||
     unit !== product.unit ||
     serializeProductImages(images) !== baseSerializedImages ||
-    category !== product.category ||
     badgesStr.trim() !== (product?.badges?.join(", ") || "") ||
     servingSize !== (product?.nutrition?.servingSize || "100g") ||
     calories !== (product?.nutrition?.calories || "0") ||
@@ -1020,23 +1163,6 @@ function ProductEditModal({
               <Input label="Unit" value={unit} onChange={setUnit} />
               <Input label="Stock" value={stock} onChange={setStock} type="number" step="1" />
             </div>
-            <label className="block">
-              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                Category
-              </span>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="mt-2 w-full rounded-lg bg-secondary/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-              >
-                {categories.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-                {!categories.includes(category) && <option value={category}>{category}</option>}
-              </select>
-            </label>
           </div>
         </div>
 
@@ -1077,7 +1203,7 @@ function ProductEditModal({
                   description,
                   unit,
                   image: serializeProductImages(images),
-                  category: category as Product["category"],
+                  category: product?.category || "Uncategorized",
                   badges: badgesStr
                     .split(",")
                     .map((s) => s.trim())
@@ -1167,7 +1293,10 @@ function CategoriesTab() {
         {/* Mobile category cards */}
         <div className="mt-4 grid gap-2 sm:hidden">
           {categories.map((c) => (
-            <div key={c} className="flex items-center justify-between gap-2 rounded-xl border border-border p-3">
+            <div
+              key={c}
+              className="flex items-center justify-between gap-2 rounded-xl border border-border p-3"
+            >
               <div className="min-w-0 flex-1">
                 {editing === c ? (
                   <input
@@ -1190,19 +1319,48 @@ function CategoriesTab() {
               <div className="flex items-center gap-1 shrink-0">
                 {editing === c ? (
                   <>
-                    <button onClick={() => onRenameSave(c)} className="rounded-md p-2 text-primary hover:bg-secondary" aria-label="Save"><Check className="size-4" /></button>
-                    <button onClick={() => setEditing(null)} className="rounded-md p-2 text-muted-foreground hover:bg-secondary" aria-label="Cancel"><X className="size-4" /></button>
+                    <button
+                      onClick={() => onRenameSave(c)}
+                      className="rounded-md p-2 text-primary hover:bg-secondary"
+                      aria-label="Save"
+                    >
+                      <Check className="size-4" />
+                    </button>
+                    <button
+                      onClick={() => setEditing(null)}
+                      className="rounded-md p-2 text-muted-foreground hover:bg-secondary"
+                      aria-label="Cancel"
+                    >
+                      <X className="size-4" />
+                    </button>
                   </>
                 ) : (
                   <>
-                    <button onClick={() => { setEditing(c); setEditValue(c); }} className="rounded-md p-2 text-muted-foreground hover:bg-secondary" aria-label="Rename"><Pencil className="size-4" /></button>
-                    <button onClick={() => onRemove(c)} className="rounded-md p-2 text-muted-foreground hover:bg-secondary hover:text-destructive" aria-label="Remove"><Trash2 className="size-4" /></button>
+                    <button
+                      onClick={() => {
+                        setEditing(c);
+                        setEditValue(c);
+                      }}
+                      className="rounded-md p-2 text-muted-foreground hover:bg-secondary"
+                      aria-label="Rename"
+                    >
+                      <Pencil className="size-4" />
+                    </button>
+                    <button
+                      onClick={() => onRemove(c)}
+                      className="rounded-md p-2 text-muted-foreground hover:bg-secondary hover:text-destructive"
+                      aria-label="Remove"
+                    >
+                      <Trash2 className="size-4" />
+                    </button>
                   </>
                 )}
               </div>
             </div>
           ))}
-          {categories.length === 0 && <p className="py-6 text-center text-sm text-muted-foreground">No categories yet.</p>}
+          {categories.length === 0 && (
+            <p className="py-6 text-center text-sm text-muted-foreground">No categories yet.</p>
+          )}
         </div>
         {/* Desktop category table */}
         <div className="mt-4 hidden overflow-x-auto rounded-xl border border-border sm:block">
@@ -1303,10 +1461,11 @@ function OrdersTab({ searchQuery = "" }: { searchQuery?: string }) {
     let list = filter === "All" ? orders : orders.filter((o) => o.status === filter);
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      list = list.filter((o) => 
-        o.id.toLowerCase().includes(q) || 
-        o.address.fullName.toLowerCase().includes(q) || 
-        (o.phone && o.phone.toLowerCase().includes(q))
+      list = list.filter(
+        (o) =>
+          o.id.toLowerCase().includes(q) ||
+          o.address.fullName.toLowerCase().includes(q) ||
+          (o.phone && o.phone.toLowerCase().includes(q)),
       );
     }
     return list;
@@ -1339,7 +1498,9 @@ function OrdersTab({ searchQuery = "" }: { searchQuery?: string }) {
         {/* Mobile order cards */}
         <div className="mt-5 grid gap-2 sm:hidden">
           {visible.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">No orders match this filter.</p>
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              No orders match this filter.
+            </p>
           ) : (
             visible.map((o) => (
               <div
@@ -1350,22 +1511,40 @@ function OrdersTab({ searchQuery = "" }: { searchQuery?: string }) {
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold text-sm truncate">{o.address.fullName}</p>
-                    <p className="text-xs text-muted-foreground">{o.address.city} {o.phone ? `• ${o.phone}` : ""}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {o.address.city} {o.phone ? `• ${o.phone}` : ""}
+                    </p>
                     <p className="font-mono text-[10px] text-primary mt-0.5">{o.id}</p>
                   </div>
-                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${statusStyles[o.status]}`}>{o.status}</span>
+                  <span
+                    className={`shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${statusStyles[o.status]}`}
+                  >
+                    {o.status}
+                  </span>
                 </div>
                 <div className="mt-2 flex items-center justify-between gap-2">
-                  <span className="text-xs text-muted-foreground">{new Date(o.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(o.createdAt).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </span>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-semibold">{o.total.toFixed(2)} DA</span>
                     <select
                       value={o.status}
                       onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => { e.stopPropagation(); setStatus(o.id, e.target.value as OrderStatus); }}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        setStatus(o.id, e.target.value as OrderStatus);
+                      }}
                       className="rounded-md border border-border bg-background px-1.5 py-1 text-[10px] focus:outline-none"
                     >
-                      {allStatuses.map((s) => <option key={s} value={s}>{s}</option>)}
+                      {allStatuses.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -1390,7 +1569,9 @@ function OrdersTab({ searchQuery = "" }: { searchQuery?: string }) {
             <tbody className="divide-y divide-border">
               {visible.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">No orders match this filter.</td>
+                  <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
+                    No orders match this filter.
+                  </td>
                 </tr>
               ) : (
                 visible.map((o) => (
@@ -1405,10 +1586,19 @@ function OrdersTab({ searchQuery = "" }: { searchQuery?: string }) {
                       <p className="text-xs text-muted-foreground">{o.address.city}</p>
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">{o.phone || "—"}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{new Date(o.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {new Date(o.createdAt).toLocaleDateString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </td>
                     <td className="px-4 py-3 font-semibold">{o.total.toFixed(2)} DA</td>
                     <td className="px-4 py-3">
-                      <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${statusStyles[o.status]}`}>{o.status}</span>
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${statusStyles[o.status]}`}
+                      >
+                        {o.status}
+                      </span>
                     </td>
                     <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                       <select
@@ -1416,7 +1606,11 @@ function OrdersTab({ searchQuery = "" }: { searchQuery?: string }) {
                         onChange={(e) => setStatus(o.id, e.target.value as OrderStatus)}
                         className="rounded-md border border-border bg-background px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-ring"
                       >
-                        {allStatuses.map((s) => <option key={s} value={s}>{s}</option>)}
+                        {allStatuses.map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ))}
                       </select>
                     </td>
                   </tr>
@@ -1661,21 +1855,36 @@ function AccountsTab({ currentId }: { currentId: string }) {
           <div key={a.id} className="rounded-xl border border-border p-3">
             <div className="flex items-center gap-3">
               <div className="grid size-9 shrink-0 place-items-center rounded-full bg-tertiary text-xs font-bold text-primary">
-                {a.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                {a.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .slice(0, 2)
+                  .join("")}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <p className="font-semibold text-sm truncate">{a.name}</p>
-                  {a.id === currentId && <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[8px] font-bold uppercase text-primary">You</span>}
+                  {a.id === currentId && (
+                    <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[8px] font-bold uppercase text-primary">
+                      You
+                    </span>
+                  )}
                 </div>
                 <p className="text-xs text-muted-foreground truncate">{a.email}</p>
               </div>
               <div className="flex items-center gap-1 shrink-0">
-                <button onClick={() => startEdit(a.id, a.name, a.email)} className="rounded-md p-2 text-muted-foreground hover:bg-secondary" aria-label="Edit">
+                <button
+                  onClick={() => startEdit(a.id, a.name, a.email)}
+                  className="rounded-md p-2 text-muted-foreground hover:bg-secondary"
+                  aria-label="Edit"
+                >
                   <Pencil className="size-3.5" />
                 </button>
                 <button
-                  onClick={() => { if (a.id === currentId) return alert("You can't delete your own account."); if (confirm(`Delete ${a.name}?`)) removeAccount(a.id); }}
+                  onClick={() => {
+                    if (a.id === currentId) return alert("You can't delete your own account.");
+                    if (confirm(`Delete ${a.name}?`)) removeAccount(a.id);
+                  }}
                   disabled={a.id === currentId}
                   className="rounded-md p-2 text-muted-foreground hover:bg-secondary hover:text-destructive disabled:opacity-40"
                   aria-label="Delete"
@@ -1687,18 +1896,30 @@ function AccountsTab({ currentId }: { currentId: string }) {
             <div className="mt-2 flex items-center justify-between gap-2">
               <select
                 value={a.role}
-                onChange={(e) => setPendingRole({ id: a.id, name: a.name, role: e.target.value as Role })}
+                onChange={(e) =>
+                  setPendingRole({ id: a.id, name: a.name, role: e.target.value as Role })
+                }
                 disabled={a.id === currentId}
                 className="rounded-md border border-border bg-background px-2 py-1 text-[10px] disabled:opacity-60"
               >
                 <option value="shopper">Shopper</option>
                 <option value="admin">Admin</option>
               </select>
-              <span className="text-[10px] text-muted-foreground">{new Date(a.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}</span>
+              <span className="text-[10px] text-muted-foreground">
+                {new Date(a.createdAt).toLocaleDateString(undefined, {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </span>
             </div>
           </div>
         ))}
-        {visible.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">No accounts match your search.</p>}
+        {visible.length === 0 && (
+          <p className="py-8 text-center text-sm text-muted-foreground">
+            No accounts match your search.
+          </p>
+        )}
       </div>
       {/* Desktop account table */}
       <div className="mt-5 hidden overflow-x-auto rounded-xl border border-border sm:block">
@@ -2432,7 +2653,9 @@ function ShippingTab() {
                       };
                       return (
                         <tr key={w}>
-                          <td className="px-2 sm:px-4 py-2 font-semibold text-xs sm:text-sm">{w}</td>
+                          <td className="px-2 sm:px-4 py-2 font-semibold text-xs sm:text-sm">
+                            {w}
+                          </td>
                           <td className="px-2 sm:px-4 py-2">
                             <input
                               type="number"

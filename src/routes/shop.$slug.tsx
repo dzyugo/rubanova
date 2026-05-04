@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Minus, Plus, ShoppingBag, Leaf, Truck, Droplet, ChevronRight } from "lucide-react";
 import { useCart } from "@/store/cart";
@@ -43,6 +43,7 @@ function NotFoundProduct() {
 
 function ProductPage() {
   const { slug } = Route.useParams();
+  const navigate = useNavigate();
   const products = useMergedProducts();
   const product = products.find((p) => p.slug === slug);
   const [qty, setQty] = useState(1);
@@ -125,7 +126,9 @@ function ProductPage() {
               </span>
             ))}
           </div>
-          <h1 className="mt-3 font-display text-2xl font-bold sm:mt-4 sm:text-3xl md:text-4xl lg:text-5xl">{product.name}</h1>
+          <h1 className="mt-3 font-display text-2xl font-bold sm:mt-4 sm:text-3xl md:text-4xl lg:text-5xl">
+            {product.name}
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground sm:mt-3">{product.description}</p>
 
           <div className="mt-5 flex items-baseline gap-2 sm:mt-6">
@@ -173,17 +176,31 @@ function ProductPage() {
                 <Plus className="size-3.5 sm:size-4" />
               </button>
             </div>
-            <button
-              onClick={() => {
-                add(product, qty);
-                toast.success(`${product.name} ×${qty} — ${t("toast.added")}`);
-              }}
-              disabled={product.stock === 0}
-              className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-md transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed sm:px-6 sm:py-3"
-            >
-              <ShoppingBag className="size-4" />
-              {product.stock === 0 ? "Out of Stock" : t("product.addtocart")}
-            </button>
+            <div className="flex flex-1 gap-2">
+              <button
+                onClick={() => {
+                  add(product, qty);
+                  toast.success(`${product.name} ×${qty} — ${t("toast.added")}`);
+                }}
+                disabled={product.stock === 0}
+                className="flex flex-1 items-center justify-center gap-2 rounded-full border-2 border-primary bg-background px-2 py-3 text-sm font-semibold text-primary shadow-sm transition hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed sm:px-4"
+              >
+                <ShoppingBag className="size-4 shrink-0" />
+                <span className="truncate">
+                  {product.stock === 0 ? "Out of Stock" : t("product.addtocart")}
+                </span>
+              </button>
+              <button
+                onClick={() => {
+                  add(product, qty);
+                  navigate({ to: "/checkout" });
+                }}
+                disabled={product.stock === 0}
+                className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-2 py-3 text-sm font-semibold text-primary-foreground shadow-md transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed sm:px-4"
+              >
+                Buy Now
+              </button>
+            </div>
           </div>
 
           {/* Nutrition */}
@@ -238,13 +255,12 @@ function ProductPage() {
       <section className="mt-12 sm:mt-16 lg:mt-20">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <h2 className="font-display text-xl font-bold sm:text-2xl lg:text-3xl">{t("product.related")}</h2>
+            <h2 className="font-display text-xl font-bold sm:text-2xl lg:text-3xl">
+              {t("product.related")}
+            </h2>
             <p className="mt-1 text-sm text-muted-foreground">{t("product.related.sub")}</p>
           </div>
-          <Link
-            to="/shop"
-            className="shrink-0 text-sm font-semibold text-primary hover:underline"
-          >
+          <Link to="/shop" className="shrink-0 text-sm font-semibold text-primary hover:underline">
             {t("product.viewshop")}
           </Link>
         </div>
@@ -261,7 +277,9 @@ function ProductPage() {
               </div>
               <div className="mt-2 flex items-baseline justify-between gap-2 sm:mt-3">
                 <h3 className="text-sm font-bold sm:text-base">{p.name}</h3>
-                <span className="text-xs font-bold text-primary sm:text-sm">{p.price.toFixed(2)} DA</span>
+                <span className="text-xs font-bold text-primary sm:text-sm">
+                  {p.price.toFixed(2)} DA
+                </span>
               </div>
               <p className="text-[10px] text-muted-foreground sm:text-xs">{p.unit}</p>
             </Link>

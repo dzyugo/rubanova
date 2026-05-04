@@ -123,7 +123,11 @@ function CheckoutPage() {
                 <div
                   className={`grid size-10 place-items-center rounded-full sm:size-12 ${active ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}
                 >
-                  {i < step ? <Check className="size-4 sm:size-5" /> : <s.icon className="size-4 sm:size-5" />}
+                  {i < step ? (
+                    <Check className="size-4 sm:size-5" />
+                  ) : (
+                    <s.icon className="size-4 sm:size-5" />
+                  )}
                 </div>
                 <span
                   className={`mt-1.5 text-[10px] font-semibold uppercase tracking-widest sm:mt-2 sm:text-xs ${active ? "text-primary" : "text-muted-foreground"}`}
@@ -132,14 +136,19 @@ function CheckoutPage() {
                 </span>
               </div>
               {i < steps.length - 1 && (
-                <div className={`mx-1.5 h-0.5 flex-1 sm:mx-2 ${i < step ? "bg-primary" : "bg-border"}`} />
+                <div
+                  className={`mx-1.5 h-0.5 flex-1 sm:mx-2 ${i < step ? "bg-primary" : "bg-border"}`}
+                />
               )}
             </li>
           );
         })}
       </ol>
 
-      <form onSubmit={placeOrder} className="mt-8 grid gap-6 lg:grid lg:grid-cols-[1fr_340px] lg:gap-8 sm:mt-12">
+      <form
+        onSubmit={placeOrder}
+        className="mt-8 grid gap-6 lg:grid lg:grid-cols-[1fr_340px] lg:gap-8 sm:mt-12"
+      >
         <div className="space-y-5 sm:space-y-6">
           {/* Shipping address */}
           <fieldset className="rounded-xl bg-card p-4 shadow-sm sm:rounded-2xl sm:p-6">
@@ -254,7 +263,9 @@ function CheckoutPage() {
                 <Building2 className="size-5 sm:size-6" />
               </div>
               <div>
-                <h3 className="font-display text-sm font-bold sm:text-base lg:text-lg">{t("checkout.cod")}</h3>
+                <h3 className="font-display text-sm font-bold sm:text-base lg:text-lg">
+                  {t("checkout.cod")}
+                </h3>
                 <p className="text-xs text-muted-foreground sm:text-sm">{t("checkout.cod.sub")}</p>
               </div>
             </div>
@@ -263,7 +274,9 @@ function CheckoutPage() {
 
         {/* Order summary — sticky on desktop */}
         <aside className="rounded-2xl bg-card p-4 shadow-sm sm:rounded-2xl sm:p-6 lg:sticky lg:top-24 lg:h-fit">
-          <h2 className="font-display text-lg font-bold sm:text-xl">{t("checkout.ordersummary")}</h2>
+          <h2 className="font-display text-lg font-bold sm:text-xl">
+            {t("checkout.ordersummary")}
+          </h2>
           <ul className="mt-4 space-y-3 sm:mt-5">
             {items.map((i) => (
               <li key={i.slug} className="flex gap-2.5 sm:gap-3">
@@ -293,7 +306,9 @@ function CheckoutPage() {
             </div>
           </dl>
           <div className="mt-3 flex items-baseline justify-between border-t border-border pt-3 sm:mt-4 sm:pt-4">
-            <span className="font-display text-base font-bold sm:text-lg">{t("checkout.total")}</span>
+            <span className="font-display text-base font-bold sm:text-lg">
+              {t("checkout.total")}
+            </span>
             <span className="font-display text-xl font-bold sm:text-2xl">{p(total)}</span>
           </div>
           <button

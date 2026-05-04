@@ -75,7 +75,7 @@ function RootComponent() {
   const initShipping = useShipping((s) => s.init);
   const lang = useLang((s) => s.lang);
   const location = useLocation();
-  const isAdmin = location.pathname.startsWith('/admin');
+  const isAdmin = location.pathname.startsWith("/admin");
 
   useEffect(() => {
     initAuth();

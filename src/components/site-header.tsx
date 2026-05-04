@@ -29,7 +29,13 @@ import {
   SheetDescription,
   SheetClose,
 } from "@/components/ui/sheet";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerOverlay } from "@/components/ui/drawer";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerOverlay,
+} from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 
 export function SiteHeader() {
@@ -337,7 +343,11 @@ export function SiteHeader() {
               <>
                 <div className="flex items-center gap-3 rounded-xl bg-secondary/50 px-4 py-3">
                   <div className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-                    {user.name.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                    {user.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .slice(0, 2)
+                      .join("")}
                   </div>
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold">{user.name}</p>
@@ -361,7 +371,10 @@ export function SiteHeader() {
                   </Link>
                 )}
                 <button
-                  onClick={() => { logout(); setMenuOpen(false); }}
+                  onClick={() => {
+                    logout();
+                    setMenuOpen(false);
+                  }}
                   className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-destructive transition hover:bg-secondary"
                 >
                   <LogOut className="size-4" /> {t("nav.signout")}
@@ -380,14 +393,20 @@ export function SiteHeader() {
             {/* Footer actions */}
             <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
               <button
-                onClick={() => { toggle(); setMenuOpen(false); }}
+                onClick={() => {
+                  toggle();
+                  setMenuOpen(false);
+                }}
                 className="flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:bg-secondary hover:text-foreground"
               >
                 {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
                 {theme === "dark" ? "Light mode" : "Dark mode"}
               </button>
               <button
-                onClick={() => { setLang(lang === "ar" ? "en" : "ar"); setMenuOpen(false); }}
+                onClick={() => {
+                  setLang(lang === "ar" ? "en" : "ar");
+                  setMenuOpen(false);
+                }}
                 className="flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:bg-secondary hover:text-foreground"
               >
                 <Languages className="size-4" />

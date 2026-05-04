@@ -150,13 +150,12 @@ function HomePage() {
       <section className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-16">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <h2 className="font-display text-2xl font-bold sm:text-3xl md:text-4xl">{t("home.featured")}</h2>
+            <h2 className="font-display text-2xl font-bold sm:text-3xl md:text-4xl">
+              {t("home.featured")}
+            </h2>
             <p className="mt-1 text-sm text-muted-foreground sm:mt-2">{t("home.featured.sub")}</p>
           </div>
-          <Link
-            to="/shop"
-            className="shrink-0 text-sm font-semibold text-primary hover:underline"
-          >
+          <Link to="/shop" className="shrink-0 text-sm font-semibold text-primary hover:underline">
             {t("home.viewall")}
           </Link>
         </div>
@@ -183,7 +182,9 @@ function HomePage() {
                 <span className="inline-block rounded-full bg-primary/90 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary-foreground">
                   {t("home.featured.badge")}
                 </span>
-                <h3 className="mt-2 font-display text-xl font-bold sm:mt-3 sm:text-2xl lg:text-3xl">{big.name}</h3>
+                <h3 className="mt-2 font-display text-xl font-bold sm:mt-3 sm:text-2xl lg:text-3xl">
+                  {big.name}
+                </h3>
                 <p className="mt-1 text-sm text-muted-foreground">{big.tagline}.</p>
                 <button
                   onClick={(e) => {
@@ -200,7 +201,10 @@ function HomePage() {
 
             {/* Smaller cards */}
             {rest.map((prod) => (
-              <div key={prod.slug} className="rounded-2xl bg-card p-3 shadow-sm sm:rounded-3xl sm:p-4">
+              <div
+                key={prod.slug}
+                className="rounded-2xl bg-card p-3 shadow-sm sm:rounded-3xl sm:p-4"
+              >
                 <Link
                   to="/shop/$slug"
                   params={{ slug: prod.slug }}
@@ -261,7 +265,10 @@ function HomePage() {
             {t("home.newsletter.title", { name: settings.name })}
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">{t("home.newsletter.sub")}</p>
-          <form onSubmit={handleNewsletter} className="mx-auto mt-6 flex flex-col gap-2 sm:flex-row sm:max-w-md sm:gap-3">
+          <form
+            onSubmit={handleNewsletter}
+            className="mx-auto mt-6 flex flex-col gap-2 sm:flex-row sm:max-w-md sm:gap-3"
+          >
             <input
               required
               name="email"

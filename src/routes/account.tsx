@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   User,
@@ -41,6 +41,7 @@ function AuthGate() {
   const signup = useAuth((s) => s.signup);
   const [busy, setBusy] = useState(false);
   const { t } = useT();
+  const navigate = useNavigate();
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -53,6 +54,7 @@ function AuthGate() {
       if (mode === "login") {
         const r = await login(email, password);
         if (!r.ok) return setError(r.error ?? "Could not sign in.");
+        navigate({ to: "/" });
       } else {
         const name = String(f.get("name") || "").trim();
         if (!name || !email || password.length < 6) {
@@ -61,6 +63,7 @@ function AuthGate() {
         }
         const r = await signup({ name, email, password });
         if (!r.ok) return setError(r.error ?? "Could not sign up.");
+        navigate({ to: "/" });
       }
     } finally {
       setBusy(false);
@@ -197,7 +200,8 @@ function AccountDashboard() {
             onClick={logout}
             className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold hover:bg-secondary sm:px-4 sm:py-2 sm:text-sm"
           >
-            <LogOut className="size-3 sm:size-4" /> <span className="hidden sm:inline">{t("nav.signout")}</span>
+            <LogOut className="size-3 sm:size-4" />{" "}
+            <span className="hidden sm:inline">{t("nav.signout")}</span>
           </button>
         </div>
       </div>
@@ -231,7 +235,10 @@ function AccountDashboard() {
             </div>
           ) : (
             orders.map((o) => (
-              <article key={o.id} className="rounded-xl bg-card p-4 shadow-sm sm:rounded-2xl sm:p-6">
+              <article
+                key={o.id}
+                className="rounded-xl bg-card p-4 shadow-sm sm:rounded-2xl sm:p-6"
+              >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground sm:text-xs">
@@ -254,7 +261,9 @@ function AccountDashboard() {
                     >
                       {o.status}
                     </span>
-                    <span className="font-display text-lg font-bold sm:text-xl">{o.total.toFixed(2)} DA</span>
+                    <span className="font-display text-lg font-bold sm:text-xl">
+                      {o.total.toFixed(2)} DA
+                    </span>
                   </div>
                 </div>
                 <div className="mt-3 flex items-center justify-between border-t border-border pt-3 sm:mt-4 sm:pt-4">
