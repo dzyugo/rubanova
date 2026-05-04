@@ -187,7 +187,7 @@ function ProductPage() {
               >
                 <ShoppingBag className="size-4 shrink-0" />
                 <span className="truncate">
-                  {product.stock === 0 ? "Out of Stock" : t("product.addtocart")}
+                  {product.stock === 0 ? t("product.outofstock") : t("product.addtocart")}
                 </span>
               </button>
               <button
@@ -198,7 +198,7 @@ function ProductPage() {
                 disabled={product.stock === 0}
                 className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-2 py-3 text-sm font-semibold text-primary-foreground shadow-md transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed sm:px-4"
               >
-                Buy Now
+                {t("product.buynow")}
               </button>
             </div>
           </div>

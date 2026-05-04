@@ -102,6 +102,8 @@ const dict = {
   "product.viewshop": { en: "View full shop →", ar: "← عرض المتجر الكامل" },
   "product.notfound": { en: "Product not found", ar: "المنتج غير موجود" },
   "product.backshop": { en: "← Back to shop", ar: "العودة إلى المتجر →" },
+  "product.buynow": { en: "Buy Now", ar: "اشتري الآن" },
+  "product.outofstock": { en: "Out of Stock", ar: "نفذت الكمية" },
 
   // Cart
   "cart.title": { en: "Your Harvest Basket", ar: "سلة مشترياتك" },
