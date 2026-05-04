@@ -123,11 +123,20 @@ export const useAuth = create<AuthState>()((set, get) => ({
       });
   },
 
-  removeAccount: (id) => {
+  removeAccount: async (id) => {
+    // Optimistic UI update
     set((s) => ({
       accounts: s.accounts.filter((a) => a.id !== id),
       user: s.user?.id === id ? null : s.user,
     }));
+
+    // Server deletion via RPC
+    const { error } = await supabase.rpc("delete_user_account", { target_user_id: id });
+    if (error) {
+      reportError(error, { scope: "auth-store", action: "removeAccount" });
+      // Re-fetch accounts to rollback on failure
+      get().fetchAccounts();
+    }
   },
 
   fetchAccounts: async () => {

@@ -19,6 +19,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShopIndexRouteImport } from './routes/shop.index'
 import { Route as ShopSlugRouteImport } from './routes/shop.$slug'
 import { Route as OrderConfirmationIdRouteImport } from './routes/order-confirmation.$id'
+import { Route as BuySlugRouteImport } from './routes/buy.$slug'
 
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
@@ -70,6 +71,11 @@ const OrderConfirmationIdRoute = OrderConfirmationIdRouteImport.update({
   path: '/order-confirmation/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BuySlugRoute = BuySlugRouteImport.update({
+  id: '/buy/$slug',
+  path: '/buy/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/buy/$slug': typeof BuySlugRoute
   '/order-confirmation/$id': typeof OrderConfirmationIdRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/shop/': typeof ShopIndexRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/buy/$slug': typeof BuySlugRoute
   '/order-confirmation/$id': typeof OrderConfirmationIdRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/shop': typeof ShopIndexRoute
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/buy/$slug': typeof BuySlugRoute
   '/order-confirmation/$id': typeof OrderConfirmationIdRoute
   '/shop/$slug': typeof ShopSlugRoute
   '/shop/': typeof ShopIndexRoute
@@ -118,6 +127,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/buy/$slug'
     | '/order-confirmation/$id'
     | '/shop/$slug'
     | '/shop/'
@@ -130,6 +140,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/buy/$slug'
     | '/order-confirmation/$id'
     | '/shop/$slug'
     | '/shop'
@@ -142,6 +153,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/buy/$slug'
     | '/order-confirmation/$id'
     | '/shop/$slug'
     | '/shop/'
@@ -155,6 +167,7 @@ export interface RootRouteChildren {
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
+  BuySlugRoute: typeof BuySlugRoute
   OrderConfirmationIdRoute: typeof OrderConfirmationIdRoute
   ShopSlugRoute: typeof ShopSlugRoute
   ShopIndexRoute: typeof ShopIndexRoute
@@ -232,6 +245,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrderConfirmationIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/buy/$slug': {
+      id: '/buy/$slug'
+      path: '/buy/$slug'
+      fullPath: '/buy/$slug'
+      preLoaderRoute: typeof BuySlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -243,6 +263,7 @@ const rootRouteChildren: RootRouteChildren = {
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
+  BuySlugRoute: BuySlugRoute,
   OrderConfirmationIdRoute: OrderConfirmationIdRoute,
   ShopSlugRoute: ShopSlugRoute,
   ShopIndexRoute: ShopIndexRoute,

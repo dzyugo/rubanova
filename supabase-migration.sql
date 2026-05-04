@@ -36,6 +36,17 @@ returns boolean language sql security definer set search_path = '' as $$
   select exists (select 1 from public.profiles where id = auth.uid() and role = 'admin');
 $$;
 
+-- Helper: delete user account securely
+create or replace function public.delete_user_account(target_user_id uuid)
+returns void language plpgsql security definer set search_path = '' as $$
+begin
+  if not public.is_admin() then
+    raise exception 'Unauthorized: Only admins can delete accounts.';
+  end if;
+  -- Deleting from auth.users cascades to public.profiles
+  delete from auth.users where id = target_user_id;
+end;
+$$;
 
 -- 2. PRODUCTS
 create table public.products (
