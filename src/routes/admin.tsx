@@ -29,9 +29,9 @@ import {
   Download,
   TrendingUp,
   HardDrive,
-  ChevronRight,
   BarChart3,
   Eye,
+  Trash2,
 } from "lucide-react";
 import { type Product } from "@/data/products";
 import { useOrders, type OrderStatus } from "@/store/orders";

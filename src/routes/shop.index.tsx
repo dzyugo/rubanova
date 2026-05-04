@@ -4,7 +4,7 @@ import { z } from "zod";
 import { ShoppingCart, SlidersHorizontal, X } from "lucide-react";
 import { diets, type Diet } from "@/data/products";
 import { useCart } from "@/store/cart";
-import { useMergedProducts } from "@/store/catalog";
+import { useMergedProducts, useCatalog } from "@/store/catalog";
 import { useT } from "@/lib/i18n";
 import { primaryProductImage } from "@/lib/product-images";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
