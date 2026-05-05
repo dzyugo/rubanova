@@ -15,13 +15,13 @@ export const Route = createFileRoute("/shop/")({
   }),
   head: () => ({
     meta: [
-      { title: "Shop — Ruba Nova" },
+      { title: "Shop — Ruba" },
       {
         name: "description",
         content:
           "Browse our full collection of fresh organic produce and natural goods. Filter by category, dietary needs, and price.",
       },
-      { property: "og:title", content: "Shop — Ruba Nova" },
+      { property: "og:title", content: "Shop — Ruba" },
     ],
   }),
   component: ShopPage,

@@ -11,11 +11,11 @@ export const Route = createFileRoute("/shop/$slug")({
   head: ({ params }) => ({
     meta: [
       {
-        title: `${params.slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())} — Ruba Nova`,
+        title: `${params.slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())} — Ruba`,
       },
       {
         property: "og:title",
-        content: `${params.slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())} — Ruba Nova`,
+        content: `${params.slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())} — Ruba`,
       },
     ],
   }),

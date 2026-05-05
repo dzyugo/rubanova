@@ -74,9 +74,13 @@ export function SiteHeader() {
         <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
-            <span className="font-display text-lg font-bold tracking-tight text-primary sm:text-xl">
-              {settings.name}
-            </span>
+            {settings.logoUrl ? (
+              <img src={settings.logoUrl} alt={settings.name} className="h-8 w-auto" />
+            ) : (
+              <span className="font-display text-lg font-bold tracking-tight text-primary sm:text-xl">
+                {settings.name}
+              </span>
+            )}
           </Link>
 
           {/* Desktop Nav */}
@@ -284,7 +288,11 @@ export function SiteHeader() {
           <div className="mx-auto mt-3 h-1.5 w-16 rounded-full bg-muted" />
           <DrawerHeader className="px-4 pt-2 text-start">
             <DrawerTitle className="flex items-center gap-2">
-              <span className="font-display text-xl font-bold text-primary">{settings.name}</span>
+              {settings.logoUrl ? (
+                <img src={settings.logoUrl} alt={settings.name} className="h-8 w-auto" />
+              ) : (
+                <span className="font-display text-xl font-bold text-primary">{settings.name}</span>
+              )}
             </DrawerTitle>
           </DrawerHeader>
           <nav className="flex flex-col gap-1 overflow-y-auto px-4 pb-6">

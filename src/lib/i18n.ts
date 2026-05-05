@@ -189,7 +189,7 @@ const dict = {
     ar: "سجل دخولك لعرض الطلبات وإدارة العناوين.",
   },
   "auth.signup.sub": {
-    en: "Join Ruba Nova for faster checkout and saved orders.",
+    en: "Join Ruba for faster checkout and saved orders.",
     ar: "انضم إلى روبا نوفا لدفع أسرع وطلبات محفوظة.",
   },
   "auth.fullname": { en: "Full name", ar: "الاسم الكامل" },
@@ -226,7 +226,7 @@ const dict = {
   "about.title": { en: "Rooted in", ar: "جذورنا في" },
   "about.titleaccent": { en: "Honest Sourcing", ar: "المصادر الأمينة" },
   "about.p1": {
-    en: "Ruba Nova began as a weekend stall at the Portland Farmers Market — three crates of heirloom tomatoes, a hand-painted sign, and an unshakable belief that food should nourish both people and the planet.",
+    en: "Ruba began as a weekend stall at the Portland Farmers Market — three crates of heirloom tomatoes, a hand-painted sign, and an unshakable belief that food should nourish both people and the planet.",
     ar: "بدأت روبا نوفا كمحل صغير في سوق المزارعين — ثلاث صناديق من الطماطم الموروثة، لافتة مرسومة يدوياً، وإيمان راسخ بأن الغذاء يجب أن يغذي الناس والكوكب معاً.",
   },
   "about.p2": {
@@ -234,7 +234,7 @@ const dict = {
     ar: "اليوم نتعاون مع أكثر من 40 مزرعة مستدامة لنقدم لك منتجات موسمية لم تُرش أبداً، ولم تُشمّع أبداً، وتُقطف دائماً في ذروة نضجها.",
   },
   "about.p3": {
-    en: "Every box we ship is plastic-free, every delivery route is carbon-offset, and every penny of profit beyond operating costs goes back into soil health initiatives. That's the Ruba Nova promise.",
+    en: "Every box we ship is plastic-free, every delivery route is carbon-offset, and every penny of profit beyond operating costs goes back into soil health initiatives. That's the Ruba promise.",
     ar: "كل صندوق نشحنه خالٍ من البلاستيك، كل مسار توصيل يعوّض الكربون، وكل فلس ربح يعود إلى مبادرات صحة التربة. هذا وعد روبا نوفا.",
   },
   "about.cta": { en: "Explore our harvest →", ar: "← استكشف محصولنا" },

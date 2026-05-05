@@ -43,10 +43,10 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "Ruba Nova — fresh organic produce & natural goods delivered to your door across Algeria.",
+          "Ruba — fresh organic produce & natural goods delivered to your door across Algeria.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "Ruba Nova" },
+      { property: "og:site_name", content: "Ruba" },
       {
         property: "og:description",
         content: "Fresh organic produce & natural goods — delivered across Algeria.",

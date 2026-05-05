@@ -263,7 +263,7 @@ function AdminPage() {
           >
             <div className="flex items-center justify-between">
               <Link to="/" className="block">
-                <h2 className="font-display text-xl font-bold text-primary">Ruba Nova</h2>
+                <h2 className="font-display text-xl font-bold text-primary">Ruba</h2>
                 <p className="text-xs text-muted-foreground">Admin Console</p>
               </Link>
               <button
@@ -333,7 +333,7 @@ function AdminPage() {
       {/* ── Desktop sidebar ── */}
       <aside className="hidden h-fit rounded-3xl border border-border/50 bg-card p-5 shadow-sm lg:block">
         <Link to="/" className="block">
-          <h2 className="font-display text-xl font-bold text-primary">Ruba Nova</h2>
+          <h2 className="font-display text-xl font-bold text-primary">Ruba</h2>
           <p className="text-xs text-muted-foreground">Admin Console</p>
         </Link>
         <nav className="mt-6 grid gap-1">

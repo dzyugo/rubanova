@@ -18,19 +18,19 @@ export type SiteSettings = {
 };
 
 const defaults: SiteSettings = {
-  name: "Ruba Nova",
-  tagline: "Verdant vitality for your soul.",
-  logoUrl: "",
-  contactEmail: "hello@rubanova.com",
+  name: "Ruba",
+  tagline: "Natural butters made with premium ingredients for a healthier, happier you.",
+  logoUrl: "/logo.png",
+  contactEmail: "hello@ruba.com",
   contactPhone: "+1 (555) 123-4567",
-  address: "742 Greenhouse Lane, Portland OR",
-  heroEyebrow: "100% Sustainably Sourced",
-  heroTitle: "Verdant Vitality",
-  heroAccent: "For Your Soul.",
+  address: "Algiers, Algeria",
+  heroEyebrow: "100% Natural",
+  heroTitle: "Pure Ingredients.",
+  heroAccent: "Real Indulgence.",
   heroSubtitle:
-    "Experience the rejuvenating power of nature through curated organic produce delivered with transparency and care.",
+    "Ruba natural butters are crafted from the finest nuts, blended to perfection for taste, nutrition, and goodness in every spoon.",
   heroImageUrl: "",
-  footerNote: "Sustainably grown, thoughtfully curated.",
+  footerNote: "© 2026 Ruba. All rights reserved.",
 };
 
 type SiteState = {

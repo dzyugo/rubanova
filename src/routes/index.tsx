@@ -12,13 +12,13 @@ import { primaryProductImage } from "@/lib/product-images";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Ruba Nova — Fresh Organic Produce & Natural Goods" },
+      { title: "Ruba — Fresh Organic Produce & Natural Goods" },
       {
         name: "description",
         content:
           "Discover premium organic produce and natural goods sourced from trusted Algerian farms. Order online with cash on delivery nationwide.",
       },
-      { property: "og:title", content: "Ruba Nova — Fresh Organic Produce & Natural Goods" },
+      { property: "og:title", content: "Ruba — Fresh Organic Produce & Natural Goods" },
     ],
   }),
   component: HomePage,

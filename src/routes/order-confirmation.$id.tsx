@@ -7,7 +7,7 @@ import { primaryProductImage } from "@/lib/product-images";
 export const Route = createFileRoute("/order-confirmation/$id")({
   head: ({ params }) => ({
     meta: [
-      { title: `Order ${params.id} confirmed — Ruba Nova` },
+      { title: `Order ${params.id} confirmed — Ruba` },
       { name: "description", content: "Thank you for your order. Your harvest is on its way." },
     ],
   }),
