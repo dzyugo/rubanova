@@ -74,7 +74,11 @@ export function SiteHeader() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
             {settings.logoUrl ? (
-              <img src={settings.logoUrl} alt={settings.name} className="h-8 w-auto" />
+              <img 
+                src={settings.logoUrl} 
+                alt={settings.name} 
+                className="h-10 sm:h-12 w-auto object-contain -ml-1 scale-125 origin-left mix-blend-multiply dark:mix-blend-normal dark:rounded-xl" 
+              />
             ) : (
               <span className="font-display text-lg font-bold tracking-tight text-primary sm:text-xl">
                 {settings.name}
@@ -288,7 +292,11 @@ export function SiteHeader() {
           <DrawerHeader className="px-4 pt-2 text-start">
             <DrawerTitle className="flex items-center gap-2">
               {settings.logoUrl ? (
-                <img src={settings.logoUrl} alt={settings.name} className="h-8 w-auto" />
+                <img 
+                  src={settings.logoUrl} 
+                  alt={settings.name} 
+                  className="h-12 w-auto object-contain -ml-1 scale-125 origin-left mix-blend-multiply dark:mix-blend-normal dark:rounded-xl" 
+                />
               ) : (
                 <span className="font-display text-xl font-bold text-primary">{settings.name}</span>
               )}
