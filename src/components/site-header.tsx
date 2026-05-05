@@ -56,7 +56,6 @@ export function SiteHeader() {
 
   const baseNav = [
     { to: "/shop" as const, label: t("nav.shop"), icon: LayoutGrid },
-    { to: "/about" as const, label: t("nav.story"), icon: Info },
     { to: "/contact" as const, label: t("nav.contact"), icon: Phone },
   ];
 

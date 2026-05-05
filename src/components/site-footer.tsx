@@ -29,9 +29,6 @@ export function SiteFooter() {
           <Link to="/shop" className="hover:text-primary">
             {t("footer.shop")}
           </Link>
-          <Link to="/about" className="hover:text-primary">
-            {t("footer.about")}
-          </Link>
           <Link to="/contact" className="hover:text-primary">
             {t("footer.contact")}
           </Link>
