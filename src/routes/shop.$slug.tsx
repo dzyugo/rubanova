@@ -75,8 +75,6 @@ function ProductPage() {
         <Link to="/shop" className="hover:text-primary">
           {t("nav.shop")}
         </Link>
-        <ChevronRight className="size-3" />
-        <span className="truncate max-w-[120px]">{product.category}</span>
         <ChevronRight className="size-3 shrink-0" />
         <span className="truncate max-w-[160px] text-primary">{product.name}</span>
       </nav>
@@ -116,16 +114,6 @@ function ProductPage() {
 
         {/* Info */}
         <div>
-          <div className="flex flex-wrap gap-1.5">
-            {product.badges.map((b: string) => (
-              <span
-                key={b}
-                className="rounded-full bg-tertiary px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary sm:text-xs"
-              >
-                {b}
-              </span>
-            ))}
-          </div>
           <h1 className="mt-3 font-display text-2xl font-bold sm:mt-4 sm:text-3xl md:text-4xl lg:text-5xl">
             {product.name}
           </h1>
