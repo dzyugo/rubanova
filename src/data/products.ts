@@ -22,7 +22,8 @@ export type Product = {
   stock?: number;
 };
 
-export const diets: Diet[] = ["Organic", "Gluten-Free", "Vegan"];
+export const dietaryPreferences = ["100% Natural", "Gluten-Free", "Vegan", "No Additives"];
+export const flavorProfiles = ["Creamy", "Crunchy", "Smooth", "Roasted", "Unsalted"];
 
 export const fallbackProducts: Product[] = [
   {

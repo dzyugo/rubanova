@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState, useEffect } from "react";
 import { z } from "zod";
 import { ShoppingCart, SlidersHorizontal, X } from "lucide-react";
-import { diets, type Diet } from "@/data/products";
+import { dietaryPreferences, flavorProfiles } from "@/data/products";
 import { useCart } from "@/store/cart";
 import { useMergedProducts, useCatalog } from "@/store/catalog";
 import { useT } from "@/lib/i18n";
@@ -31,7 +31,10 @@ function ShopPage() {
   const products = useMergedProducts();
   const loading = useCatalog((s) => s.loading);
 
-  const [activeDiets, setActiveDiets] = useState<Diet[]>([]);
+  const categories = useCatalog((s) => s.categories);
+  const [activeCategories, setActiveCategories] = useState<string[]>([]);
+  const [activeDiets, setActiveDiets] = useState<string[]>([]);
+  const [activeFlavors, setActiveFlavors] = useState<string[]>([]);
   const computedMax = useMemo(() => {
     if (products.length === 0) return 10000;
     return Math.ceil(Math.max(...products.map((p) => p.price)) / 100) * 100;
@@ -58,19 +61,27 @@ function ShopPage() {
           p.tagline.toLowerCase().includes(qs),
       );
     }
+    if (activeCategories.length)
+      list = list.filter((p) => activeCategories.includes(p.category));
     if (activeDiets.length)
       list = list.filter((p) => activeDiets.every((d) => p.badges.includes(d)));
+    if (activeFlavors.length)
+      list = list.filter((p) => activeFlavors.every((f) => p.badges.includes(f)));
     if (sort === "price-asc") list = [...list].sort((a, b) => a.price - b.price);
     if (sort === "price-desc") list = [...list].sort((a, b) => b.price - a.price);
     return list;
-  }, [products, activeDiets, maxPrice, sort, activeSearch]);
+  }, [products, activeCategories, activeDiets, activeFlavors, maxPrice, sort, activeSearch]);
 
-  const toggleDiet = (d: Diet) =>
+  const toggleCategory = (c: string) =>
+    setActiveCategories((arr) => (arr.includes(c) ? arr.filter((x) => x !== c) : [...arr, c]));
+  const toggleDiet = (d: string) =>
     setActiveDiets((arr) => (arr.includes(d) ? arr.filter((x) => x !== d) : [...arr, d]));
+  const toggleFlavor = (f: string) =>
+    setActiveFlavors((arr) => (arr.includes(f) ? arr.filter((x) => x !== f) : [...arr, f]));
 
   const [filterOpen, setFilterOpen] = useState(false);
 
-  const activeFilterCount = activeDiets.length + (maxPrice < 99999 ? 1 : 0);
+  const activeFilterCount = activeCategories.length + activeDiets.length + activeFlavors.length + (maxPrice < 99999 ? 1 : 0);
 
   if (loading) {
     return (
@@ -83,10 +94,31 @@ function ShopPage() {
   // Sidebar filter content — shared between desktop and mobile sheet
   const FilterPanel = () => (
     <div className="space-y-6">
+      {categories.length > 0 && (
+        <div>
+          <h3 className="font-display text-sm font-bold text-primary">Product Type</h3>
+          <ul className="mt-3 space-y-2 text-sm">
+            {categories.map((c) => (
+              <li key={c}>
+                <label className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 hover:bg-secondary/60">
+                  <input
+                    type="checkbox"
+                    checked={activeCategories.includes(c)}
+                    onChange={() => toggleCategory(c)}
+                    className="size-4 accent-primary"
+                  />
+                  {c}
+                </label>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div>
-        <h3 className="font-display text-sm font-bold text-primary">{t("shop.dietary")}</h3>
+        <h3 className="font-display text-sm font-bold text-primary">Dietary Preferences</h3>
         <ul className="mt-3 space-y-2 text-sm">
-          {diets.map((d) => (
+          {dietaryPreferences.map((d) => (
             <li key={d}>
               <label className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 hover:bg-secondary/60">
                 <input
@@ -96,6 +128,25 @@ function ShopPage() {
                   className="size-4 accent-primary"
                 />
                 {d}
+              </label>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <h3 className="font-display text-sm font-bold text-primary">Flavor Profile</h3>
+        <ul className="mt-3 space-y-2 text-sm">
+          {flavorProfiles.map((f) => (
+            <li key={f}>
+              <label className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 hover:bg-secondary/60">
+                <input
+                  type="checkbox"
+                  checked={activeFlavors.includes(f)}
+                  onChange={() => toggleFlavor(f)}
+                  className="size-4 accent-primary"
+                />
+                {f}
               </label>
             </li>
           ))}
@@ -179,13 +230,17 @@ function ShopPage() {
           {/* Active filter chips (mobile) */}
           {activeFilterCount > 0 && (
             <div className="mt-3 flex flex-wrap gap-2 md:hidden">
-              {activeDiets.map((d) => (
+              {[...activeCategories, ...activeDiets, ...activeFlavors].map((item) => (
                 <span
-                  key={d}
+                  key={item}
                   className="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-xs font-medium"
                 >
-                  {d}
-                  <button onClick={() => toggleDiet(d)}>
+                  {item}
+                  <button onClick={() => {
+                    if (activeCategories.includes(item)) toggleCategory(item);
+                    else if (activeDiets.includes(item)) toggleDiet(item);
+                    else toggleFlavor(item);
+                  }}>
                     <X className="size-3" />
                   </button>
                 </span>
