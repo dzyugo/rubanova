@@ -1014,8 +1014,6 @@ function ProductEditModal({
   const [images, setImages] = useState<string[]>(parseProductImages(product?.image));
 
   const [badgesStr, setBadgesStr] = useState(product?.badges?.join(", ") || "");
-  const [servingSize, setServingSize] = useState(product?.nutrition?.servingSize || "100g");
-  const [calories, setCalories] = useState(product?.nutrition?.calories || "0");
   const [stock, setStock] = useState(product ? String(product.stock ?? 0) : "0");
   const [imgError, setImgError] = useState<string | null>(null);
   const baseImage = product?.image || "";
@@ -1030,8 +1028,6 @@ function ProductEditModal({
     unit !== product.unit ||
     serializeProductImages(images) !== baseSerializedImages ||
     badgesStr.trim() !== (product?.badges?.join(", ") || "") ||
-    servingSize !== (product?.nutrition?.servingSize || "100g") ||
-    calories !== (product?.nutrition?.calories || "0") ||
     parseFloat(price) !== product.price ||
     parseInt(stock) !== (product.stock ?? 0);
 
@@ -1242,15 +1238,13 @@ function ProductEditModal({
           </div>
         </div>
 
-        <div className="mt-5 grid gap-3 border-t border-border pt-5 grid-cols-1 sm:grid-cols-3">
+        <div className="mt-5 grid gap-3 border-t border-border pt-5 grid-cols-1">
           <Input
             label="Badges (comma separated)"
             value={badgesStr}
             onChange={setBadgesStr}
             placeholder="e.g. Organic, Vegan"
           />
-          <Input label="Serving Size" value={servingSize} onChange={setServingSize} />
-          <Input label="Calories" value={calories} onChange={setCalories} />
         </div>
 
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
@@ -1284,7 +1278,6 @@ function ProductEditModal({
                     .split(",")
                     .map((s) => s.trim())
                     .filter(Boolean),
-                  nutrition: { ...product?.nutrition, servingSize, calories },
                   price: Number.isFinite(parseFloat(price))
                     ? parseFloat(price)
                     : product?.price || 0,

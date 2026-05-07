@@ -48,7 +48,6 @@ function ProductPage() {
   const product = products.find((p) => p.slug === slug);
   const [qty, setQty] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
-  const [showNutrition, setShowNutrition] = useState(true);
   const add = useCart((s) => s.add);
   const { t } = useT();
 
@@ -191,32 +190,7 @@ function ProductPage() {
             </div>
           </div>
 
-          {/* Nutrition */}
-          <div className="mt-6 rounded-xl border border-border bg-card sm:mt-8 sm:rounded-2xl">
-            <button
-              onClick={() => setShowNutrition((s) => !s)}
-              className="flex w-full items-center justify-between px-4 py-3 sm:px-5 sm:py-4"
-            >
-              <span className="flex items-center gap-2 font-display text-sm font-bold sm:text-base">
-                <Leaf className="size-4 text-primary" /> {t("product.nutrition")}
-              </span>
-              <span className="text-muted-foreground">{showNutrition ? "−" : "+"}</span>
-            </button>
-            {showNutrition && (
-              <dl className="divide-y divide-border border-t border-border text-sm">
-                {(Object.entries(product.nutrition || {}) as [string, string | undefined][])
-                  .filter(([, v]) => Boolean(v))
-                  .map(([k, v]) => (
-                    <div key={k} className="flex justify-between px-4 py-2.5 sm:px-5 sm:py-3">
-                      <dt className="text-muted-foreground capitalize">
-                        {k.replace(/([A-Z])/g, " $1").trim()}
-                      </dt>
-                      <dd className="font-semibold">{v}</dd>
-                    </div>
-                  ))}
-              </dl>
-            )}
-          </div>
+
 
           {/* Trust badges */}
           <div className="mt-4 grid grid-cols-3 gap-2 sm:mt-6 sm:gap-3">
