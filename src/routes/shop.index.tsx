@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState, useEffect } from "react";
 import { z } from "zod";
+import { ShoppingCart } from "lucide-react";
 
 import { useCart } from "@/store/cart";
 import { useMergedProducts, useCatalog } from "@/store/catalog";

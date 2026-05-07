@@ -121,7 +121,7 @@ function ProductPage() {
 
           <div className="mt-5 flex items-baseline gap-2 sm:mt-6">
             <span className="font-display text-3xl font-bold text-primary sm:text-4xl">
-              {product.price.toFixed(2)} DA
+              {(product.price || 0).toFixed(2)} DA
             </span>
             <span className="text-sm text-muted-foreground">/ {product.unit}</span>
           </div>
@@ -204,7 +204,7 @@ function ProductPage() {
             </button>
             {showNutrition && (
               <dl className="divide-y divide-border border-t border-border text-sm">
-                {(Object.entries(product.nutrition) as [string, string | undefined][])
+                {(Object.entries(product.nutrition || {}) as [string, string | undefined][])
                   .filter(([, v]) => Boolean(v))
                   .map(([k, v]) => (
                     <div key={k} className="flex justify-between px-4 py-2.5 sm:px-5 sm:py-3">
@@ -266,7 +266,7 @@ function ProductPage() {
               <div className="mt-2 flex items-baseline justify-between gap-2 sm:mt-3">
                 <h3 className="text-sm font-bold sm:text-base">{p.name}</h3>
                 <span className="text-xs font-bold text-primary sm:text-sm">
-                  {p.price.toFixed(2)} DA
+                  {(p.price || 0).toFixed(2)} DA
                 </span>
               </div>
               <p className="text-[10px] text-muted-foreground sm:text-xs">{p.unit}</p>
