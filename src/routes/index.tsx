@@ -70,7 +70,7 @@ function HomePage() {
     <>
       {/* Hero Section */}
       <section className="relative w-full overflow-hidden min-h-[500px] sm:min-h-[600px] lg:min-h-[700px] flex items-center border-b border-border/50">
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 animate-fade-in">
           <img
             src={heroBg}
             alt={activeBanners[0]?.title || settings.heroTitle}
@@ -83,11 +83,11 @@ function HomePage() {
         
         <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 pt-12 sm:pt-0">
           <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-primary px-4 py-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-primary">
+            <span className="inline-flex items-center gap-2 rounded-full border border-primary px-4 py-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-primary opacity-0 animate-fade-in-up">
               {settings.heroEyebrow || "100% NATURAL"} <Leaf className="size-3.5 fill-primary" />
             </span>
             
-            <h1 className="mt-6 font-display text-4xl leading-tight font-bold sm:text-5xl md:text-6xl lg:text-7xl">
+            <h1 className="mt-6 font-display text-4xl leading-tight font-bold sm:text-5xl md:text-6xl lg:text-7xl opacity-0 animate-fade-in-up [animation-delay:150ms]">
               {activeBanners[0] ? (
                 activeBanners[0].title
               ) : (
@@ -99,11 +99,11 @@ function HomePage() {
               )}
             </h1>
             
-            <p className="mt-6 max-w-lg text-sm leading-relaxed text-foreground/90 sm:text-base md:text-lg">
+            <p className="mt-6 max-w-lg text-sm leading-relaxed text-foreground/90 sm:text-base md:text-lg opacity-0 animate-fade-in-up [animation-delay:300ms]">
               {activeBanners[0] ? "" : settings.heroSubtitle}
             </p>
             
-            <div className="mt-10 flex flex-wrap gap-4">
+            <div className="mt-10 flex flex-wrap gap-4 opacity-0 animate-fade-in-up [animation-delay:450ms]">
               <Link
                 to={activeBanners[0]?.link || "/shop"}
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90"
@@ -116,7 +116,7 @@ function HomePage() {
       </section>
 
       {/* Featured Products */}
-      <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
+      <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-24 animate-fade-in-up [animation-delay:200ms]">
         <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-border/50 pb-6">
           <h2 className="font-display text-2xl font-bold sm:text-3xl md:text-4xl">
             Featured Products
@@ -188,7 +188,7 @@ function HomePage() {
       </section>
 
       {/* Newsletter */}
-      <section className="border-t border-border/50 bg-card/30">
+      <section className="border-t border-border/50 bg-card/30 animate-fade-in">
         <div className="mx-auto w-full max-w-2xl px-4 py-16 text-center sm:px-6 sm:py-24">
           <div className="mx-auto grid size-14 place-items-center rounded-full border border-border bg-background shadow-sm">
             <Mail className="size-6 text-primary" />

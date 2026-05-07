@@ -81,7 +81,7 @@ function ProductPage() {
 
       <div className="mt-8 grid gap-8 lg:grid lg:grid-cols-2 lg:items-start lg:gap-12">
         {/* Image Gallery */}
-        <div className="flex flex-col-reverse gap-4 lg:flex-row lg:items-start lg:gap-6">
+        <div className="flex flex-col-reverse gap-4 lg:flex-row lg:items-start lg:gap-6 animate-fade-in-up">
           {images.length > 1 && (
             <div className="flex gap-3 overflow-x-auto lg:flex-col lg:w-24 lg:shrink-0 hide-scrollbar">
               {images.map((src, i) => (
@@ -106,7 +106,7 @@ function ProductPage() {
         </div>
 
         {/* Info */}
-        <div className="pt-2">
+        <div className="pt-2 opacity-0 animate-fade-in-up [animation-delay:150ms]">
           {product.is_featured && (
             <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-primary/50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">
               <Star className="size-3 fill-primary" /> Best Seller
@@ -223,9 +223,13 @@ function ProductPage() {
         </div>
       </div>
 
-      <ReviewSection productSlug={product.slug} />
+      <div className="opacity-0 animate-fade-in-up [animation-delay:300ms]">
+        <ReviewSection productSlug={product.slug} />
+      </div>
 
-      <RelatedProductsCarousel currentCategory={product.category} currentSlug={product.slug} />
+      <div className="opacity-0 animate-fade-in-up [animation-delay:450ms]">
+        <RelatedProductsCarousel currentCategory={product.category} currentSlug={product.slug} />
+      </div>
     </section>
   );
 }

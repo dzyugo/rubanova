@@ -69,7 +69,7 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/95 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/95 backdrop-blur transition-all duration-300 animate-fade-in">
         <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 shrink-0">
@@ -77,7 +77,8 @@ export function SiteHeader() {
               <img 
                 src={settings.logoUrl} 
                 alt={settings.name} 
-                className="h-10 sm:h-12 w-auto object-contain -ml-1 scale-125 origin-left mix-blend-multiply dark:mix-blend-normal dark:rounded-xl" 
+                loading="eager"
+                className="h-10 sm:h-12 w-auto object-contain -ml-1 scale-125 origin-left mix-blend-multiply dark:mix-blend-normal dark:rounded-xl transition-transform duration-300 hover:scale-[1.3]" 
               />
             ) : (
               <span className="font-display text-lg font-bold tracking-tight text-primary sm:text-xl">
@@ -92,8 +93,8 @@ export function SiteHeader() {
               <Link
                 key={item.to}
                 to={item.to}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                activeProps={{ className: "text-primary border-b-2 border-primary pb-1" }}
+                className="text-sm font-medium text-muted-foreground transition-all duration-300 hover:text-foreground hover:scale-105"
+                activeProps={{ className: "text-primary border-b-2 border-primary pb-1 font-bold" }}
                 activeOptions={{ exact: true }}
               >
                 {item.label}
@@ -157,7 +158,7 @@ export function SiteHeader() {
             {/* Cart (always visible on mobile via MobileNav, visible here on md+) */}
             <Link
               to="/cart"
-              className="relative rounded-full p-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground"
+              className="relative rounded-full p-2 text-muted-foreground transition-all duration-300 hover:bg-secondary hover:text-foreground hover:scale-110"
               aria-label="Cart"
             >
               <ShoppingCart className="size-5" />

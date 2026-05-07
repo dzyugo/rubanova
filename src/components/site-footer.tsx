@@ -7,7 +7,7 @@ export function SiteFooter() {
   const settings = useSite((s) => s.settings);
   const { t } = useT();
   return (
-    <footer className="mt-12 border-t border-border/60 bg-secondary/40 sm:mt-16">
+    <footer className="mt-12 border-t border-border/60 bg-secondary/40 sm:mt-16 animate-fade-in">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 sm:flex-row sm:items-start sm:justify-between sm:px-6 sm:py-10">
         <div className="max-w-xs">
           <h3 className="font-display text-lg font-bold text-primary sm:text-xl">
@@ -26,10 +26,10 @@ export function SiteFooter() {
           </div>
         </div>
         <nav className="flex flex-wrap items-center gap-4 text-xs font-medium uppercase tracking-widest text-muted-foreground sm:gap-6">
-          <Link to="/shop" className="hover:text-primary">
+          <Link to="/shop" className="transition-all duration-300 hover:text-primary hover:-translate-y-0.5">
             {t("footer.shop")}
           </Link>
-          <Link to="/contact" className="hover:text-primary">
+          <Link to="/contact" className="transition-all duration-300 hover:text-primary hover:-translate-y-0.5">
             {t("footer.contact")}
           </Link>
         </nav>
