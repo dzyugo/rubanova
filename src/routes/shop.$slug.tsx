@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Minus, Plus, ShoppingBag, Leaf, Truck, Droplet, ChevronRight } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Leaf, Truck, Droplet, ChevronRight, Star, CheckCircle } from "lucide-react";
 import { useCart } from "@/store/cart";
 import { useMergedProducts } from "@/store/catalog";
 import { useT } from "@/lib/i18n";
@@ -70,112 +70,134 @@ function ProductPage() {
   return (
     <section className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground sm:text-xs">
-        <Link to="/shop" className="hover:text-primary">
-          {t("nav.shop")}
-        </Link>
+      <nav className="flex items-center gap-2 text-xs font-medium text-muted-foreground sm:text-sm">
+        <Link to="/" className="hover:text-primary">Home</Link>
         <ChevronRight className="size-3 shrink-0" />
-        <span className="truncate max-w-[160px] text-primary">{product.name}</span>
+        <Link to="/shop" className="hover:text-primary">Shop</Link>
+        <ChevronRight className="size-3 shrink-0" />
+        <span className="hover:text-primary cursor-default">{product.category}</span>
+        <ChevronRight className="size-3 shrink-0" />
+        <span className="truncate text-foreground">{product.name}</span>
       </nav>
 
-      <div className="mt-6 grid gap-8 lg:grid lg:grid-cols-2 lg:items-start lg:gap-12">
-        {/* Image */}
-        <div>
-          <div className="overflow-hidden rounded-2xl bg-card shadow-sm sm:rounded-3xl">
-            <img
-              src={images[activeImage] || images[0]}
-              alt={product.name}
-              width={800}
-              height={800}
-              className="aspect-square w-full object-cover img-reveal"
-              key={activeImage}
-            />
-          </div>
+      <div className="mt-8 grid gap-8 lg:grid lg:grid-cols-2 lg:items-start lg:gap-12">
+        {/* Image Gallery */}
+        <div className="flex flex-col-reverse gap-4 lg:flex-row lg:items-start lg:gap-6">
           {images.length > 1 && (
-            <div className="mt-3 grid grid-cols-4 gap-2 sm:mt-4 sm:gap-3">
+            <div className="flex gap-3 overflow-x-auto lg:flex-col lg:w-24 lg:shrink-0 hide-scrollbar">
               {images.map((src, i) => (
                 <button
                   key={i}
                   onClick={() => setActiveImage(i)}
-                  className={`overflow-hidden rounded-lg border-2 ${i === activeImage ? "border-primary" : "border-transparent"}`}
+                  className={`relative aspect-square w-20 lg:w-full shrink-0 overflow-hidden rounded-xl border-2 transition-all ${i === activeImage ? "border-primary opacity-100" : "border-transparent opacity-50 hover:opacity-100"}`}
                 >
-                  <img
-                    src={src}
-                    alt=""
-                    className={`aspect-square w-full object-cover ${i === activeImage ? "opacity-100" : "opacity-50 hover:opacity-80"}`}
-                    loading="lazy"
-                  />
+                  <img src={src} alt="" className="size-full object-cover" loading="lazy" />
                 </button>
               ))}
             </div>
           )}
+          <div className="flex-1 overflow-hidden rounded-2xl bg-card shadow-sm sm:rounded-3xl border border-border">
+            <img
+              src={images[activeImage] || images[0]}
+              alt={product.name}
+              className="aspect-square w-full object-cover img-reveal"
+              key={activeImage}
+            />
+          </div>
         </div>
 
         {/* Info */}
-        <div>
-          <h1 className="mt-3 font-display text-2xl font-bold sm:mt-4 sm:text-3xl md:text-4xl lg:text-5xl">
-            {product.name}
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground sm:mt-3">{product.description}</p>
-
-          <div className="mt-5 flex items-baseline gap-2 sm:mt-6">
-            <span className="font-display text-3xl font-bold text-primary sm:text-4xl">
-              {(product.price || 0).toFixed(2)} DA
-            </span>
-            <span className="text-sm text-muted-foreground">/ {product.unit}</span>
-          </div>
-          {product.stock !== undefined && (
-            <div className="mt-3">
-              {product.stock === 0 ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/10 px-3 py-1 text-xs font-bold text-destructive">
-                  ● Out of Stock
-                </span>
-              ) : product.stock < 10 ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-600 dark:text-amber-400">
-                  ● Only {product.stock} left in stock
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-tertiary px-3 py-1 text-xs font-bold text-primary">
-                  ● In Stock
-                </span>
-              )}
+        <div className="pt-2">
+          {product.is_featured && (
+            <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-primary/50 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">
+              <Star className="size-3 fill-primary" /> Best Seller
             </div>
           )}
 
-          <p className="mt-6 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground sm:mt-8">
-            {t("product.qty")}
-          </p>
-          <div className="mt-2 flex items-center gap-3 sm:mt-3">
-            <div className="flex items-center gap-1 rounded-full border border-border bg-card px-1.5 py-1 sm:gap-2 sm:px-2">
-              <button
-                onClick={() => setQty((q) => Math.max(1, q - 1))}
-                className="grid size-8 place-items-center rounded-full hover:bg-secondary"
-                aria-label="Decrease"
-              >
-                <Minus className="size-3.5 sm:size-4" />
-              </button>
-              <span className="w-7 text-center text-sm font-semibold sm:w-8">{qty}</span>
-              <button
-                onClick={() => setQty((q) => q + 1)}
-                className="grid size-8 place-items-center rounded-full hover:bg-secondary"
-                aria-label="Increase"
-              >
-                <Plus className="size-3.5 sm:size-4" />
-              </button>
+          <h1 className="font-display text-3xl font-bold sm:text-4xl md:text-5xl lg:text-6xl">
+            {product.name}
+          </h1>
+
+          <div className="mt-3 flex items-center gap-3">
+            <div className="flex items-center text-primary">
+              <Star className="size-4 fill-primary" />
+              <Star className="size-4 fill-primary" />
+              <Star className="size-4 fill-primary" />
+              <Star className="size-4 fill-primary" />
+              <Star className="size-4 fill-primary" />
             </div>
-            <div className="flex flex-1 gap-2">
+            <span className="text-sm text-muted-foreground">(128) reviews</span>
+          </div>
+
+          <p className="mt-6 text-sm text-foreground/80 leading-relaxed sm:text-base max-w-md">
+            {product.description}
+          </p>
+
+          <hr className="my-8 border-border" />
+
+          {/* Size */}
+          <div>
+            <p className="text-sm font-semibold text-muted-foreground">Size</p>
+            <div className="mt-3 flex gap-3">
+              <span className="rounded-lg border border-primary bg-primary/5 px-6 py-2.5 text-sm font-semibold text-primary">
+                {product.unit}
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-8">
+            <span className="font-display text-3xl font-bold text-foreground sm:text-4xl">
+              {(product.price || 0).toFixed(2)} DA
+            </span>
+          </div>
+          
+          {product.stock !== undefined && (
+            <div className="mt-3">
+              {product.stock === 0 ? (
+                <span className="text-sm font-semibold text-destructive">
+                  Out of Stock
+                </span>
+              ) : product.stock < 10 ? (
+                <span className="text-sm font-semibold text-amber-500">
+                  Only {product.stock} left in stock
+                </span>
+              ) : null}
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="mt-8 flex flex-col gap-6">
+            <div className="flex items-center gap-4">
+              <p className="text-sm font-semibold text-muted-foreground">Quantity</p>
+              <div className="flex items-center gap-4 rounded-full border border-border px-4 py-2">
+                <button
+                  onClick={() => setQty((q) => Math.max(1, q - 1))}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Decrease"
+                >
+                  <Minus className="size-4" />
+                </button>
+                <span className="w-6 text-center text-sm font-semibold">{qty}</span>
+                <button
+                  onClick={() => setQty((q) => q + 1)}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Increase"
+                >
+                  <Plus className="size-4" />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-4 sm:flex-row">
               <button
                 onClick={() => {
                   add(product, qty);
-                  toast.success(`${product.name} ×${qty} — ${t("toast.added")}`);
+                  toast.success(`${product.name} ×${qty} — Added to cart`);
                 }}
                 disabled={product.stock === 0}
-                className="flex flex-1 items-center justify-center gap-2 rounded-full border-2 border-primary bg-background px-2 py-3 text-sm font-semibold text-primary shadow-sm transition hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed sm:px-4"
+                className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary py-4 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <ShoppingBag className="size-4 shrink-0" />
-                <span className="truncate">
-                  {product.stock === 0 ? t("product.outofstock") : t("product.addtocart")}
-                </span>
+                {product.stock === 0 ? "Out of Stock" : "Add to Cart"} <ShoppingBag className="size-4" />
               </button>
               <button
                 onClick={() => {
@@ -183,71 +205,140 @@ function ProductPage() {
                   navigate({ to: "/checkout" });
                 }}
                 disabled={product.stock === 0}
-                className="flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-2 py-3 text-sm font-semibold text-primary-foreground shadow-md transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed sm:px-4"
+                className="flex flex-1 items-center justify-center gap-2 rounded-full border border-border bg-card py-4 text-sm font-bold text-foreground transition hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {t("product.buynow")}
+                Buy Now
               </button>
             </div>
           </div>
 
-
-
-          {/* Trust badges */}
-          <div className="mt-4 grid grid-cols-3 gap-2 sm:mt-6 sm:gap-3">
+          {/* Trust features list */}
+          <div className="mt-10 grid grid-cols-1 gap-4 border-t border-border pt-8 sm:grid-cols-3">
             {[
-              { icon: Leaf, label: t("product.organic") },
-              { icon: Truck, label: t("product.fresh") },
-              { icon: Droplet, label: t("product.washed") },
-            ].map((b) => (
-              <div
-                key={b.label}
-                className="grid place-items-center gap-1.5 rounded-xl bg-tertiary/60 py-3 sm:rounded-2xl sm:py-4"
-              >
-                <b.icon className="size-4 text-primary sm:size-5" />
-                <span className="text-[10px] font-bold uppercase tracking-wider text-primary sm:text-[11px]">
-                  {b.label}
-                </span>
+              { icon: Truck, title: "Fast Delivery", sub: "Within 24-48h" },
+              { icon: Droplet, title: "Fresh & Delicious", sub: "Sealed for freshness" },
+              { icon: Leaf, title: "100% Natural", sub: "No additives ever" },
+            ].map((f, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="grid size-10 shrink-0 place-items-center rounded-full border border-border text-primary bg-card shadow-sm">
+                  <f.icon className="size-4" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-foreground">{f.title}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{f.sub}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Related */}
-      <section className="mt-12 sm:mt-16 lg:mt-20">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <h2 className="font-display text-xl font-bold sm:text-2xl lg:text-3xl">
-              {t("product.related")}
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">{t("product.related.sub")}</p>
+      {/* Customer Reviews */}
+      <section className="mt-16 sm:mt-24">
+        <div className="flex flex-col items-start gap-4 border-b border-border pb-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+            <h2 className="font-display text-2xl font-bold sm:text-3xl">Customer Reviews</h2>
+            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+              <span className="text-primary tracking-widest text-base">★★★★★</span>
+              <span className="text-foreground">4.9 out of 5</span>
+              <span>(128)</span>
+            </div>
           </div>
-          <Link to="/shop" className="shrink-0 text-sm font-semibold text-primary hover:underline">
-            {t("product.viewshop")}
-          </Link>
+          <button className="rounded-full border border-border px-6 py-2.5 text-sm font-semibold transition hover:bg-secondary">
+            Write a Review
+          </button>
         </div>
-        <div className="mt-5 grid gap-3 grid-cols-2 sm:mt-6 sm:grid-cols-2 lg:grid-cols-4 sm:gap-4">
-          {related.map((p) => (
-            <Link key={p.slug} to="/shop/$slug" params={{ slug: p.slug }} className="group block">
-              <div className="overflow-hidden rounded-xl bg-card sm:rounded-2xl">
-                <img
-                  src={primaryProductImage(p.image)}
-                  alt={p.name}
-                  className="aspect-square w-full object-cover transition duration-500 group-hover:scale-105"
-                  loading="lazy"
-                />
+
+        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
+          {/* Mock reviews based on the image */}
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="size-10 overflow-hidden rounded-full bg-secondary border border-border">
+                  <img src="https://i.pravatar.cc/100?img=5" alt="Sara M." className="size-full object-cover" />
+                </div>
+                <div>
+                  <p className="flex items-center gap-1.5 text-sm font-bold text-foreground">
+                    Sara M. <CheckCircle className="size-3.5 text-primary" />
+                  </p>
+                  <p className="text-primary text-[10px] tracking-widest mt-0.5">★★★★★</p>
+                </div>
               </div>
-              <div className="mt-2 flex items-baseline justify-between gap-2 sm:mt-3">
-                <h3 className="text-sm font-bold sm:text-base">{p.name}</h3>
-                <span className="text-xs font-bold text-primary sm:text-sm">
-                  {(p.price || 0).toFixed(2)} DA
-                </span>
+              <span className="text-xs text-muted-foreground">2 days ago</span>
+            </div>
+            <p className="mt-5 text-sm leading-relaxed text-foreground/90">
+              The creamiest peanut butter I've ever had. No sugar, no junk—just pure peanuts. My whole family loves it.
+            </p>
+          </div>
+          
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="size-10 overflow-hidden rounded-full bg-secondary border border-border">
+                  <img src="https://i.pravatar.cc/100?img=11" alt="Amine B." className="size-full object-cover" />
+                </div>
+                <div>
+                  <p className="flex items-center gap-1.5 text-sm font-bold text-foreground">
+                    Amine B. <CheckCircle className="size-3.5 text-primary" />
+                  </p>
+                  <p className="text-primary text-[10px] tracking-widest mt-0.5">★★★★★</p>
+                </div>
               </div>
-              <p className="text-[10px] text-muted-foreground sm:text-xs">{p.unit}</p>
-            </Link>
-          ))}
+              <span className="text-xs text-muted-foreground">1 week ago</span>
+            </div>
+            <p className="mt-5 text-sm leading-relaxed text-foreground/90">
+              Perfect texture and rich taste. I use it in smoothies and on toast every day.
+            </p>
+          </div>
+        </div>
+        
+        <div className="mt-8 text-center">
+          <button className="mx-auto flex items-center gap-2 text-sm font-bold text-primary hover:underline">
+            View All 128 Reviews <ChevronRight className="size-4" />
+          </button>
         </div>
       </section>
+
+      {/* Related / You May Also Like */}
+      {related.length > 0 && (
+        <section className="mt-16 border-t border-border pt-16 sm:mt-24">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="font-display text-2xl font-bold sm:text-3xl">
+              You May Also Like
+            </h2>
+            <div className="hidden items-center gap-2 sm:flex">
+               <button className="grid size-10 place-items-center rounded-full border border-border text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
+                  <ChevronRight className="size-5 rotate-180" />
+               </button>
+               <button className="grid size-10 place-items-center rounded-full border border-border text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
+                  <ChevronRight className="size-5" />
+               </button>
+            </div>
+          </div>
+          
+          <div className="mt-8 grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
+            {related.map((p) => (
+              <Link key={p.slug} to="/shop/$slug" params={{ slug: p.slug }} className="group block">
+                <div className="overflow-hidden rounded-2xl bg-card border border-border shadow-sm">
+                  <img
+                    src={primaryProductImage(p.image)}
+                    alt={p.name}
+                    className="aspect-[4/3] w-full object-cover transition duration-700 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div className="p-4 sm:p-5">
+                    <h3 className="font-display text-base font-bold text-foreground sm:text-lg truncate">{p.name}</h3>
+                    <p className="text-xs text-muted-foreground mt-1">{p.unit}</p>
+                    <p className="text-sm font-bold text-foreground mt-3">
+                      {(p.price || 0).toFixed(2)} DA
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </section>
   );
 }
