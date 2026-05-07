@@ -90,10 +90,11 @@ function ShopPage() {
           </div>
 
           <div className="mt-6 grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filtered.map((p) => (
+            {filtered.map((p, i) => (
               <article
                 key={p.slug}
-                className="overflow-hidden rounded-xl bg-card shadow-sm transition hover:shadow-md sm:rounded-2xl"
+                className="overflow-hidden rounded-xl bg-card shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-md sm:rounded-2xl opacity-0 animate-fade-in-up"
+                style={{ animationDelay: `${i * 50}ms` }}
               >
                 <Link to="/shop/$slug" params={{ slug: p.slug }} className="block">
                   <div className="relative aspect-square overflow-hidden bg-muted">

@@ -148,6 +148,13 @@ function HomePage() {
                     className="aspect-[4/5] w-full object-cover mix-blend-normal transition duration-700 group-hover:scale-105"
                     loading="lazy"
                   />
+                  {prod.stock === 0 && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-[2px]">
+                      <span className="rounded-full bg-destructive px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-destructive-foreground">
+                        Out of Stock
+                      </span>
+                    </div>
+                  )}
                 </Link>
                 
                 <div className="mt-5 flex flex-col gap-2 flex-1 justify-end">
@@ -176,7 +183,8 @@ function HomePage() {
                       toast.success(`${prod.name} — Added to cart`);
                     }}
                     aria-label={`Add ${prod.name} to cart`}
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-xs sm:text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90"
+                    disabled={prod.stock === 0}
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-2.5 text-xs sm:text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     Add to Cart <ShoppingCart className="size-4" />
                   </button>

@@ -253,7 +253,7 @@ function AdminPage() {
   ];
 
   return (
-    <section className="mx-auto grid w-full max-w-7xl gap-4 sm:gap-6 px-3 py-4 sm:px-4 sm:py-6 md:px-6 md:py-10 lg:grid-cols-[260px_minmax(0,1fr)]">
+    <section className="mx-auto grid w-full max-w-7xl gap-4 sm:gap-6 px-3 py-4 sm:px-4 sm:py-6 md:px-6 md:py-10 lg:grid-cols-[260px_minmax(0,1fr)] animate-fade-in">
       {/* ── Mobile menu overlay ── */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden" onClick={() => setMobileMenuOpen(false)}>
@@ -521,10 +521,11 @@ function AdminPage() {
           <>
             {/* ── 4-Column KPI Cards ── */}
             <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-              {stats.map((s) => (
+              {stats.map((s, i) => (
                 <div
                   key={s.label}
-                  className={`relative overflow-hidden rounded-2xl border border-border/50 bg-card p-3 sm:p-5 shadow-sm transition hover:shadow-md bg-gradient-to-br ${s.gradient}`}
+                  className={`relative overflow-hidden rounded-2xl border border-border/50 bg-card p-3 sm:p-5 shadow-sm transition hover:shadow-md bg-gradient-to-br ${s.gradient} opacity-0 animate-fade-in-up`}
+                  style={{ animationDelay: `${i * 100}ms` }}
                 >
                   <div className="flex items-start justify-between gap-1">
                     <div className="min-w-0 flex-1">
@@ -550,7 +551,7 @@ function AdminPage() {
             </div>
 
             {/* ── Chart + Sidebar row ── */}
-            <div className="grid gap-4 sm:gap-6 xl:grid-cols-[1fr_320px]">
+            <div className="grid gap-4 sm:gap-6 xl:grid-cols-[1fr_320px] opacity-0 animate-fade-in-up [animation-delay:300ms]">
               {/* Sales chart */}
               <div className="rounded-2xl border border-border/50 bg-card p-4 sm:p-6 shadow-sm">
                 <div className="flex items-center justify-between">
@@ -652,7 +653,7 @@ function AdminPage() {
             </div>
 
             {/* ── Recent Orders Summary ── */}
-            <div className="rounded-2xl border border-border/50 bg-card p-4 sm:p-6 shadow-sm">
+            <div className="rounded-2xl border border-border/50 bg-card p-4 sm:p-6 shadow-sm opacity-0 animate-fade-in-up [animation-delay:400ms]">
               <div className="flex items-center justify-between">
                 <h2 className="font-display text-lg font-bold">Recent Orders</h2>
                 <button
