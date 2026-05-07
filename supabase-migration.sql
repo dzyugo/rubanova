@@ -194,3 +194,30 @@ insert into public.site_settings (id, settings) values (1, '{
   "heroImageUrl": "",
   "footerNote": "Sustainably grown, thoughtfully curated."
 }');
+- -   8 .   R E V I E W S 
+ c r e a t e   t a b l e   p u b l i c . r e v i e w s   ( 
+     i d   u u i d   p r i m a r y   k e y   d e f a u l t   g e n _ r a n d o m _ u u i d ( ) , 
+     p r o d u c t _ s l u g   t e x t   n o t   n u l l   r e f e r e n c e s   p u b l i c . p r o d u c t s ( s l u g )   o n   d e l e t e   c a s c a d e , 
+     a u t h o r _ n a m e   t e x t   n o t   n u l l , 
+     r a t i n g   i n t   n o t   n u l l   c h e c k   ( r a t i n g   > =   1   a n d   r a t i n g   < =   5 ) , 
+     c o n t e n t   t e x t   n o t   n u l l , 
+     i s _ v e r i f i e d   b o o l e a n   n o t   n u l l   d e f a u l t   f a l s e , 
+     c r e a t e d _ a t   t i m e s t a m p t z   n o t   n u l l   d e f a u l t   n o w ( ) 
+ ) ; 
+ a l t e r   t a b l e   p u b l i c . r e v i e w s   e n a b l e   r o w   l e v e l   s e c u r i t y ; 
+ 
+ c r e a t e   p o l i c y   \  
+ A n y o n e  
+ c a n  
+ r e a d  
+ r e v i e w s \   o n   p u b l i c . r e v i e w s   f o r   s e l e c t   u s i n g   ( t r u e ) ; 
+ c r e a t e   p o l i c y   \ A n y o n e  
+ c a n  
+ i n s e r t  
+ r e v i e w s \   o n   p u b l i c . r e v i e w s   f o r   i n s e r t   w i t h   c h e c k   ( t r u e ) ; 
+ c r e a t e   p o l i c y   \ A d m i n s  
+ c a n  
+ d e l e t e  
+ r e v i e w s \   o n   p u b l i c . r e v i e w s   f o r   d e l e t e   u s i n g   ( p u b l i c . i s _ a d m i n ( ) ) ; 
+  
+ 
