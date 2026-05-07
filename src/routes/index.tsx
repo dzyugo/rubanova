@@ -84,29 +84,31 @@ function HomePage() {
         <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 pt-12 sm:pt-0">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-primary px-4 py-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-primary">
-              100% NATURAL <Leaf className="size-3.5 fill-primary" />
+              {settings.heroEyebrow || "100% NATURAL"} <Leaf className="size-3.5 fill-primary" />
             </span>
             
             <h1 className="mt-6 font-display text-4xl leading-tight font-bold sm:text-5xl md:text-6xl lg:text-7xl">
-              Pure Ingredients.<br />Real Indulgence.
+              {activeBanners[0] ? (
+                activeBanners[0].title
+              ) : (
+                <>
+                  {settings.heroTitle}
+                  <br />
+                  <span className="text-primary">{settings.heroAccent}</span>
+                </>
+              )}
             </h1>
             
             <p className="mt-6 max-w-lg text-sm leading-relaxed text-foreground/90 sm:text-base md:text-lg">
-              Ruba natural butters are crafted from the finest nuts, blended to perfection for taste, nutrition, and goodness in every spoon.
+              {activeBanners[0] ? "" : settings.heroSubtitle}
             </p>
             
             <div className="mt-10 flex flex-wrap gap-4">
               <Link
-                to="/shop"
+                to={activeBanners[0]?.link || "/shop"}
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90"
               >
-                Shop All Butters <ChevronRight className="size-4" />
-              </Link>
-              <Link
-                to="/shop"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-primary px-8 py-3.5 text-sm font-bold text-primary transition hover:bg-primary/10"
-              >
-                Our Story <Play className="size-4" />
+                {t("home.shopnow")} <ChevronRight className="size-4" />
               </Link>
             </div>
           </div>
