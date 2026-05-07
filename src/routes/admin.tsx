@@ -51,6 +51,7 @@ import {
   primaryProductImage,
   serializeProductImages,
 } from "@/lib/product-images";
+import imageCompression from "browser-image-compression";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -1043,17 +1044,25 @@ function ProductEditModal({
       setImgError("Please choose an image file (JPG, PNG, WEBP).");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setImgError("Image must be under 5 MB.");
+    if (file.size > 15 * 1024 * 1024) {
+      setImgError("Original image must be under 15 MB.");
       return;
     }
 
     setUploading(true);
     try {
+      // Compress the image before uploading
+      const options = {
+        maxSizeMB: 0.5, // Target max 500KB
+        maxWidthOrHeight: 1200,
+        useWebWorker: true,
+      };
+      const compressedFile = await imageCompression(file, options);
+
       // Try uploading to Supabase Storage
-      const ext = file.name.split(".").pop() || "jpg";
+      const ext = compressedFile.name.split(".").pop() || "jpg";
       const path = `products/${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
-      const { data, error } = await supabase.storage.from("product-images").upload(path, file, {
+      const { data, error } = await supabase.storage.from("product-images").upload(path, compressedFile, {
         cacheControl: "3600",
         upsert: false,
       });
@@ -1073,7 +1082,7 @@ function ProductEditModal({
             setImages((prev) => [...prev, String(reader.result)]);
             resolve();
           };
-          reader.readAsDataURL(file);
+          reader.readAsDataURL(compressedFile);
         });
       }
     } catch {
@@ -1088,7 +1097,7 @@ function ProductEditModal({
           setImages((prev) => [...prev, String(reader.result)]);
           resolve();
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(compressedFile);
       });
     } finally {
       setUploading(false);
@@ -2169,7 +2178,7 @@ function ImageField({
   const [error, setError] = useState<string | null>(null);
   const [previewError, setPreviewError] = useState(false);
 
-  const onPick = (file: File | null) => {
+  const onPick = async (file: File | null) => {
     setError(null);
     if (!file) return;
     if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
@@ -2180,19 +2189,33 @@ function ImageField({
       setError("That file is empty.");
       return;
     }
-    if (file.size > maxSizeMB * 1024 * 1024) {
+    if (file.size > Math.max(15, maxSizeMB) * 1024 * 1024) {
       setError(
-        `Image must be under ${maxSizeMB} MB (yours is ${(file.size / 1024 / 1024).toFixed(2)} MB).`,
+        `Original image must be under ${Math.max(15, maxSizeMB)} MB.`,
       );
       return;
     }
-    const reader = new FileReader();
-    reader.onerror = () => setError("We couldn't read that file. Try a different one.");
-    reader.onload = () => {
-      setPreviewError(false);
-      onChange(String(reader.result));
-    };
-    reader.readAsDataURL(file);
+    
+    try {
+      const options = {
+        maxSizeMB: maxSizeMB,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
+      };
+      // Skip compression for SVG and GIF to preserve animation/vector
+      const isCompressible = !["image/svg+xml", "image/gif"].includes(file.type);
+      const compressedFile = isCompressible ? await imageCompression(file, options) : file;
+      
+      const reader = new FileReader();
+      reader.onerror = () => setError("We couldn't read that file. Try a different one.");
+      reader.onload = () => {
+        setPreviewError(false);
+        onChange(String(reader.result));
+      };
+      reader.readAsDataURL(compressedFile);
+    } catch (err) {
+      setError("Failed to compress image.");
+    }
   };
 
   return (

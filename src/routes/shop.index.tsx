@@ -45,9 +45,9 @@ function ShopPage() {
       const qs = activeSearch.toLowerCase().trim();
       list = list.filter(
         (p) =>
-          p.name.toLowerCase().includes(qs) ||
-          p.description.toLowerCase().includes(qs) ||
-          p.tagline.toLowerCase().includes(qs),
+          (p.name || "").toLowerCase().includes(qs) ||
+          (p.description || "").toLowerCase().includes(qs) ||
+          (p.tagline || "").toLowerCase().includes(qs),
       );
     }
     if (sort === "price-asc") list.sort((a, b) => a.price - b.price);
@@ -118,15 +118,15 @@ function ShopPage() {
                     </h3>
                   </Link>
                   <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground sm:mt-1 sm:text-sm">
-                    {p.tagline}.
+                    {p.tagline || p.description || ""}
                   </p>
                   <div className="mt-3 flex items-center justify-between sm:mt-4">
                     <div>
                       <span className="font-display text-sm font-bold text-primary sm:text-base lg:text-xl">
-                        {p.price.toFixed(2)} DA
+                        {(p.price || 0).toFixed(2)} DA
                       </span>
                       <span className="ms-1 text-[10px] text-muted-foreground sm:text-xs">
-                        /{p.unit.split(" ")[0]}
+                        /{p.unit ? p.unit.split(" ")[0] : "unit"}
                       </span>
                     </div>
                     <button
