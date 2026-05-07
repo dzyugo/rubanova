@@ -28,3 +28,8 @@ export function serializeProductImages(images: string[]): string {
 export function primaryProductImage(image: string | null | undefined): string {
   return parseProductImages(image)[0] || "";
 }
+
+export function featuredProductImage(image: string | null | undefined): string {
+  const parsed = parseProductImages(image);
+  return parsed[1] || parsed[0] || "";
+}

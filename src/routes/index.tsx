@@ -7,7 +7,7 @@ import { useBanners } from "@/store/banners";
 import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
-import { primaryProductImage } from "@/lib/product-images";
+import { primaryProductImage, featuredProductImage } from "@/lib/product-images";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -173,7 +173,7 @@ function HomePage() {
               className="group relative overflow-hidden rounded-2xl bg-card sm:rounded-3xl lg:row-span-2 lg:col-span-2"
             >
               <img
-                src={primaryProductImage(big.image)}
+                src={featuredProductImage(big.image)}
                 alt={big.name}
                 className="aspect-[4/3] w-full object-cover transition duration-700 group-hover:scale-105 sm:aspect-square lg:aspect-auto lg:h-full"
                 loading="lazy"
@@ -211,7 +211,7 @@ function HomePage() {
                   className="block overflow-hidden rounded-xl"
                 >
                   <img
-                    src={primaryProductImage(prod.image)}
+                    src={featuredProductImage(prod.image)}
                     alt={prod.name}
                     className="aspect-square w-full object-cover transition duration-500 hover:scale-105"
                     loading="lazy"

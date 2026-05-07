@@ -1150,16 +1150,57 @@ function ProductEditModal({
               {images.map((img, i) => (
                 <div
                   key={i}
-                  className="group relative aspect-square w-20 overflow-hidden rounded-xl border border-border"
+                  className="group relative aspect-square w-24 overflow-hidden rounded-xl border border-border"
                 >
                   <img src={img} alt="" className="size-full object-cover" />
+                  
+                  {/* Badges */}
+                  <div className="absolute top-1 left-1 flex flex-col gap-1 pointer-events-none">
+                    {i === 0 && <span className="rounded bg-background/90 px-1 py-0.5 text-[8px] font-bold uppercase backdrop-blur text-primary shadow-sm">Main</span>}
+                    {i === 1 && <span className="rounded bg-background/90 px-1 py-0.5 text-[8px] font-bold uppercase backdrop-blur text-primary shadow-sm">Home</span>}
+                  </div>
+
                   <button
                     type="button"
                     onClick={() => setImages(images.filter((_, idx) => idx !== i))}
-                    className="absolute right-1 top-1 rounded-full bg-background/80 p-0.5 text-destructive opacity-0 backdrop-blur transition hover:bg-destructive hover:text-destructive-foreground group-hover:opacity-100"
+                    className="absolute right-1 top-1 rounded-full bg-background/90 p-1 text-destructive opacity-0 backdrop-blur transition hover:bg-destructive hover:text-destructive-foreground group-hover:opacity-100 shadow-sm"
                   >
                     <Trash2 className="size-3" />
                   </button>
+
+                  {/* Controls overlay */}
+                  {images.length > 1 && (
+                    <div className="absolute inset-x-0 bottom-0 flex flex-col divide-y divide-border/50 bg-background/90 opacity-0 backdrop-blur transition group-hover:opacity-100">
+                      {i !== 0 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const next = [...images];
+                            const [item] = next.splice(i, 1);
+                            next.unshift(item);
+                            setImages(next);
+                          }}
+                          className="w-full py-1.5 text-[8px] font-bold uppercase text-foreground hover:bg-secondary hover:text-primary"
+                        >
+                          Set Main
+                        </button>
+                      )}
+                      {i !== 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const next = [...images];
+                            const [item] = next.splice(i, 1);
+                            next.splice(1, 0, item);
+                            setImages(next);
+                          }}
+                          className="w-full py-1.5 text-[8px] font-bold uppercase text-foreground hover:bg-secondary hover:text-primary"
+                        >
+                          Set Home
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
