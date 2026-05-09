@@ -3,7 +3,6 @@ import { Leaf, Plus, Mail, ChevronRight, Play, ShoppingCart, Star } from "lucide
 import { useCart } from "@/store/cart";
 import { useCatalog, useMergedProducts } from "@/store/catalog";
 import { useSite } from "@/store/site";
-import { useBanners } from "@/store/banners";
 import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
@@ -30,7 +29,6 @@ function HomePage() {
   const products = useMergedProducts();
   const add = useCart((s) => s.add);
   const loading = useCatalog((s) => s.loading);
-  const activeBanners = useBanners((s) => s.banners).filter((b) => b.status === "Active");
   const { t } = useT();
 
   const featured = products.filter((p) => featuredSlugs.includes(p.slug));
@@ -63,8 +61,7 @@ function HomePage() {
     );
   }
 
-  // Use the first banner image as background, or fallback to heroImageUrl
-  const heroBg = activeBanners[0]?.imageUrl || settings.heroImageUrl || "/images/hero-produce.jpg";
+  const heroBg = settings.heroImageUrl || "/images/hero-produce.jpg";
 
   return (
     <>
@@ -73,7 +70,7 @@ function HomePage() {
         <div className="absolute inset-0 z-0 animate-fade-in">
           <img
             src={heroBg}
-            alt={activeBanners[0]?.title || settings.heroTitle}
+            alt={settings.heroTitle}
             className="size-full object-cover object-center"
             width={1600}
             height={1024}
@@ -88,27 +85,21 @@ function HomePage() {
             </span>
             
             <h1 className="mt-6 font-display text-4xl leading-tight font-bold sm:text-5xl md:text-6xl lg:text-7xl opacity-0 animate-fade-in-up [animation-delay:150ms]">
-              {activeBanners[0] ? (
-                activeBanners[0].title
-              ) : (
-                <>
-                  {settings.heroTitle}
-                  <br />
-                  <span className="text-primary">{settings.heroAccent}</span>
-                </>
-              )}
+              {settings.heroTitle}
+              <br />
+              <span className="text-primary">{settings.heroAccent}</span>
             </h1>
             
             <p className="mt-6 max-w-lg text-sm leading-relaxed text-foreground/90 sm:text-base md:text-lg opacity-0 animate-fade-in-up [animation-delay:300ms]">
-              {activeBanners[0] ? "" : settings.heroSubtitle}
+              {settings.heroSubtitle}
             </p>
             
             <div className="mt-10 flex flex-wrap gap-4 opacity-0 animate-fade-in-up [animation-delay:450ms]">
               <Link
-                to={activeBanners[0]?.link || "/shop"}
+                to="/shop"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-primary-foreground shadow-sm transition hover:opacity-90"
               >
-                {t("home.shopnow")} <ChevronRight className="size-4" />
+                {t("home.shopnow")}
               </Link>
             </div>
           </div>
@@ -119,10 +110,10 @@ function HomePage() {
       <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-24 animate-fade-in-up [animation-delay:200ms]">
         <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-border/50 pb-6">
           <h2 className="font-display text-2xl font-bold sm:text-3xl md:text-4xl">
-            Featured Products
+            {t("home.featured")}
           </h2>
           <Link to="/shop" className="shrink-0 flex items-center gap-1.5 text-sm font-bold text-primary hover:underline">
-            View All Products <ChevronRight className="size-4" />
+            {t("home.viewall")}
           </Link>
         </div>
 

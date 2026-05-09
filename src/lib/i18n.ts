@@ -55,7 +55,7 @@ const dict = {
   // Home page
   "home.shopnow": { en: "Shop Now →", ar: "تسوق الآن ←" },
   "home.ourstory": { en: "Our Story", ar: "قصتنا" },
-  "home.featured": { en: "Featured Harvest", ar: "المحصول المميز" },
+  "home.featured": { en: "Featured Products", ar: "منتجاتنا" },
   "home.featured.sub": {
     en: "Hand-picked by our team — updated weekly.",
     ar: "مختارات فريقنا — تتحدث أسبوعياً.",
@@ -258,7 +258,7 @@ const dict = {
   "contact.sent": { en: "Thanks! We'll be in touch soon.", ar: "شكراً! سنتواصل معك قريباً." },
 
   // Loading
-  loading: { en: "Loading fresh harvest…", ar: "جارٍ تحميل المحصول الطازج…" },
+  loading: { en: "جاري التحميل", ar: "جاري التحميل" },
 
   // 404
   "notfound.title": { en: "Page not found", ar: "الصفحة غير موجودة" },
