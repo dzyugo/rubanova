@@ -1989,10 +1989,14 @@ function SettingsTab() {
 
   useEffect(() => setDraft(settings), [settings]);
 
-  const onSave = (e: React.FormEvent) => {
+  const onSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    update(draft);
-    alert("Site settings saved.");
+    try {
+      await update(draft);
+      toast.success("Site settings saved successfully.");
+    } catch (err) {
+      toast.error("Failed to save site settings. Please try again.");
+    }
   };
 
   const set = <K extends keyof typeof draft>(k: K, v: (typeof draft)[K]) =>

@@ -57,26 +57,28 @@ export const useSite = create<SiteState>()((set, get) => ({
     }
   },
 
-  update: (patch) => {
+  update: async (patch) => {
     set((s) => ({ settings: { ...s.settings, ...patch } }));
     const merged = { ...get().settings, ...patch };
-    supabase
+    const { error } = await supabase
       .from("site_settings")
-      .update({ settings: merged as unknown as Record<string, unknown> })
-      .eq("id", 1)
-      .then(({ error }) => {
-        if (error) reportError(error, { scope: "site-store", action: "supabase-operation" });
-      });
+      .upsert({ id: 1, settings: merged as unknown as Record<string, unknown> });
+    if (error) {
+      console.error("Failed to save site settings:", error);
+      reportError(error, { scope: "site-store", action: "supabase-operation" });
+      throw error;
+    }
   },
 
-  reset: () => {
+  reset: async () => {
     set({ settings: defaults });
-    supabase
+    const { error } = await supabase
       .from("site_settings")
-      .update({ settings: defaults as unknown as Record<string, unknown> })
-      .eq("id", 1)
-      .then(({ error }) => {
-        if (error) reportError(error, { scope: "site-store", action: "supabase-operation" });
-      });
+      .upsert({ id: 1, settings: defaults as unknown as Record<string, unknown> });
+    if (error) {
+      console.error("Failed to reset site settings:", error);
+      reportError(error, { scope: "site-store", action: "supabase-operation" });
+      throw error;
+    }
   },
 }));
