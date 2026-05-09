@@ -1989,13 +1989,20 @@ function SettingsTab() {
 
   useEffect(() => setDraft(settings), [settings]);
 
+  const [isSaving, setIsSaving] = useState(false);
+  const [pendingUploads, setPendingUploads] = useState(0);
+
   const onSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSaving || pendingUploads > 0) return;
+    setIsSaving(true);
     try {
       await update(draft);
       toast.success("Site settings saved successfully.");
     } catch (err) {
       toast.error("Failed to save site settings. Please try again.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -2015,6 +2022,7 @@ function SettingsTab() {
             placeholder="Paste a URL or upload a file"
             previewClass="h-12 w-auto"
             maxSizeMB={1}
+            onUploadingChange={(isUploading) => setPendingUploads((p) => isUploading ? p + 1 : p - 1)}
           />
         </Panel>
 
@@ -2062,6 +2070,7 @@ function SettingsTab() {
             placeholder="Paste a URL or upload a file (leave blank for default)"
             previewClass="aspect-[16/7] w-full rounded-lg object-cover"
             maxSizeMB={3}
+            onUploadingChange={(isUploading) => setPendingUploads((p) => isUploading ? p + 1 : p - 1)}
           />
         </Panel>
 
@@ -2076,9 +2085,10 @@ function SettingsTab() {
         <div className="flex flex-wrap gap-3">
           <button
             type="submit"
-            className="rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:opacity-90"
+            disabled={isSaving || pendingUploads > 0}
+            className="rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Save all settings
+            {isSaving ? "Saving..." : pendingUploads > 0 ? "Uploading..." : "Save all settings"}
           </button>
           <button
             type="button"
@@ -2197,6 +2207,7 @@ function ImageField({
   placeholder,
   previewClass,
   maxSizeMB = 2,
+  onUploadingChange,
 }: {
   label: string;
   value: string;
@@ -2204,9 +2215,11 @@ function ImageField({
   placeholder?: string;
   previewClass?: string;
   maxSizeMB?: number;
+  onUploadingChange?: (isUploading: boolean) => void;
 }) {
   const [error, setError] = useState<string | null>(null);
   const [previewError, setPreviewError] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const onPick = async (file: File | null) => {
     setError(null);
@@ -2227,6 +2240,8 @@ function ImageField({
     }
     
     try {
+      setIsUploading(true);
+      onUploadingChange?.(true);
       const options = {
         maxSizeMB: maxSizeMB,
         maxWidthOrHeight: 1920,
@@ -2245,6 +2260,9 @@ function ImageField({
       reader.readAsDataURL(compressedFile);
     } catch (err) {
       setError("Failed to compress image.");
+    } finally {
+      setIsUploading(false);
+      onUploadingChange?.(false);
     }
   };
 
@@ -2264,10 +2282,11 @@ function ImageField({
           placeholder={placeholder}
           className="min-w-0 flex-1 rounded-lg bg-secondary/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         />
-        <label className="cursor-pointer rounded-full border border-border bg-background px-4 py-2 text-xs font-semibold hover:bg-secondary">
-          Upload
+        <label className={`cursor-pointer rounded-full border border-border bg-background px-4 py-2 text-xs font-semibold hover:bg-secondary ${isUploading ? 'opacity-50' : ''}`}>
+          {isUploading ? "Uploading..." : "Upload"}
           <input
             type="file"
+            disabled={isUploading}
             accept={ALLOWED_IMAGE_TYPES.join(",")}
             className="hidden"
             onChange={(e) => onPick(e.target.files?.[0] ?? null)}
