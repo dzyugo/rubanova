@@ -7,6 +7,7 @@ import { useT } from "@/lib/i18n";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { primaryProductImage, featuredProductImage } from "@/lib/product-images";
+import { useAuth, selectCurrentUser } from "@/store/auth";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
+  const user = useAuth(selectCurrentUser);
   const settings = useSite((s) => s.settings);
   const featuredSlugs = useCatalog((s) => s.featuredSlugs);
   const products = useMergedProducts();
@@ -173,25 +175,27 @@ function HomePage() {
       </section>
 
       {/* Newsletter */}
-      <section className="border-t border-border/50 bg-card/30 animate-fade-in">
-        <div className="mx-auto w-full max-w-2xl px-4 py-16 text-center sm:px-6 sm:py-24">
-          <div className="mx-auto grid size-14 place-items-center rounded-full border border-border bg-background shadow-sm">
-            <Mail className="size-6 text-primary" />
+      {!user && (
+        <section className="border-t border-border/50 bg-card/30 animate-fade-in">
+          <div className="mx-auto w-full max-w-2xl px-4 py-16 text-center sm:px-6 sm:py-24">
+            <div className="mx-auto grid size-14 place-items-center rounded-full border border-border bg-background shadow-sm">
+              <Mail className="size-6 text-primary" />
+            </div>
+            <h2 className="mt-6 font-display text-2xl font-bold sm:text-3xl md:text-4xl">
+              {t("home.newsletter.title", { name: settings.name })}
+            </h2>
+            <div className="mx-auto mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center sm:max-w-md">
+              <Link
+                 to="/account"
+                 search={{ mode: "signup" }}
+                 className="rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-primary-foreground transition hover:opacity-90"
+              >
+                 {t("auth.createaccount")}
+              </Link>
+            </div>
           </div>
-          <h2 className="mt-6 font-display text-2xl font-bold sm:text-3xl md:text-4xl">
-            {t("home.newsletter.title", { name: settings.name })}
-          </h2>
-          <div className="mx-auto mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center sm:max-w-md">
-            <Link
-               to="/account"
-               search={{ mode: "signup" }}
-               className="rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-primary-foreground transition hover:opacity-90"
-            >
-               {t("auth.createaccount")}
-            </Link>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
     </>
   );
 }
