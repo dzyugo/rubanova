@@ -184,6 +184,7 @@ function HomePage() {
           <div className="mx-auto mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center sm:max-w-md">
             <Link
                to="/account"
+               search={{ mode: "signup" }}
                className="rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-primary-foreground transition hover:opacity-90"
             >
                {t("auth.createaccount")}

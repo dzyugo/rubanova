@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { z } from "zod";
 import {
   User,
   MapPin,
@@ -18,6 +19,9 @@ import { useAuth, selectCurrentUser } from "@/store/auth";
 import { useT } from "@/lib/i18n";
 
 export const Route = createFileRoute("/account")({
+  validateSearch: z.object({
+    mode: z.enum(["login", "signup"]).optional(),
+  }),
   component: AccountPage,
 });
 
@@ -35,7 +39,8 @@ function AccountPage() {
 }
 
 function AuthGate() {
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const search = Route.useSearch();
+  const [mode, setMode] = useState<"login" | "signup">(search.mode || "login");
   const [error, setError] = useState<string | null>(null);
   const login = useAuth((s) => s.login);
   const signup = useAuth((s) => s.signup);
