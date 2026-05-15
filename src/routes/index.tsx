@@ -34,21 +34,7 @@ function HomePage() {
   const featured = products.filter((p) => featuredSlugs.includes(p.slug));
   const displayProducts = featured.length > 0 ? featured : products.slice(0, 5);
 
-  const handleNewsletter = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const email = (new FormData(form).get("email") as string)?.trim();
-    if (!email) return;
-    const { error } = await supabase
-      .from("newsletter_subscribers")
-      .upsert({ email }, { onConflict: "email" });
-    if (error) {
-      toast.error("Something went wrong. Please try again.");
-    } else {
-      toast.success(t("home.thanks"));
-      form.reset();
-    }
-  };
+
 
   if (loading) {
     return (
@@ -195,22 +181,14 @@ function HomePage() {
           <h2 className="mt-6 font-display text-2xl font-bold sm:text-3xl md:text-4xl">
             {t("home.newsletter.title", { name: settings.name })}
           </h2>
-          <p className="mt-3 text-sm text-muted-foreground sm:text-base">{t("home.newsletter.sub")}</p>
-          <form
-            onSubmit={handleNewsletter}
-            className="mx-auto mt-8 flex flex-col gap-3 sm:flex-row sm:max-w-md"
-          >
-            <input
-               required
-               name="email"
-               type="email"
-               placeholder="Enter your email"
-               className="flex-1 rounded-full border border-border bg-background px-6 py-3.5 text-sm focus:border-primary focus:outline-none"
-             />
-            <button className="rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-primary-foreground transition hover:opacity-90">
-               Subscribe
-            </button>
-          </form>
+          <div className="mx-auto mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center sm:max-w-md">
+            <Link
+               to="/account"
+               className="rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-primary-foreground transition hover:opacity-90"
+            >
+               {t("auth.createaccount")}
+            </Link>
+          </div>
         </div>
       </section>
     </>

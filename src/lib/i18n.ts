@@ -63,7 +63,7 @@ const dict = {
   "home.viewall": { en: "View all collection →", ar: "← عرض المجموعة الكاملة" },
   "home.addtocart": { en: "Add to Cart", ar: "أضف إلى السلة" },
   "home.featured.badge": { en: "Featured", ar: "مميز" },
-  "home.newsletter.title": { en: "Join the {name} Circle", ar: "انضم إلى دائرة {name}" },
+  "home.newsletter.title": { en: "Join us to {name}", ar: "إنضم إلى {name}" },
   "home.newsletter.sub": {
     en: "Get seasonal recipes, wellness tips, and exclusive early access to our limited harvests delivered to your inbox.",
     ar: "احصل على وصفات موسمية، نصائح صحية، وصول مبكر حصري لمحاصيلنا المحدودة مباشرة إلى بريدك.",
