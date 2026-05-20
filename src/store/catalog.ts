@@ -196,12 +196,16 @@ export const useCatalog = create<CatalogState>()((set, get) => ({
   },
 
   addProduct: (product) => {
-    const slug =
-      product.slug ||
-      product.name
+    let slug = product.slug;
+    if (!slug) {
+      const baseSlug = product.name
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)/g, "");
+      const cleanBase = baseSlug && baseSlug.length >= 2 ? baseSlug : "product";
+      const randomSuffix = Math.random().toString(36).substring(2, 7);
+      slug = `${cleanBase}-${randomSuffix}`;
+    }
     const newProduct = {
       ...product,
       slug,

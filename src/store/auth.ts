@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { reportError } from "@/lib/observability";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { toast } from "sonner";
 
 export type Role = "admin" | "shopper";
 
@@ -104,22 +105,36 @@ export const useAuth = create<AuthState>()((set, get) => ({
   },
 
   updateAccount: (id, patch) => {
+    const prevAccounts = get().accounts;
+    const prevUser = get().user;
+
     // Optimistic local update
     set((s) => ({
       accounts: s.accounts.map((a) => (a.id === id ? { ...a, ...patch } : a)),
       user: s.user?.id === id ? { ...s.user, ...patch } : s.user,
     }));
+
     // Background sync
     const dbPatch: Record<string, string> = {};
-    if (patch.name) dbPatch.name = patch.name;
-    if (patch.email) dbPatch.email = patch.email;
-    if (patch.role) dbPatch.role = patch.role;
+    if (patch.name !== undefined) dbPatch.name = patch.name;
+    if (patch.email !== undefined) dbPatch.email = patch.email;
+    if (patch.role !== undefined) dbPatch.role = patch.role;
+
+    if (!isSupabaseConfigured) {
+      return;
+    }
+
     supabase
       .from("profiles")
       .update(dbPatch)
       .eq("id", id)
       .then(({ error }) => {
-        if (error) reportError(error, { scope: "auth-store", action: "updateAccount" });
+        if (error) {
+          reportError(error, { scope: "auth-store", action: "updateAccount" });
+          // Rollback local state on sync failure
+          set({ accounts: prevAccounts, user: prevUser });
+          toast.error(`Failed to update account: ${error.message}`);
+        }
       });
   },
 
